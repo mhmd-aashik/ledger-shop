@@ -1,12 +1,12 @@
-import { createClient } from '@sanity/client';
-import imageUrlBuilder from '@sanity/image-url';
+import { createClient } from "@sanity/client";
+import imageUrlBuilder from "@sanity/image-url";
 
 // Sanity configuration
 export const client = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'your-project-id',
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
-  useCdn: process.env.NODE_ENV === 'production',
-  apiVersion: '2023-05-03',
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "your-project-id",
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || "production",
+  useCdn: process.env.NODE_ENV === "production",
+  apiVersion: "2023-05-03",
   token: process.env.SANITY_API_TOKEN,
 });
 
@@ -107,5 +107,5 @@ export const queries = {
         url
       }
     }
-  }`
+  }`,
 };

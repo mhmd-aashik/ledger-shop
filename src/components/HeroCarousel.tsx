@@ -9,11 +9,11 @@ interface HeroSlide {
   _id: string;
   title: string;
   subtitle: string;
-  image: {
+  image?: {
     asset: {
       _ref: string;
     };
-  };
+  } | null;
   ctaText: string;
   ctaLink: string;
 }
@@ -25,7 +25,7 @@ const fallbackSlides = [
     subtitle: "Premium leather goods for the discerning individual",
     ctaText: "Shop Collection",
     ctaLink: "/products",
-    image: { asset: { _ref: "image-1" } },
+    image: null, // Will use fallback image
   },
   {
     _id: "2",
@@ -33,7 +33,7 @@ const fallbackSlides = [
     subtitle: "Crafted with precision, designed for life",
     ctaText: "Discover More",
     ctaLink: "/products",
-    image: { asset: { _ref: "image-2" } },
+    image: null, // Will use fallback image
   },
   {
     _id: "3",
@@ -41,7 +41,7 @@ const fallbackSlides = [
     subtitle: "Where tradition meets modern sophistication",
     ctaText: "Explore Now",
     ctaLink: "/products",
-    image: { asset: { _ref: "image-3" } },
+    image: null, // Will use fallback image
   },
 ];
 
@@ -117,7 +117,7 @@ export default function HeroCarousel() {
                 src={
                   slide.image?.asset?._ref
                     ? urlFor(slide.image).width(1920).height(1080).url()
-                    : "/assets/images/leather1.jpg"
+                    : `/assets/images/leather${(index % 3) + 1}.jpg`
                 }
                 alt={slide.title}
                 fill

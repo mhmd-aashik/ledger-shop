@@ -38,6 +38,7 @@ The schemas are already configured in this project. You can:
 ## 6. Content Structure
 
 ### Products
+
 - Name, Price (LKR), Description
 - Category reference
 - Multiple images
@@ -45,9 +46,11 @@ The schemas are already configured in this project. You can:
 - Rating and reviews
 
 ### Categories
+
 - Name, Slug, Description
 
 ### Hero Slides
+
 - Title, Subtitle, CTA text and link
 - Background image
 - Display order

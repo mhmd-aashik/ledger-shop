@@ -12,7 +12,7 @@ interface Product {
   _id: string;
   name: string;
   price: number;
-  images: any[];
+  images: any[] | null;
   category: {
     _id: string;
     name: string;
@@ -39,36 +39,36 @@ export default function ProductGrid() {
         console.error("Error fetching products:", error);
         // Fallback to hardcoded data if Sanity is not configured
         setProducts([
-          {
-            _id: "1",
-            name: "Classic Leather Wallet",
-            price: 450,
-            images: [{ asset: { _ref: "image-1" } }],
-            category: {
-              _id: "cat1",
-              name: "Wallets",
-              slug: { current: "wallets" },
-            },
-            description: "Handcrafted from premium Italian leather",
-            slug: { current: "classic-leather-wallet" },
-            inStock: true,
-            featured: true,
-          },
-          {
-            _id: "2",
-            name: "Minimalist Cardholder",
-            price: 280,
-            images: [{ asset: { _ref: "image-2" } }],
-            category: {
-              _id: "cat2",
-              name: "Cardholders",
-              slug: { current: "cardholders" },
-            },
-            description: "Sleek design for the modern professional",
-            slug: { current: "minimalist-cardholder" },
-            inStock: true,
-            featured: false,
-          },
+           {
+             _id: "1",
+             name: "Classic Leather Wallet",
+             price: 450,
+             images: null,
+             category: {
+               _id: "cat1",
+               name: "Wallets",
+               slug: { current: "wallets" },
+             },
+             description: "Handcrafted from premium Italian leather",
+             slug: { current: "classic-leather-wallet" },
+             inStock: true,
+             featured: true,
+           },
+           {
+             _id: "2",
+             name: "Minimalist Cardholder",
+             price: 280,
+             images: null,
+             category: {
+               _id: "cat2",
+               name: "Cardholders",
+               slug: { current: "cardholders" },
+             },
+             description: "Sleek design for the modern professional",
+             slug: { current: "minimalist-cardholder" },
+             inStock: true,
+             featured: false,
+           },
         ]);
       } finally {
         setLoading(false);
@@ -116,16 +116,16 @@ export default function ProductGrid() {
             >
               {/* Product Image */}
               <div className="relative aspect-square overflow-hidden">
-                <Image
-                  src={
-                    product.images?.[0]
-                      ? urlFor(product.images[0]).width(400).height(400).url()
-                      : "/assets/images/leather1.jpg"
-                  }
-                  alt={product.name}
-                  fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-110"
-                />
+                  <Image
+                    src={
+                      product.images?.[0]?.asset?._ref
+                        ? urlFor(product.images[0]).width(400).height(400).url()
+                        : `/assets/images/leather${(parseInt(product._id) % 8) + 1}.jpg`
+                    }
+                    alt={product.name}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
 
                 {/* Overlay with actions */}
                 <div
@@ -135,17 +135,17 @@ export default function ProductGrid() {
                 >
                   <button
                     onClick={() => {
-                      const added = addToCart({
-                        id: product._id,
-                        name: product.name,
-                        price: product.price,
-                        image: product.images?.[0]
-                          ? urlFor(product.images[0])
-                              .width(400)
-                              .height(400)
-                              .url()
-                          : "/assets/images/leather1.jpg",
-                      });
+                        const added = addToCart({
+                          id: product._id,
+                          name: product.name,
+                          price: product.price,
+                          image: product.images?.[0]?.asset?._ref
+                            ? urlFor(product.images[0])
+                                .width(400)
+                                .height(400)
+                                .url()
+                            : `/assets/images/leather${(parseInt(product._id) % 8) + 1}.jpg`,
+                        });
                       if (added) {
                         toast.success(`${product.name} added to cart!`);
                       } else {
