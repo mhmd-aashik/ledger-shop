@@ -176,7 +176,7 @@ export default function ProductDetail() {
                 </div>
 
                 <div className="text-3xl font-bold text-foreground mb-6">
-                  {product.price} QAR
+                  {product.price} LKR
                 </div>
               </div>
 
@@ -233,12 +233,15 @@ export default function ProductDetail() {
                 <div className="flex space-x-4">
                   <button
                     onClick={() => {
-                      addToCartWithQuantity({
-                        id: product.id,
-                        name: product.name,
-                        price: product.price,
-                        image: product.images[0],
-                      }, quantity);
+                      addToCartWithQuantity(
+                        {
+                          id: product.id,
+                          name: product.name,
+                          price: product.price,
+                          image: product.images[0],
+                        },
+                        quantity
+                      );
                       toast.success(
                         `${quantity} x ${product.name} added to cart!`
                       );

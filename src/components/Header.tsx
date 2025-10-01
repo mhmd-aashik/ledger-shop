@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ShoppingBag, Menu, X } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
+import Image from "next/image";
+import logo from "../../public/assets/logos/logo.png";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -39,12 +41,10 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 group">
             <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
-              <span className="text-primary-foreground font-serif text-xl font-bold">
-                L
-              </span>
+              <Image src={logo || ""} alt="Logo" width={40} height={40} />
             </div>
             <span className="font-serif text-xl lg:text-2xl font-bold text-foreground">
-              LeadHer Shop
+              Heritano
             </span>
           </Link>
 

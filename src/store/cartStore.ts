@@ -14,7 +14,10 @@ export interface CartItem {
 interface CartStore {
   items: CartItem[];
   addToCart: (item: Omit<CartItem, "quantity">) => boolean;
-  addToCartWithQuantity: (item: Omit<CartItem, "quantity">, quantity: number) => void;
+  addToCartWithQuantity: (
+    item: Omit<CartItem, "quantity">,
+    quantity: number
+  ) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;

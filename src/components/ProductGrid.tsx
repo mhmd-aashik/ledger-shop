@@ -125,13 +125,13 @@ export default function ProductGrid() {
                     hoveredProduct === product.id ? "opacity-100" : "opacity-0"
                   }`}
                 >
-                  <button 
+                  <button
                     onClick={() => {
                       const added = addToCart({
                         id: product.id,
                         name: product.name,
                         price: product.price,
-                        image: product.image
+                        image: product.image,
                       });
                       if (added) {
                         toast.success(`${product.name} added to cart!`);
@@ -164,7 +164,7 @@ export default function ProductGrid() {
                 </p>
                 <div className="flex items-center justify-between">
                   <span className="text-2xl font-bold text-foreground">
-                    {product.price} QAR
+                    {product.price} LKR
                   </span>
                   <Link
                     href={`/products/${product.id}`}

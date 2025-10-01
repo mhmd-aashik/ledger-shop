@@ -82,7 +82,7 @@ export default function Cart() {
                           </p>
                         )}
                         <p className="text-xl font-bold text-foreground">
-                          {item.price} QAR
+                          {item.price} LKR
                         </p>
                       </div>
 
@@ -131,23 +131,23 @@ export default function Cart() {
                   <div className="space-y-4 mb-6">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Subtotal</span>
-                      <span className="font-medium">{subtotal} QAR</span>
+                      <span className="font-medium">{subtotal} LKR</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Shipping</span>
                       <span className="font-medium">
-                        {shipping === 0 ? "Free" : `${shipping} QAR`}
+                        {shipping === 0 ? "Free" : `${shipping} LKR`}
                       </span>
                     </div>
                     {shipping > 0 && (
                       <p className="text-xs text-muted-foreground">
-                        Free shipping on orders over 500 QAR
+                        Free shipping on orders over 500 LKR
                       </p>
                     )}
                     <div className="border-t border-border pt-4">
                       <div className="flex justify-between text-lg font-semibold">
                         <span>Total</span>
-                        <span>{total} QAR</span>
+                        <span>{total} LKR</span>
                       </div>
                     </div>
                   </div>
