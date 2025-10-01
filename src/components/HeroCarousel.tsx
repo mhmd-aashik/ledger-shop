@@ -3,47 +3,82 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { client, queries, urlFor } from "@/lib/sanity";
 
-const heroSlides = [
+interface HeroSlide {
+  _id: string;
+  title: string;
+  subtitle: string;
+  image: {
+    asset: {
+      _ref: string;
+    };
+  };
+  ctaText: string;
+  ctaLink: string;
+}
+
+const fallbackSlides = [
   {
-    id: 1,
-    image: "/assets/images/leather1.jpg",
+    _id: "1",
     title: "Handcrafted Elegance",
     subtitle: "Premium leather goods for the discerning individual",
-    cta: "Shop Collection",
+    ctaText: "Shop Collection",
     ctaLink: "/products",
+    image: { asset: { _ref: "image-1" } },
   },
   {
-    id: 2,
-    image: "/assets/images/leather2.jpg",
+    _id: "2",
     title: "Timeless Quality",
     subtitle: "Crafted with precision, designed for life",
-    cta: "Discover More",
+    ctaText: "Discover More",
     ctaLink: "/products",
+    image: { asset: { _ref: "image-2" } },
   },
   {
-    id: 3,
-    image: "/assets/images/leather3.jpg",
+    _id: "3",
     title: "Luxury Redefined",
     subtitle: "Where tradition meets modern sophistication",
-    cta: "Explore Now",
+    ctaText: "Explore Now",
     ctaLink: "/products",
+    image: { asset: { _ref: "image-3" } },
   },
 ];
 
 export default function HeroCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(fallbackSlides);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isAutoPlaying) return;
+    const fetchHeroData = async () => {
+      try {
+        const data = await client.fetch(queries.heroSlides);
+        if (data && data.length > 0) {
+          setHeroSlides(data);
+        }
+      } catch (error) {
+        console.error("Error fetching hero data:", error);
+        // Use fallback data
+        setHeroSlides(fallbackSlides);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHeroData();
+  }, []);
+
+  useEffect(() => {
+    if (!isAutoPlaying || heroSlides.length <= 1) return;
 
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [isAutoPlaying]);
+  }, [isAutoPlaying, heroSlides.length]);
 
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
@@ -71,7 +106,7 @@ export default function HeroCarousel() {
       <div className="relative w-full h-full">
         {heroSlides.map((slide, index) => (
           <div
-            key={slide.id}
+            key={slide._id}
             className={`absolute inset-0 transition-opacity duration-1000 ${
               index === currentSlide ? "opacity-100" : "opacity-0"
             }`}
@@ -79,7 +114,11 @@ export default function HeroCarousel() {
             {/* Background Image */}
             <div className="absolute inset-0">
               <Image
-                src={slide.image}
+                src={
+                  slide.image?.asset?._ref
+                    ? urlFor(slide.image).width(1920).height(1080).url()
+                    : "/assets/images/leather1.jpg"
+                }
                 alt={slide.title}
                 fill
                 className="object-cover"
@@ -100,7 +139,7 @@ export default function HeroCarousel() {
                     {slide.subtitle}
                   </p>
                   <button className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-4 rounded-lg font-medium text-lg transition-all duration-300 hover:scale-105 shadow-lg">
-                    {slide.cta}
+                    {slide.ctaText}
                   </button>
                 </div>
               </div>

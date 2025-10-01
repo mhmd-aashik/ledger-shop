@@ -3,89 +3,93 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ShoppingBag, Heart } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCartStore } from "@/store/cartStore";
 import toast from "react-hot-toast";
+import { client, queries, urlFor } from "../../lib/sanity";
 
 interface Product {
-  id: string;
+  _id: string;
   name: string;
   price: number;
-  image: string;
-  category: string;
+  images: any[];
+  category: {
+    _id: string;
+    name: string;
+    slug: { current: string };
+  };
   description: string;
+  slug: { current: string };
+  inStock: boolean;
+  featured: boolean;
 }
-
-const products: Product[] = [
-  {
-    id: "1",
-    name: "Classic Leather Wallet",
-    price: 450,
-    image: "/assets/images/leather1.jpg",
-    category: "Wallets",
-    description: "Handcrafted from premium Italian leather",
-  },
-  {
-    id: "2",
-    name: "Minimalist Cardholder",
-    price: 280,
-    image: "/assets/images/leather2.jpg",
-    category: "Cardholders",
-    description: "Sleek design for the modern professional",
-  },
-  {
-    id: "3",
-    name: "Executive Briefcase",
-    price: 1200,
-    image: "/assets/images/leather3.jpg",
-    category: "Accessories",
-    description: "Professional elegance meets functionality",
-  },
-  {
-    id: "4",
-    name: "Vintage Leather Belt",
-    price: 320,
-    image: "/assets/images/leather4.jpg",
-    category: "Accessories",
-    description: "Timeless style with contemporary comfort",
-  },
-  {
-    id: "5",
-    name: "Luxury Key Holder",
-    price: 180,
-    image: "/assets/images/leather5.jpg",
-    category: "Accessories",
-    description: "Keep your keys organized in style",
-  },
-  {
-    id: "6",
-    name: "Premium Watch Strap",
-    price: 220,
-    image: "/assets/images/leather6.jpg",
-    category: "Accessories",
-    description: "Hand-stitched for ultimate comfort",
-  },
-  {
-    id: "7",
-    name: "Business Card Holder",
-    price: 150,
-    image: "/assets/images/leather7.jpg",
-    category: "Accessories",
-    description: "Make a lasting first impression",
-  },
-  {
-    id: "8",
-    name: "Travel Wallet",
-    price: 380,
-    image: "/assets/images/leather8.jpg",
-    category: "Wallets",
-    description: "Perfect companion for your journeys",
-  },
-];
 
 export default function ProductGrid() {
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const { addToCart } = useCartStore();
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const data = await client.fetch(queries.allProducts);
+        setProducts(data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+        // Fallback to hardcoded data if Sanity is not configured
+        setProducts([
+          {
+            _id: "1",
+            name: "Classic Leather Wallet",
+            price: 450,
+            images: [{ asset: { _ref: "image-1" } }],
+            category: {
+              _id: "cat1",
+              name: "Wallets",
+              slug: { current: "wallets" },
+            },
+            description: "Handcrafted from premium Italian leather",
+            slug: { current: "classic-leather-wallet" },
+            inStock: true,
+            featured: true,
+          },
+          {
+            _id: "2",
+            name: "Minimalist Cardholder",
+            price: 280,
+            images: [{ asset: { _ref: "image-2" } }],
+            category: {
+              _id: "cat2",
+              name: "Cardholders",
+              slug: { current: "cardholders" },
+            },
+            description: "Sleek design for the modern professional",
+            slug: { current: "minimalist-cardholder" },
+            inStock: true,
+            featured: false,
+          },
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="py-16 lg:py-24 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-4 text-muted-foreground">Loading products...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-16 lg:py-24 bg-background">
@@ -105,15 +109,19 @@ export default function ProductGrid() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {products.map((product) => (
             <div
-              key={product.id}
+              key={product._id}
               className="group leather-card rounded-xl overflow-hidden hover-zoom relative"
-              onMouseEnter={() => setHoveredProduct(product.id)}
+              onMouseEnter={() => setHoveredProduct(product._id)}
               onMouseLeave={() => setHoveredProduct(null)}
             >
               {/* Product Image */}
               <div className="relative aspect-square overflow-hidden">
                 <Image
-                  src={product.image}
+                  src={
+                    product.images?.[0]
+                      ? urlFor(product.images[0]).width(400).height(400).url()
+                      : "/assets/images/leather1.jpg"
+                  }
                   alt={product.name}
                   fill
                   className="object-cover transition-transform duration-500 group-hover:scale-110"
@@ -122,16 +130,21 @@ export default function ProductGrid() {
                 {/* Overlay with actions */}
                 <div
                   className={`absolute inset-0 bg-black/40 flex items-center justify-center gap-4 transition-opacity duration-300 ${
-                    hoveredProduct === product.id ? "opacity-100" : "opacity-0"
+                    hoveredProduct === product._id ? "opacity-100" : "opacity-0"
                   }`}
                 >
                   <button
                     onClick={() => {
                       const added = addToCart({
-                        id: product.id,
+                        id: product._id,
                         name: product.name,
                         price: product.price,
-                        image: product.image,
+                        image: product.images?.[0]
+                          ? urlFor(product.images[0])
+                              .width(400)
+                              .height(400)
+                              .url()
+                          : "/assets/images/leather1.jpg",
                       });
                       if (added) {
                         toast.success(`${product.name} added to cart!`);
@@ -153,11 +166,15 @@ export default function ProductGrid() {
               <div className="p-6">
                 <div className="mb-2">
                   <span className="text-sm text-muted-foreground uppercase tracking-wide">
-                    {product.category}
+                    {product.category?.name}
                   </span>
                 </div>
                 <h3 className="text-xl font-serif font-semibold text-foreground mb-2 group-hover:text-accent transition-colors duration-200">
-                  <Link href={`/products/${product.id}`}>{product.name}</Link>
+                  <Link
+                    href={`/products/${product.slug?.current || product._id}`}
+                  >
+                    {product.name}
+                  </Link>
                 </h3>
                 <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
                   {product.description}
@@ -167,7 +184,7 @@ export default function ProductGrid() {
                     {product.price} LKR
                   </span>
                   <Link
-                    href={`/products/${product.id}`}
+                    href={`/products/${product.slug?.current || product._id}`}
                     className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 inline-block"
                   >
                     View Details
