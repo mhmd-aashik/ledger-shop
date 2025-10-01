@@ -1,12 +1,12 @@
-import Header from '@/components/Header';
-import ProductGrid from '@/components/ProductGrid';
-import Footer from '@/components/Footer';
+import Header from "@/components/Header";
+import ProductGrid from "@/components/ProductGrid";
+import Footer from "@/components/Footer";
 
 export default function Products() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="pt-16 lg:pt-20">
         {/* Hero Section */}
         <section className="bg-leather-gradient py-16">
@@ -15,8 +15,8 @@ export default function Products() {
               Our Products
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Discover our complete collection of premium leather goods, 
-              each piece crafted with attention to detail and timeless elegance.
+              Discover our complete collection of premium leather goods, each
+              piece crafted with attention to detail and timeless elegance.
             </p>
           </div>
         </section>

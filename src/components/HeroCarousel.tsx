@@ -97,7 +97,7 @@ export default function HeroCarousel() {
                   <p className="text-xl md:text-2xl text-white/90 mb-8 font-light">
                     {slide.subtitle}
                   </p>
-                  <button className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-4 rounded-lg font-medium text-lg transition-all duration-300 hover:scale-105 luxury-shadow">
+                  <button className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-4 rounded-lg font-medium text-lg transition-all duration-300 hover:scale-105 shadow-lg">
                     {slide.cta}
                   </button>
                 </div>

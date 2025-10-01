@@ -1,12 +1,12 @@
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import Image from 'next/image';
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import Image from "next/image";
 
 export default function About() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="pt-16 lg:pt-20">
         {/* Hero Section */}
         <section className="relative h-96 overflow-hidden">
@@ -25,7 +25,8 @@ export default function About() {
                 Our Story
               </h1>
               <p className="text-xl text-white/90 max-w-2xl">
-                Crafting luxury leather goods with timeless elegance and uncompromising quality
+                Crafting luxury leather goods with timeless elegance and
+                uncompromising quality
               </p>
             </div>
           </div>
@@ -41,14 +42,16 @@ export default function About() {
                   Our Mission
                 </h2>
                 <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-                  At LeadHer Shop, we believe that luxury is not just about the final product, 
-                  but about the journey of creation. Each piece in our collection is handcrafted 
-                  by master artisans who have dedicated their lives to perfecting the art of leather work.
+                  At LeadHer Shop, we believe that luxury is not just about the
+                  final product, but about the journey of creation. Each piece
+                  in our collection is handcrafted by master artisans who have
+                  dedicated their lives to perfecting the art of leather work.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  We source only the finest Italian leather and use traditional techniques 
-                  passed down through generations, ensuring that every wallet, cardholder, 
-                  and accessory meets our exacting standards of quality and beauty.
+                  We source only the finest Italian leather and use traditional
+                  techniques passed down through generations, ensuring that
+                  every wallet, cardholder, and accessory meets our exacting
+                  standards of quality and beauty.
                 </p>
               </div>
               <div className="relative aspect-square overflow-hidden rounded-xl leather-card">
@@ -78,22 +81,29 @@ export default function About() {
                   Traditional Craftsmanship
                 </h2>
                 <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-                  Our artisans employ time-honored techniques that have been refined over centuries. 
-                  From the careful selection of leather hides to the precise hand-stitching of seams, 
-                  every step is performed with meticulous attention to detail.
+                  Our artisans employ time-honored techniques that have been
+                  refined over centuries. From the careful selection of leather
+                  hides to the precise hand-stitching of seams, every step is
+                  performed with meticulous attention to detail.
                 </p>
                 <ul className="space-y-3">
                   <li className="flex items-start space-x-3">
                     <div className="w-2 h-2 bg-accent rounded-full mt-2 flex-shrink-0" />
-                    <span className="text-muted-foreground">Hand-selected premium Italian leather</span>
+                    <span className="text-muted-foreground">
+                      Hand-selected premium Italian leather
+                    </span>
                   </li>
                   <li className="flex items-start space-x-3">
                     <div className="w-2 h-2 bg-accent rounded-full mt-2 flex-shrink-0" />
-                    <span className="text-muted-foreground">Traditional hand-stitching techniques</span>
+                    <span className="text-muted-foreground">
+                      Traditional hand-stitching techniques
+                    </span>
                   </li>
                   <li className="flex items-start space-x-3">
                     <div className="w-2 h-2 bg-accent rounded-full mt-2 flex-shrink-0" />
-                    <span className="text-muted-foreground">Lifetime craftsmanship guarantee</span>
+                    <span className="text-muted-foreground">
+                      Lifetime craftsmanship guarantee
+                    </span>
                   </li>
                 </ul>
               </div>
@@ -107,10 +117,11 @@ export default function About() {
                 Sustainability & Ethics
               </h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-                We are committed to responsible sourcing and sustainable practices throughout our supply chain.
+                We are committed to responsible sourcing and sustainable
+                practices throughout our supply chain.
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="text-center">
                 <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -120,10 +131,11 @@ export default function About() {
                   Eco-Friendly Materials
                 </h3>
                 <p className="text-muted-foreground">
-                  We use only sustainably sourced leather and environmentally friendly tanning processes.
+                  We use only sustainably sourced leather and environmentally
+                  friendly tanning processes.
                 </p>
               </div>
-              
+
               <div className="text-center">
                 <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-2xl">👥</span>
@@ -132,10 +144,11 @@ export default function About() {
                   Fair Trade
                 </h3>
                 <p className="text-muted-foreground">
-                  Our artisans are paid fair wages and work in safe, comfortable conditions.
+                  Our artisans are paid fair wages and work in safe, comfortable
+                  conditions.
                 </p>
               </div>
-              
+
               <div className="text-center">
                 <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-2xl">♻️</span>
@@ -144,7 +157,8 @@ export default function About() {
                   Longevity
                 </h3>
                 <p className="text-muted-foreground">
-                  Our products are built to last, reducing the need for frequent replacements.
+                  Our products are built to last, reducing the need for frequent
+                  replacements.
                 </p>
               </div>
             </div>

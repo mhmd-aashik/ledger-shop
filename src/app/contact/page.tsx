@@ -1,35 +1,37 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react';
+import { useState } from "react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle form submission
-    console.log('Form submitted:', formData);
+    console.log("Form submitted:", formData);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="pt-16 lg:pt-20">
         {/* Hero Section */}
         <section className="bg-leather-gradient py-16">
@@ -38,7 +40,8 @@ export default function Contact() {
               Get in Touch
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+              We'd love to hear from you. Send us a message and we'll respond as
+              soon as possible.
             </p>
           </div>
         </section>
@@ -52,7 +55,8 @@ export default function Contact() {
                   Contact Information
                 </h2>
                 <p className="text-lg text-muted-foreground mb-8">
-                  Reach out to us through any of the following channels. We're here to help!
+                  Reach out to us through any of the following channels. We're
+                  here to help!
                 </p>
               </div>
 
@@ -62,9 +66,15 @@ export default function Contact() {
                     <Mail className="w-6 h-6 text-accent" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-foreground mb-1">Email</h3>
-                    <p className="text-muted-foreground mb-1">info@leadhershop.com</p>
-                    <p className="text-sm text-muted-foreground">We'll respond within 24 hours</p>
+                    <h3 className="text-lg font-semibold text-foreground mb-1">
+                      Email
+                    </h3>
+                    <p className="text-muted-foreground mb-1">
+                      info@leadhershop.com
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      We'll respond within 24 hours
+                    </p>
                   </div>
                 </div>
 
@@ -73,9 +83,13 @@ export default function Contact() {
                     <Phone className="w-6 h-6 text-accent" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-foreground mb-1">Phone</h3>
+                    <h3 className="text-lg font-semibold text-foreground mb-1">
+                      Phone
+                    </h3>
                     <p className="text-muted-foreground mb-1">+974 1234 5678</p>
-                    <p className="text-sm text-muted-foreground">Mon-Fri 9AM-6PM (Qatar Time)</p>
+                    <p className="text-sm text-muted-foreground">
+                      Mon-Fri 9AM-6PM (Qatar Time)
+                    </p>
                   </div>
                 </div>
 
@@ -84,12 +98,17 @@ export default function Contact() {
                     <MapPin className="w-6 h-6 text-accent" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-foreground mb-1">Address</h3>
+                    <h3 className="text-lg font-semibold text-foreground mb-1">
+                      Address
+                    </h3>
                     <p className="text-muted-foreground mb-1">
-                      Souq Waqif, Doha<br />
+                      Souq Waqif, Doha
+                      <br />
                       Qatar
                     </p>
-                    <p className="text-sm text-muted-foreground">Visit our showroom</p>
+                    <p className="text-sm text-muted-foreground">
+                      Visit our showroom
+                    </p>
                   </div>
                 </div>
 
@@ -98,10 +117,14 @@ export default function Contact() {
                     <Clock className="w-6 h-6 text-accent" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-foreground mb-1">Business Hours</h3>
+                    <h3 className="text-lg font-semibold text-foreground mb-1">
+                      Business Hours
+                    </h3>
                     <p className="text-muted-foreground mb-1">
-                      Monday - Friday: 9:00 AM - 6:00 PM<br />
-                      Saturday: 10:00 AM - 4:00 PM<br />
+                      Monday - Friday: 9:00 AM - 6:00 PM
+                      <br />
+                      Saturday: 10:00 AM - 4:00 PM
+                      <br />
                       Sunday: Closed
                     </p>
                   </div>
@@ -110,15 +133,18 @@ export default function Contact() {
             </div>
 
             {/* Contact Form */}
-            <div className="leather-card rounded-xl p-8">
+            <div className="leather-card rounded-xl p-8 relative">
               <h2 className="text-2xl font-serif font-bold text-foreground mb-6">
                 Send us a Message
               </h2>
-              
+
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
+                    <label
+                      htmlFor="name"
+                      className="block text-sm font-medium text-foreground mb-2"
+                    >
                       Name *
                     </label>
                     <input
@@ -132,9 +158,12 @@ export default function Contact() {
                       placeholder="Your full name"
                     />
                   </div>
-                  
+
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
+                    <label
+                      htmlFor="email"
+                      className="block text-sm font-medium text-foreground mb-2"
+                    >
                       Email *
                     </label>
                     <input
@@ -151,7 +180,10 @@ export default function Contact() {
                 </div>
 
                 <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-foreground mb-2">
+                  <label
+                    htmlFor="subject"
+                    className="block text-sm font-medium text-foreground mb-2"
+                  >
                     Subject *
                   </label>
                   <input
@@ -167,7 +199,10 @@ export default function Contact() {
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-foreground mb-2">
+                  <label
+                    htmlFor="message"
+                    className="block text-sm font-medium text-foreground mb-2"
+                  >
                     Message *
                   </label>
                   <textarea

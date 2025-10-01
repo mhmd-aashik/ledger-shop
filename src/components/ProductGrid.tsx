@@ -103,7 +103,7 @@ export default function ProductGrid() {
           {products.map((product) => (
             <div
               key={product.id}
-              className="group leather-card rounded-xl overflow-hidden hover-zoom"
+              className="group leather-card rounded-xl overflow-hidden hover-zoom relative"
               onMouseEnter={() => setHoveredProduct(product.id)}
               onMouseLeave={() => setHoveredProduct(null)}
             >
@@ -162,7 +162,7 @@ export default function ProductGrid() {
 
         {/* Call to Action */}
         <div className="text-center mt-16">
-          <button className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground px-8 py-4 rounded-lg font-medium text-lg transition-all duration-300 hover:scale-105 luxury-shadow">
+          <button className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground px-8 py-4 rounded-lg font-medium text-lg transition-all duration-300 hover:scale-105 shadow-lg">
             Shop the Collection
           </button>
         </div>

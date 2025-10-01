@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { Minus, Plus, Trash2, ArrowLeft, ShoppingBag } from 'lucide-react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { Minus, Plus, Trash2, ArrowLeft, ShoppingBag } from "lucide-react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 interface CartItem {
   id: string;
@@ -19,21 +19,21 @@ interface CartItem {
 
 const cartItems: CartItem[] = [
   {
-    id: '1',
-    name: 'Classic Leather Wallet',
+    id: "1",
+    name: "Classic Leather Wallet",
     price: 450,
-    image: '/assets/images/leather1.jpg',
+    image: "/assets/images/leather1.jpg",
     quantity: 1,
-    color: 'Brown'
+    color: "Brown",
   },
   {
-    id: '2',
-    name: 'Minimalist Cardholder',
+    id: "2",
+    name: "Minimalist Cardholder",
     price: 280,
-    image: '/assets/images/leather2.jpg',
+    image: "/assets/images/leather2.jpg",
     quantity: 2,
-    color: 'Black'
-  }
+    color: "Black",
+  },
 ];
 
 export default function Cart() {
@@ -44,29 +44,34 @@ export default function Cart() {
       removeItem(id);
       return;
     }
-    setItems(items.map(item => 
-      item.id === id ? { ...item, quantity: newQuantity } : item
-    ));
+    setItems(
+      items.map((item) =>
+        item.id === id ? { ...item, quantity: newQuantity } : item
+      )
+    );
   };
 
   const removeItem = (id: string) => {
-    setItems(items.filter(item => item.id !== id));
+    setItems(items.filter((item) => item.id !== id));
   };
 
-  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const subtotal = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
   const shipping = subtotal > 500 ? 0 : 50;
   const total = subtotal + shipping;
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="pt-16 lg:pt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
           <div className="mb-8">
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors duration-200 mb-4"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -99,7 +104,7 @@ export default function Cart() {
               {/* Cart Items */}
               <div className="lg:col-span-2 space-y-6">
                 {items.map((item) => (
-                  <div key={item.id} className="leather-card rounded-xl p-6">
+                  <div key={item.id} className="leather-card rounded-xl p-6 relative">
                     <div className="flex items-center space-x-4">
                       {/* Product Image */}
                       <div className="w-24 h-24 relative overflow-hidden rounded-lg flex-shrink-0">
@@ -129,7 +134,9 @@ export default function Cart() {
                       {/* Quantity Controls */}
                       <div className="flex items-center space-x-3">
                         <button
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity - 1)
+                          }
                           className="w-8 h-8 border border-border rounded-lg flex items-center justify-center hover:bg-muted transition-colors duration-200"
                         >
                           <Minus className="w-4 h-4" />
@@ -138,7 +145,9 @@ export default function Cart() {
                           {item.quantity}
                         </span>
                         <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity + 1)
+                          }
                           className="w-8 h-8 border border-border rounded-lg flex items-center justify-center hover:bg-muted transition-colors duration-200"
                         >
                           <Plus className="w-4 h-4" />
@@ -163,7 +172,7 @@ export default function Cart() {
                   <h2 className="text-xl font-serif font-semibold text-foreground mb-6">
                     Order Summary
                   </h2>
-                  
+
                   <div className="space-y-4 mb-6">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Subtotal</span>
@@ -172,7 +181,7 @@ export default function Cart() {
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Shipping</span>
                       <span className="font-medium">
-                        {shipping === 0 ? 'Free' : `${shipping} QAR`}
+                        {shipping === 0 ? "Free" : `${shipping} QAR`}
                       </span>
                     </div>
                     {shipping > 0 && (
@@ -191,7 +200,7 @@ export default function Cart() {
                   <button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-4 px-6 rounded-lg font-medium transition-colors duration-200 mb-4">
                     Proceed to Checkout
                   </button>
-                  
+
                   <p className="text-xs text-muted-foreground text-center">
                     Secure checkout with SSL encryption
                   </p>
