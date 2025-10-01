@@ -1,64 +1,16 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Minus, Plus, Trash2, ArrowLeft, ShoppingBag } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  quantity: number;
-  size?: string;
-  color?: string;
-}
-
-const cartItems: CartItem[] = [
-  {
-    id: "1",
-    name: "Classic Leather Wallet",
-    price: 450,
-    image: "/assets/images/leather1.jpg",
-    quantity: 1,
-    color: "Brown",
-  },
-  {
-    id: "2",
-    name: "Minimalist Cardholder",
-    price: 280,
-    image: "/assets/images/leather2.jpg",
-    quantity: 2,
-    color: "Black",
-  },
-];
+import { useCartStore } from "@/store/cartStore";
 
 export default function Cart() {
-  const [items, setItems] = useState<CartItem[]>(cartItems);
+  const { items, updateQuantity, removeFromCart, getTotalPrice } = useCartStore();
 
-  const updateQuantity = (id: string, newQuantity: number) => {
-    if (newQuantity <= 0) {
-      removeItem(id);
-      return;
-    }
-    setItems(
-      items.map((item) =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
-    );
-  };
-
-  const removeItem = (id: string) => {
-    setItems(items.filter((item) => item.id !== id));
-  };
-
-  const subtotal = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const subtotal = getTotalPrice();
   const shipping = subtotal > 500 ? 0 : 50;
   const total = subtotal + shipping;
 
@@ -104,7 +56,10 @@ export default function Cart() {
               {/* Cart Items */}
               <div className="lg:col-span-2 space-y-6">
                 {items.map((item) => (
-                  <div key={item.id} className="leather-card rounded-xl p-6 relative">
+                  <div
+                    key={item.id}
+                    className="leather-card rounded-xl p-6 relative"
+                  >
                     <div className="flex items-center space-x-4">
                       {/* Product Image */}
                       <div className="w-24 h-24 relative overflow-hidden rounded-lg flex-shrink-0">
@@ -156,7 +111,7 @@ export default function Cart() {
 
                       {/* Remove Button */}
                       <button
-                        onClick={() => removeItem(item.id)}
+                        onClick={() => removeFromCart(item.id)}
                         className="p-2 text-muted-foreground hover:text-destructive transition-colors duration-200"
                       >
                         <Trash2 className="w-5 h-5" />

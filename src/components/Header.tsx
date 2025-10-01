@@ -1,35 +1,37 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { ShoppingBag, Menu, X } from 'lucide-react';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { ShoppingBag, Menu, X } from "lucide-react";
+import { useCartStore } from "@/store/cartStore";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { getTotalItems } = useCartStore();
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const navigation = [
-    { name: 'Home', href: '/' },
-    { name: 'Products', href: '/products' },
-    { name: 'About', href: '/about' },
-    { name: 'Contact', href: '/contact' },
+    { name: "Home", href: "/" },
+    { name: "Products", href: "/products" },
+    { name: "About", href: "/about" },
+    { name: "Contact", href: "/contact" },
   ];
 
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? 'bg-background/95 backdrop-blur-md border-b border-border'
-          : 'bg-transparent'
+          ? "bg-background/95 backdrop-blur-md border-b border-border"
+          : "bg-transparent"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -37,7 +39,9 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 group">
             <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
-              <span className="text-primary-foreground font-serif text-xl font-bold">L</span>
+              <span className="text-primary-foreground font-serif text-xl font-bold">
+                L
+              </span>
             </div>
             <span className="font-serif text-xl lg:text-2xl font-bold text-foreground">
               LeadHer Shop
@@ -61,10 +65,13 @@ export default function Header() {
           {/* Cart & Mobile Menu */}
           <div className="flex items-center space-x-4">
             {/* Cart */}
-            <Link href="/cart" className="relative p-2 text-foreground/80 hover:text-foreground transition-colors duration-200">
+            <Link
+              href="/cart"
+              className="relative p-2 text-foreground/80 hover:text-foreground transition-colors duration-200"
+            >
               <ShoppingBag className="w-6 h-6" />
               <span className="absolute -top-1 -right-1 bg-accent text-accent-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                0
+                {getTotalItems()}
               </span>
             </Link>
 

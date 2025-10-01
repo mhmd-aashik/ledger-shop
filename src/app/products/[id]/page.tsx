@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useCartStore } from "@/store/cartStore";
+import toast from "react-hot-toast";
 
 interface Product {
   id: string;
@@ -55,6 +57,7 @@ const product: Product = {
 export default function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const { addToCartWithQuantity } = useCartStore();
 
   const nextImage = () => {
     setSelectedImage((prev) => (prev + 1) % product.images.length);
@@ -228,7 +231,20 @@ export default function ProductDetail() {
                 </div>
 
                 <div className="flex space-x-4">
-                  <button className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground py-4 px-6 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2">
+                  <button
+                    onClick={() => {
+                      addToCartWithQuantity({
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        image: product.images[0],
+                      }, quantity);
+                      toast.success(
+                        `${quantity} x ${product.name} added to cart!`
+                      );
+                    }}
+                    className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground py-4 px-6 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
+                  >
                     <ShoppingBag className="w-5 h-5" />
                     <span>Add to Cart</span>
                   </button>

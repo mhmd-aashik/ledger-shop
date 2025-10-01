@@ -1,34 +1,34 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const heroSlides = [
   {
     id: 1,
-    image: '/assets/images/leather1.jpg',
-    title: 'Handcrafted Elegance',
-    subtitle: 'Premium leather goods for the discerning individual',
-    cta: 'Shop Collection',
-    ctaLink: '/products'
+    image: "/assets/images/leather1.jpg",
+    title: "Handcrafted Elegance",
+    subtitle: "Premium leather goods for the discerning individual",
+    cta: "Shop Collection",
+    ctaLink: "/products",
   },
   {
     id: 2,
-    image: '/assets/images/leather2.jpg',
-    title: 'Timeless Quality',
-    subtitle: 'Crafted with precision, designed for life',
-    cta: 'Discover More',
-    ctaLink: '/products'
+    image: "/assets/images/leather2.jpg",
+    title: "Timeless Quality",
+    subtitle: "Crafted with precision, designed for life",
+    cta: "Discover More",
+    ctaLink: "/products",
   },
   {
     id: 3,
-    image: '/assets/images/leather3.jpg',
-    title: 'Luxury Redefined',
-    subtitle: 'Where tradition meets modern sophistication',
-    cta: 'Explore Now',
-    ctaLink: '/products'
-  }
+    image: "/assets/images/leather3.jpg",
+    title: "Luxury Redefined",
+    subtitle: "Where tradition meets modern sophistication",
+    cta: "Explore Now",
+    ctaLink: "/products",
+  },
 ];
 
 export default function HeroCarousel() {
@@ -52,7 +52,9 @@ export default function HeroCarousel() {
   };
 
   const goToPrevious = () => {
-    setCurrentSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
+    setCurrentSlide(
+      (prev) => (prev - 1 + heroSlides.length) % heroSlides.length
+    );
     setIsAutoPlaying(false);
     setTimeout(() => setIsAutoPlaying(true), 10000);
   };
@@ -71,7 +73,7 @@ export default function HeroCarousel() {
           <div
             key={slide.id}
             className={`absolute inset-0 transition-opacity duration-1000 ${
-              index === currentSlide ? 'opacity-100' : 'opacity-0'
+              index === currentSlide ? "opacity-100" : "opacity-0"
             }`}
           >
             {/* Background Image */}
@@ -130,8 +132,8 @@ export default function HeroCarousel() {
               onClick={() => goToSlide(index)}
               className={`w-3 h-3 rounded-full transition-all duration-300 ${
                 index === currentSlide
-                  ? 'bg-accent scale-125'
-                  : 'bg-white/50 hover:bg-white/70'
+                  ? "bg-accent scale-125"
+                  : "bg-white/50 hover:bg-white/70"
               }`}
               aria-label={`Go to slide ${index + 1}`}
             />

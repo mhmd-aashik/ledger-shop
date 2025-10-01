@@ -56,16 +56,16 @@
   --primary-foreground: oklch(0.95 0.02 45); /* Cream white */
   --secondary: oklch(0.85 0.05 40); /* Tan leather */
   --secondary-foreground: oklch(0.15 0.05 30); /* Deep brown */
-  --muted: oklch(0.90 0.03 42); /* Light tan */
+  --muted: oklch(0.9 0.03 42); /* Light tan */
   --muted-foreground: oklch(0.45 0.05 35); /* Medium brown */
-  --accent: oklch(0.70 0.12 50); /* Warm amber */
+  --accent: oklch(0.7 0.12 50); /* Warm amber */
   --accent-foreground: oklch(0.15 0.05 30); /* Deep brown */
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.80 0.05 40); /* Light leather border */
+  --border: oklch(0.8 0.05 40); /* Light leather border */
   --input: oklch(0.85 0.05 40); /* Tan input */
-  --ring: oklch(0.70 0.12 50); /* Warm amber ring */
+  --ring: oklch(0.7 0.12 50); /* Warm amber ring */
   --chart-1: oklch(0.25 0.08 35); /* Rich brown */
-  --chart-2: oklch(0.70 0.12 50); /* Warm amber */
+  --chart-2: oklch(0.7 0.12 50); /* Warm amber */
   --chart-3: oklch(0.45 0.05 35); /* Medium brown */
   --chart-4: oklch(0.85 0.05 40); /* Light tan */
   --chart-5: oklch(0.15 0.05 30); /* Deep brown */
@@ -75,8 +75,8 @@
   --sidebar-primary-foreground: oklch(0.95 0.02 45); /* Cream white */
   --sidebar-accent: oklch(0.85 0.05 40); /* Tan accent */
   --sidebar-accent-foreground: oklch(0.15 0.05 30); /* Deep brown */
-  --sidebar-border: oklch(0.80 0.05 40); /* Light leather border */
-  --sidebar-ring: oklch(0.70 0.12 50); /* Warm amber ring */
+  --sidebar-border: oklch(0.8 0.05 40); /* Light leather border */
+  --sidebar-ring: oklch(0.7 0.12 50); /* Warm amber ring */
 }
 
 .dark {
@@ -125,50 +125,80 @@
 @layer utilities {
   /* Leather texture gradients */
   .leather-gradient {
-    background: linear-gradient(135deg, 
-      oklch(0.98 0.02 45) 0%, 
-      oklch(0.95 0.03 42) 25%, 
-      oklch(0.92 0.04 40) 50%, 
-      oklch(0.90 0.05 38) 75%, 
-      oklch(0.88 0.06 35) 100%);
+    background: linear-gradient(
+      135deg,
+      oklch(0.98 0.02 45) 0%,
+      oklch(0.95 0.03 42) 25%,
+      oklch(0.92 0.04 40) 50%,
+      oklch(0.9 0.05 38) 75%,
+      oklch(0.88 0.06 35) 100%
+    );
   }
-  
+
   .leather-texture {
-    background-image: 
-      radial-gradient(circle at 20% 20%, oklch(0.85 0.05 40 / 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, oklch(0.80 0.06 38 / 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 40% 60%, oklch(0.90 0.04 42 / 0.1) 0%, transparent 50%);
+    background-image:
+      radial-gradient(
+        circle at 20% 20%,
+        oklch(0.85 0.05 40 / 0.1) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 80% 80%,
+        oklch(0.8 0.06 38 / 0.1) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 40% 60%,
+        oklch(0.9 0.04 42 / 0.1) 0%,
+        transparent 50%
+      );
   }
-  
+
   .leather-card {
     @apply shadow-lg border border-border/20;
-    background: linear-gradient(135deg, 
-      oklch(0.99 0.01 45) 0%, 
-      oklch(0.97 0.02 43) 100%);
-    box-shadow: 
+    background: linear-gradient(
+      135deg,
+      oklch(0.99 0.01 45) 0%,
+      oklch(0.97 0.02 43) 100%
+    );
+    box-shadow:
       0 4px 6px -1px oklch(0.15 0.05 30 / 0.1),
       0 2px 4px -1px oklch(0.15 0.05 30 / 0.06),
-      0 0 0 1px oklch(0.80 0.05 40 / 0.1);
+      0 0 0 1px oklch(0.8 0.05 40 / 0.1);
   }
-  
+
   .leather-card::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
-    background-image: 
-      radial-gradient(circle at 20% 20%, oklch(0.85 0.05 40 / 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, oklch(0.80 0.06 38 / 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 40% 60%, oklch(0.90 0.04 42 / 0.1) 0%, transparent 50%);
+    background-image:
+      radial-gradient(
+        circle at 20% 20%,
+        oklch(0.85 0.05 40 / 0.1) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 80% 80%,
+        oklch(0.8 0.06 38 / 0.1) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 40% 60%,
+        oklch(0.9 0.04 42 / 0.1) 0%,
+        transparent 50%
+      );
     pointer-events: none;
   }
-  
+
   .hover-zoom {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition:
+      transform 0.3s ease,
+      box-shadow 0.3s ease;
   }
-  
+
   .hover-zoom:hover {
     transform: scale(1.02);
-    box-shadow: 
+    box-shadow:
       0 10px 25px -3px oklch(0.15 0.05 30 / 0.1),
       0 4px 6px -2px oklch(0.15 0.05 30 / 0.05);
   }
