@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { client, queries, urlFor } from "@/lib/sanity";
+import { client, queries, urlFor, isSanityReady } from "@/lib/sanity";
 
 interface HeroSlide {
   _id: string;
@@ -53,13 +53,29 @@ export default function HeroCarousel() {
 
   useEffect(() => {
     const fetchHeroData = async () => {
+      // Check if Sanity is properly configured
+      if (!isSanityReady()) {
+        console.log("Sanity not configured, using fallback data");
+        setHeroSlides(fallbackSlides);
+        setLoading(false);
+        return;
+      }
+
       try {
+        console.log("Fetching hero slides from Sanity...");
         const data = await client.fetch(queries.heroSlides);
+        console.log("Hero slides data:", data);
+        
         if (data && data.length > 0) {
+          console.log("Using Sanity hero slides data");
           setHeroSlides(data);
+        } else {
+          console.log("No hero slides found, using fallback data");
+          setHeroSlides(fallbackSlides);
         }
       } catch (error) {
         console.error("Error fetching hero data:", error);
+        console.log("Using fallback data due to error");
         // Use fallback data
         setHeroSlides(fallbackSlides);
       } finally {

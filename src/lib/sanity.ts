@@ -2,13 +2,19 @@ import { createClient } from "@sanity/client";
 import imageUrlBuilder from "@sanity/image-url";
 
 // Sanity configuration
+const isSanityConfigured = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID && 
+  process.env.NEXT_PUBLIC_SANITY_PROJECT_ID !== "your-project-id";
+
 export const client = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "your-project-id",
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "placeholder",
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || "production",
   useCdn: process.env.NODE_ENV === "production",
   apiVersion: "2023-05-03",
   token: process.env.SANITY_API_TOKEN,
 });
+
+// Helper function to check if Sanity is properly configured
+export const isSanityReady = () => isSanityConfigured;
 
 // Image URL builder
 const builder = imageUrlBuilder(client);

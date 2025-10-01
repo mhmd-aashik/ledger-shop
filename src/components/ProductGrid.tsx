@@ -6,7 +6,7 @@ import { ShoppingBag, Heart } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useCartStore } from "@/store/cartStore";
 import toast from "react-hot-toast";
-import { client, queries, urlFor } from "../../lib/sanity";
+import { client, queries, urlFor, isSanityReady } from "../../lib/sanity";
 
 interface Product {
   _id: string;
@@ -32,6 +32,45 @@ export default function ProductGrid() {
 
   useEffect(() => {
     const fetchProducts = async () => {
+      // Check if Sanity is properly configured
+      if (!isSanityReady()) {
+        console.log("Sanity not configured, using fallback products");
+        setProducts([
+           {
+             _id: "1",
+             name: "Classic Leather Wallet",
+             price: 450,
+             images: null,
+             category: {
+               _id: "cat1",
+               name: "Wallets",
+               slug: { current: "wallets" },
+             },
+             description: "Handcrafted from premium Italian leather",
+             slug: { current: "classic-leather-wallet" },
+             inStock: true,
+             featured: true,
+           },
+           {
+             _id: "2",
+             name: "Minimalist Cardholder",
+             price: 280,
+             images: null,
+             category: {
+               _id: "cat2",
+               name: "Cardholders",
+               slug: { current: "cardholders" },
+             },
+             description: "Sleek design for the modern professional",
+             slug: { current: "minimalist-cardholder" },
+             inStock: true,
+             featured: false,
+           },
+        ]);
+        setLoading(false);
+        return;
+      }
+
       try {
         const data = await client.fetch(queries.allProducts);
         setProducts(data);
