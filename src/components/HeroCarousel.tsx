@@ -65,7 +65,7 @@ export default function HeroCarousel() {
         console.log("Fetching hero slides from Sanity...");
         const data = await client.fetch(queries.heroSlides);
         console.log("Hero slides data:", data);
-        
+
         if (data && data.length > 0) {
           console.log("Using Sanity hero slides data");
           setHeroSlides(data);

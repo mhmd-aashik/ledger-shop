@@ -1,5 +1,4 @@
 import { defineConfig } from "sanity";
-import { deskTool } from "sanity/desk";
 import { visionTool } from "@sanity/vision";
 
 // Import schemas
@@ -14,7 +13,7 @@ export default defineConfig({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "your-project-id",
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || "production",
 
-  plugins: [deskTool(), visionTool()],
+  plugins: [visionTool()],
 
   schema: {
     types: [product, category, heroSlide],

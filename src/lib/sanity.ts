@@ -2,7 +2,8 @@ import { createClient } from "@sanity/client";
 import imageUrlBuilder from "@sanity/image-url";
 
 // Sanity configuration
-const isSanityConfigured = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID && 
+const isSanityConfigured =
+  process.env.NEXT_PUBLIC_SANITY_PROJECT_ID &&
   process.env.NEXT_PUBLIC_SANITY_PROJECT_ID !== "your-project-id";
 
 export const client = createClient({
