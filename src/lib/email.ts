@@ -24,7 +24,10 @@ export interface OrderData {
 export async function sendOrderNotificationEmail(orderData: OrderData) {
   try {
     // Check if API key is properly configured
-    if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === "your_resend_api_key_here") {
+    if (
+      !process.env.RESEND_API_KEY ||
+      process.env.RESEND_API_KEY === "your_resend_api_key_here"
+    ) {
       console.warn("Resend API key not configured. Email will not be sent.");
       return { success: false, message: "Email service not configured" };
     }
@@ -51,7 +54,10 @@ export async function sendOrderNotificationEmail(orderData: OrderData) {
 export async function sendOrderConfirmationEmail(orderData: OrderData) {
   try {
     // Check if API key is properly configured
-    if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === "your_resend_api_key_here") {
+    if (
+      !process.env.RESEND_API_KEY ||
+      process.env.RESEND_API_KEY === "your_resend_api_key_here"
+    ) {
       console.warn("Resend API key not configured. Email will not be sent.");
       return { success: false, message: "Email service not configured" };
     }
