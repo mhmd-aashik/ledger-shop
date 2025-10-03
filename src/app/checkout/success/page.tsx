@@ -6,8 +6,9 @@ import { CheckCircle, ArrowLeft, ShoppingBag, Mail } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import { Suspense } from "react";
 
-export default function CheckoutSuccess() {
+function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
 
@@ -42,11 +43,11 @@ export default function CheckoutSuccess() {
                   <span className="font-medium">Confirmation Email Sent</span>
                 </div>
 
-                  <p className="text-muted-foreground">
-                    We&apos;ve sent a confirmation email with your order details.
-                    Please check your inbox (and spam folder) for the
-                    confirmation.
-                  </p>
+                <p className="text-muted-foreground">
+                  We&apos;ve sent a confirmation email with your order details.
+                  Please check your inbox (and spam folder) for the
+                  confirmation.
+                </p>
 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
                   <h3 className="font-semibold text-blue-900 mb-3">
@@ -55,11 +56,13 @@ export default function CheckoutSuccess() {
                   <ul className="text-left text-blue-800 space-y-2">
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      We&apos;ll review your order and contact you within 24 hours
+                      We&apos;ll review your order and contact you within 24
+                      hours
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      We&apos;ll confirm payment details and delivery arrangements
+                      We&apos;ll confirm payment details and delivery
+                      arrangements
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3 flex-shrink-0"></span>
@@ -76,11 +79,11 @@ export default function CheckoutSuccess() {
                   <h3 className="font-semibold text-amber-900 mb-2">
                     Need Help?
                   </h3>
-                    <p className="text-amber-800 text-sm">
-                      If you have any questions about your order or need to make
-                      changes, please don&apos;t hesitate to contact us. We&apos;re here to
-                      help!
-                    </p>
+                  <p className="text-amber-800 text-sm">
+                    If you have any questions about your order or need to make
+                    changes, please don&apos;t hesitate to contact us.
+                    We&apos;re here to help!
+                  </p>
                 </div>
               </div>
             </div>
@@ -110,5 +113,29 @@ export default function CheckoutSuccess() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function CheckoutSuccess() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="pt-16 lg:pt-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="text-center">
+              <div className="animate-pulse">
+                <div className="w-24 h-24 mx-auto bg-gray-300 rounded-full mb-4"></div>
+                <div className="h-8 bg-gray-300 rounded mb-4"></div>
+                <div className="h-4 bg-gray-300 rounded mb-8"></div>
+              </div>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    }>
+      <CheckoutSuccessContent />
+    </Suspense>
   );
 }

@@ -4,12 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  ShoppingBag,
-  CreditCard,
-  User,
-} from "lucide-react";
+import { ArrowLeft, ShoppingBag, CreditCard, User } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useCartStore } from "@/store/cartStore";
@@ -221,8 +216,8 @@ export default function Checkout() {
                         Payment Information
                       </h3>
                       <p className="text-sm text-amber-700 mt-1">
-                        We&apos;ll contact you after order confirmation to arrange
-                        payment and delivery details.
+                        We&apos;ll contact you after order confirmation to
+                        arrange payment and delivery details.
                       </p>
                     </div>
                   </div>
