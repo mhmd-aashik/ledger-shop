@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || "re_test_key");
 
 export interface OrderData {
   orderId: string;
@@ -23,6 +23,12 @@ export interface OrderData {
 
 export async function sendOrderNotificationEmail(orderData: OrderData) {
   try {
+    // Check if API key is properly configured
+    if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === "your_resend_api_key_here") {
+      console.warn("Resend API key not configured. Email will not be sent.");
+      return { success: false, message: "Email service not configured" };
+    }
+
     const { data, error } = await resend.emails.send({
       from: process.env.FROM_EMAIL || "onboarding@resend.dev",
       to: [process.env.OWNER_EMAIL || "owner@leadhershop.com"],
@@ -44,6 +50,12 @@ export async function sendOrderNotificationEmail(orderData: OrderData) {
 
 export async function sendOrderConfirmationEmail(orderData: OrderData) {
   try {
+    // Check if API key is properly configured
+    if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === "your_resend_api_key_here") {
+      console.warn("Resend API key not configured. Email will not be sent.");
+      return { success: false, message: "Email service not configured" };
+    }
+
     const { data, error } = await resend.emails.send({
       from: process.env.FROM_EMAIL || "onboarding@resend.dev",
       to: [orderData.customerEmail],

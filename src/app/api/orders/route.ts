@@ -35,15 +35,21 @@ export async function POST(request: NextRequest) {
     });
 
     // Send notification email to owner
-    await sendOrderNotificationEmail(orderData);
+    const ownerEmailResult = await sendOrderNotificationEmail(orderData);
 
     // Send confirmation email to customer
-    await sendOrderConfirmationEmail(orderData);
+    const customerEmailResult = await sendOrderConfirmationEmail(orderData);
+
+    // Check if emails were sent successfully
+    const emailsSent = ownerEmailResult.success && customerEmailResult.success;
 
     return NextResponse.json({
       success: true,
       orderId,
-      message: "Order placed successfully and emails sent",
+      message: emailsSent 
+        ? "Order placed successfully and emails sent" 
+        : "Order placed successfully (email service not configured)",
+      emailsSent,
     });
   } catch (error) {
     console.error("Order processing error:", error);
