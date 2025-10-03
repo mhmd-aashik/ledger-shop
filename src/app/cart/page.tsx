@@ -152,9 +152,11 @@ export default function Cart() {
                     </div>
                   </div>
 
-                  <button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-4 px-6 rounded-lg font-medium transition-colors duration-200 mb-4">
-                    Proceed to Checkout
-                  </button>
+                  <Link href="/checkout">
+                    <button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-4 px-6 rounded-lg font-medium transition-colors duration-200 mb-4">
+                      Proceed to Checkout
+                    </button>
+                  </Link>
 
                   <p className="text-xs text-muted-foreground text-center">
                     Secure checkout with SSL encryption
