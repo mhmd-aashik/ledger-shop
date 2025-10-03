@@ -8,7 +8,8 @@ import Footer from "@/components/Footer";
 import { useCartStore } from "@/store/cartStore";
 
 export default function Cart() {
-  const { items, updateQuantity, removeFromCart, getTotalPrice } = useCartStore();
+  const { items, updateQuantity, removeFromCart, getTotalPrice } =
+    useCartStore();
 
   const subtotal = getTotalPrice();
   const shipping = subtotal > 500 ? 0 : 50;

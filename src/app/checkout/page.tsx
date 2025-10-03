@@ -4,7 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ShoppingBag, CreditCard, User, Phone, MapPin } from "lucide-react";
+import {
+  ArrowLeft,
+  ShoppingBag,
+  CreditCard,
+  User,
+} from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useCartStore } from "@/store/cartStore";
@@ -29,18 +34,25 @@ export default function Checkout() {
   const shipping = subtotal > 500 ? 0 : 50;
   const total = subtotal + shipping;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.customerName || !formData.customerEmail || !formData.customerPhone || !formData.customerAddress) {
+
+    if (
+      !formData.customerName ||
+      !formData.customerEmail ||
+      !formData.customerPhone ||
+      !formData.customerAddress
+    ) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -53,7 +65,7 @@ export default function Checkout() {
         customerEmail: formData.customerEmail,
         customerPhone: formData.customerPhone,
         customerAddress: formData.customerAddress,
-        items: items.map(item => ({
+        items: items.map((item) => ({
           id: item.id,
           name: item.name,
           price: item.price,
@@ -65,10 +77,10 @@ export default function Checkout() {
         total,
       };
 
-      const response = await fetch('/api/orders', {
-        method: 'POST',
+      const response = await fetch("/api/orders", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(orderData),
       });
@@ -77,13 +89,15 @@ export default function Checkout() {
 
       if (result.success) {
         clearCart();
-        toast.success("Order placed successfully! Check your email for confirmation.");
+        toast.success(
+          "Order placed successfully! Check your email for confirmation."
+        );
         router.push(`/checkout/success?orderId=${result.orderId}`);
       } else {
-        throw new Error(result.error || 'Failed to place order');
+        throw new Error(result.error || "Failed to place order");
       }
     } catch (error) {
-      console.error('Order error:', error);
+      console.error("Order error:", error);
       toast.error("Failed to place order. Please try again.");
     } finally {
       setIsProcessing(false);
@@ -203,9 +217,12 @@ export default function Checkout() {
                   <div className="flex items-start">
                     <CreditCard className="w-5 h-5 text-amber-600 mr-2 mt-0.5" />
                     <div>
-                      <h3 className="font-medium text-amber-800">Payment Information</h3>
+                      <h3 className="font-medium text-amber-800">
+                        Payment Information
+                      </h3>
                       <p className="text-sm text-amber-700 mt-1">
-                        We'll contact you after order confirmation to arrange payment and delivery details.
+                        We&apos;ll contact you after order confirmation to arrange
+                        payment and delivery details.
                       </p>
                     </div>
                   </div>
@@ -239,7 +256,9 @@ export default function Checkout() {
                       />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-medium text-foreground">{item.name}</h3>
+                      <h3 className="font-medium text-foreground">
+                        {item.name}
+                      </h3>
                       <p className="text-sm text-muted-foreground">
                         Quantity: {item.quantity}
                       </p>

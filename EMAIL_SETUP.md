@@ -40,11 +40,13 @@ We're using [Resend](https://resend.com) as our email service provider. It's mod
 ### 4. Configure Environment Variables
 
 1. Copy `.env.example` to `.env.local`:
+
    ```bash
    cp .env.example .env.local
    ```
 
 2. Update `.env.local` with your actual values:
+
    ```env
    # Resend API Configuration
    RESEND_API_KEY=re_your_actual_api_key_here
@@ -59,6 +61,7 @@ We're using [Resend](https://resend.com) as our email service provider. It's mod
 ### 5. Test the Setup
 
 1. Start your development server:
+
    ```bash
    npm run dev
    ```
@@ -72,11 +75,13 @@ We're using [Resend](https://resend.com) as our email service provider. It's mod
 The system includes two email templates:
 
 ### 1. Owner Notification Email
+
 - Sent to the store owner when an order is placed
 - Includes customer details, order items, and totals
 - Professional design with order summary
 
 ### 2. Customer Confirmation Email
+
 - Sent to the customer after order placement
 - Confirms order details and next steps
 - Branded with LeadHer Shop styling
@@ -84,18 +89,24 @@ The system includes two email templates:
 ## Customization
 
 ### Email Templates
+
 Edit the HTML templates in `/src/lib/email.ts`:
+
 - `generateOrderEmailHTML()` - Owner notification
 - `generateOrderConfirmationHTML()` - Customer confirmation
 
 ### Email Content
+
 Modify the email content in the same file:
+
 - Subject lines
 - Email body text
 - Styling and branding
 
 ### Order Processing
+
 Customize the order flow in `/src/app/api/orders/route.ts`:
+
 - Add order validation
 - Integrate with inventory systems
 - Add payment processing
@@ -105,11 +116,13 @@ Customize the order flow in `/src/app/api/orders/route.ts`:
 ### Common Issues
 
 1. **"Failed to send email" error**
+
    - Check your API key is correct
    - Ensure the API key has proper permissions
    - Verify your domain is set up correctly
 
 2. **Emails going to spam**
+
    - Set up SPF, DKIM, and DMARC records
    - Use a verified domain
    - Avoid spam trigger words
@@ -121,6 +134,7 @@ Customize the order flow in `/src/app/api/orders/route.ts`:
 ### Debug Mode
 
 Add this to your `.env.local` to see detailed logs:
+
 ```env
 NODE_ENV=development
 ```
@@ -128,13 +142,17 @@ NODE_ENV=development
 ## Production Deployment
 
 ### Environment Variables
+
 Make sure to set these in your production environment:
+
 - `RESEND_API_KEY`
 - `OWNER_EMAIL`
 - `FROM_EMAIL`
 
 ### Domain Verification
+
 For production, verify your domain in Resend to:
+
 - Send emails from your domain
 - Improve deliverability
 - Look more professional

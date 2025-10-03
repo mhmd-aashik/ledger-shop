@@ -1,4 +1,4 @@
-import { Resend } from 'resend';
+import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -24,20 +24,20 @@ export interface OrderData {
 export async function sendOrderNotificationEmail(orderData: OrderData) {
   try {
     const { data, error } = await resend.emails.send({
-      from: process.env.FROM_EMAIL || 'noreply@leadhershop.com',
-      to: [process.env.OWNER_EMAIL || 'owner@leadhershop.com'],
+      from: process.env.FROM_EMAIL || "onboarding@resend.dev",
+      to: [process.env.OWNER_EMAIL || "owner@leadhershop.com"],
       subject: `New Order #${orderData.orderId} - ${orderData.customerName}`,
       html: generateOrderEmailHTML(orderData),
     });
 
     if (error) {
-      console.error('Error sending email:', error);
-      throw new Error('Failed to send order notification email');
+      console.error("Error sending email:", error);
+      throw new Error("Failed to send order notification email");
     }
 
     return { success: true, messageId: data?.id };
   } catch (error) {
-    console.error('Email sending failed:', error);
+    console.error("Email sending failed:", error);
     throw error;
   }
 }
@@ -45,20 +45,20 @@ export async function sendOrderNotificationEmail(orderData: OrderData) {
 export async function sendOrderConfirmationEmail(orderData: OrderData) {
   try {
     const { data, error } = await resend.emails.send({
-      from: process.env.FROM_EMAIL || 'noreply@leadhershop.com',
+      from: process.env.FROM_EMAIL || "onboarding@resend.dev",
       to: [orderData.customerEmail],
       subject: `Order Confirmation #${orderData.orderId} - LeadHer Shop`,
       html: generateOrderConfirmationHTML(orderData),
     });
 
     if (error) {
-      console.error('Error sending confirmation email:', error);
-      throw new Error('Failed to send order confirmation email');
+      console.error("Error sending confirmation email:", error);
+      throw new Error("Failed to send order confirmation email");
     }
 
     return { success: true, messageId: data?.id };
   } catch (error) {
-    console.error('Confirmation email sending failed:', error);
+    console.error("Confirmation email sending failed:", error);
     throw error;
   }
 }
@@ -111,7 +111,9 @@ function generateOrderEmailHTML(orderData: OrderData): string {
             <p><strong>Order Date:</strong> ${orderData.orderDate}</p>
             
             <h4>Items Ordered:</h4>
-            ${orderData.items.map(item => `
+            ${orderData.items
+              .map(
+                (item) => `
               <div class="item">
                 <img src="${item.image}" alt="${item.name}" class="item-image">
                 <div class="item-details">
@@ -119,7 +121,9 @@ function generateOrderEmailHTML(orderData: OrderData): string {
                   <div class="item-price">Quantity: ${item.quantity} × ${item.price} LKR = ${item.price * item.quantity} LKR</div>
                 </div>
               </div>
-            `).join('')}
+            `
+              )
+              .join("")}
           </div>
 
           <div class="totals">
@@ -129,7 +133,7 @@ function generateOrderEmailHTML(orderData: OrderData): string {
             </div>
             <div class="total-row">
               <span>Shipping:</span>
-              <span>${orderData.shipping === 0 ? 'Free' : orderData.shipping + ' LKR'}</span>
+              <span>${orderData.shipping === 0 ? "Free" : orderData.shipping + " LKR"}</span>
             </div>
             <div class="total-row total-final">
               <span>Total:</span>
@@ -188,7 +192,9 @@ function generateOrderConfirmationHTML(orderData: OrderData): string {
             <p><strong>Order Date:</strong> ${orderData.orderDate}</p>
             
             <h4>Your Items:</h4>
-            ${orderData.items.map(item => `
+            ${orderData.items
+              .map(
+                (item) => `
               <div class="item">
                 <img src="${item.image}" alt="${item.name}" class="item-image">
                 <div class="item-details">
@@ -196,7 +202,9 @@ function generateOrderConfirmationHTML(orderData: OrderData): string {
                   <div class="item-price">Quantity: ${item.quantity} × ${item.price} LKR = ${item.price * item.quantity} LKR</div>
                 </div>
               </div>
-            `).join('')}
+            `
+              )
+              .join("")}
           </div>
 
           <div class="totals">
@@ -206,7 +214,7 @@ function generateOrderConfirmationHTML(orderData: OrderData): string {
             </div>
             <div class="total-row">
               <span>Shipping:</span>
-              <span>${orderData.shipping === 0 ? 'Free' : orderData.shipping + ' LKR'}</span>
+              <span>${orderData.shipping === 0 ? "Free" : orderData.shipping + " LKR"}</span>
             </div>
             <div class="total-row total-final">
               <span>Total:</span>

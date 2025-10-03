@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 
 export default function CheckoutSuccess() {
   const searchParams = useSearchParams();
-  const orderId = searchParams.get('orderId');
+  const orderId = searchParams.get("orderId");
 
   return (
     <div className="min-h-screen bg-background">
@@ -41,22 +41,25 @@ export default function CheckoutSuccess() {
                   <Mail className="w-5 h-5" />
                   <span className="font-medium">Confirmation Email Sent</span>
                 </div>
-                
-                <p className="text-muted-foreground">
-                  We've sent a confirmation email with your order details. 
-                  Please check your inbox (and spam folder) for the confirmation.
-                </p>
+
+                  <p className="text-muted-foreground">
+                    We&apos;ve sent a confirmation email with your order details.
+                    Please check your inbox (and spam folder) for the
+                    confirmation.
+                  </p>
 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                  <h3 className="font-semibold text-blue-900 mb-3">What happens next?</h3>
+                  <h3 className="font-semibold text-blue-900 mb-3">
+                    What happens next?
+                  </h3>
                   <ul className="text-left text-blue-800 space-y-2">
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      We'll review your order and contact you within 24 hours
+                      We&apos;ll review your order and contact you within 24 hours
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      We'll confirm payment details and delivery arrangements
+                      We&apos;ll confirm payment details and delivery arrangements
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3 flex-shrink-0"></span>
@@ -64,17 +67,20 @@ export default function CheckoutSuccess() {
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      You'll receive tracking information once shipped
+                      You&apos;ll receive tracking information once shipped
                     </li>
                   </ul>
                 </div>
 
                 <div className="bg-amber-50 border border-amber-200 rounded-lg p-6">
-                  <h3 className="font-semibold text-amber-900 mb-2">Need Help?</h3>
-                  <p className="text-amber-800 text-sm">
-                    If you have any questions about your order or need to make changes, 
-                    please don't hesitate to contact us. We're here to help!
-                  </p>
+                  <h3 className="font-semibold text-amber-900 mb-2">
+                    Need Help?
+                  </h3>
+                    <p className="text-amber-800 text-sm">
+                      If you have any questions about your order or need to make
+                      changes, please don&apos;t hesitate to contact us. We&apos;re here to
+                      help!
+                    </p>
                 </div>
               </div>
             </div>
@@ -87,9 +93,12 @@ export default function CheckoutSuccess() {
                   Continue Shopping
                 </Button>
               </Link>
-              
+
               <Link href="/contact">
-                <Button variant="outline" className="w-full sm:w-auto py-3 px-6 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center">
+                <Button
+                  variant="outline"
+                  className="w-full sm:w-auto py-3 px-6 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center"
+                >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Contact Us
                 </Button>
