@@ -4,6 +4,7 @@ import {
   sendOrderConfirmationEmail,
 } from "@/lib/email";
 import { OrderData } from "../../../../types/email.types";
+import { v4 as uuidv4 } from "uuid";
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate order ID and date
-    const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const orderId = `ORD-${uuidv4()}`;
     const orderDate = new Date().toLocaleString("en-US", {
       year: "numeric",
       month: "long",
