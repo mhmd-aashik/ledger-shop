@@ -4,6 +4,7 @@ import { OrderData } from "../../types/email.types";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendOrderNotificationEmail(orderData: OrderData) {
+  console.log("Sending order notification email for order:", orderData.orderId);
   try {
     if (!process.env.RESEND_API_KEY) {
       console.warn("Resend API key not configured. Email will not be sent.");
@@ -42,6 +43,7 @@ export async function sendOrderNotificationEmail(orderData: OrderData) {
 }
 
 export async function sendOrderConfirmationEmail(orderData: OrderData) {
+  console.log("Sending order confirmation email for order:", orderData.orderId);
   try {
     if (!process.env.RESEND_API_KEY) {
       console.warn("Resend API key not configured. Email will not be sent.");
