@@ -11,7 +11,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Play,
-  Pause,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -60,7 +59,6 @@ const product: Product = {
 export default function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [showVideo, setShowVideo] = useState(true); // Start with video
   const [videoEnded, setVideoEnded] = useState(false);
   const { addToCartWithQuantity } = useCartStore();
@@ -77,19 +75,9 @@ export default function ProductDetail() {
 
   const toggleVideo = () => {
     setShowVideo(!showVideo);
-    setIsVideoPlaying(!showVideo);
-  };
-
-  const handleVideoPlay = () => {
-    setIsVideoPlaying(true);
-  };
-
-  const handleVideoPause = () => {
-    setIsVideoPlaying(false);
   };
 
   const handleVideoEnd = () => {
-    setIsVideoPlaying(false);
     setVideoEnded(true);
     setShowVideo(false);
     // Start slideshow after video ends
@@ -138,8 +126,6 @@ export default function ProductDetail() {
                     autoPlay
                     muted
                     playsInline
-                    onPlay={handleVideoPlay}
-                    onPause={handleVideoPause}
                     onEnded={handleVideoEnd}
                   />
                 ) : (
