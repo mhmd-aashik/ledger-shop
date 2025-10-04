@@ -4,6 +4,7 @@ import { OrderData } from "../../types/email.types";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendOrderNotificationEmail(orderData: OrderData) {
+  console.log("Sending order notification email for order:", orderData.orderId);
   try {
     if (!process.env.RESEND_API_KEY) {
       console.warn("Resend API key not configured. Email will not be sent.");
@@ -11,8 +12,8 @@ export async function sendOrderNotificationEmail(orderData: OrderData) {
     }
 
     const { data, error } = await resend.emails.send({
-      from: process.env.FROM_EMAIL || "",
-      to: [process.env.OWNER_EMAIL || ""],
+      from: "aashikdevelop@gmail.com",
+      to: [process.env.OWNER_EMAIL || "papaaashik@gmail.com"],
       subject: `New Order #${orderData.orderId} - ${orderData.customerName}`,
       html: generateOrderEmailHTML(orderData),
     });
@@ -42,6 +43,7 @@ export async function sendOrderNotificationEmail(orderData: OrderData) {
 }
 
 export async function sendOrderConfirmationEmail(orderData: OrderData) {
+  console.log("Sending order confirmation email for order:", orderData.orderId);
   try {
     if (!process.env.RESEND_API_KEY) {
       console.warn("Resend API key not configured. Email will not be sent.");
@@ -49,7 +51,7 @@ export async function sendOrderConfirmationEmail(orderData: OrderData) {
     }
 
     const { data, error } = await resend.emails.send({
-      from: process.env.FROM_EMAIL || "onboarding@resend.dev",
+      from: "onboarding@resend.dev",
       to: [orderData.customerEmail],
       subject: `Order Confirmation #${orderData.orderId} - LeadHer Shop`,
       html: generateOrderConfirmationHTML(orderData),
