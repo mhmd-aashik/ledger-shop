@@ -10,6 +10,8 @@ import {
   Star,
   ChevronLeft,
   ChevronRight,
+  Play,
+  Pause,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -21,6 +23,7 @@ interface Product {
   name: string;
   price: number;
   images: string[];
+  video?: string;
   category: string;
   description: string;
   features: string[];
@@ -37,8 +40,8 @@ const product: Product = {
     "/assets/images/leather1.jpg",
     "/assets/images/leather2.jpg",
     "/assets/images/leather3.jpg",
-    "/assets/images/leather4.jpg",
   ],
+  video: "/assets/video/video-1.mp4",
   category: "Wallets",
   description:
     "Handcrafted from premium Italian leather, this classic wallet combines timeless elegance with modern functionality. Each piece is carefully stitched by master craftsmen using traditional techniques passed down through generations.",
@@ -57,6 +60,9 @@ const product: Product = {
 export default function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [showVideo, setShowVideo] = useState(true); // Start with video
+  const [videoEnded, setVideoEnded] = useState(false);
   const { addToCartWithQuantity } = useCartStore();
 
   const nextImage = () => {
@@ -67,6 +73,40 @@ export default function ProductDetail() {
     setSelectedImage(
       (prev) => (prev - 1 + product.images.length) % product.images.length
     );
+  };
+
+  const toggleVideo = () => {
+    setShowVideo(!showVideo);
+    setIsVideoPlaying(!showVideo);
+  };
+
+  const handleVideoPlay = () => {
+    setIsVideoPlaying(true);
+  };
+
+  const handleVideoPause = () => {
+    setIsVideoPlaying(false);
+  };
+
+  const handleVideoEnd = () => {
+    setIsVideoPlaying(false);
+    setVideoEnded(true);
+    setShowVideo(false);
+    // Start slideshow after video ends
+    startSlideshow();
+  };
+
+  const startSlideshow = () => {
+    const interval = setInterval(() => {
+      setSelectedImage((prev) => {
+        const next = (prev + 1) % product.images.length;
+        if (next === 0) {
+          // If we've cycled through all images, stop the slideshow
+          clearInterval(interval);
+        }
+        return next;
+      });
+    }, 3000); // Change image every 3 seconds
   };
 
   return (
@@ -89,17 +129,30 @@ export default function ProductDetail() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
             {/* Product Images */}
             <div className="space-y-4">
-              {/* Main Image */}
+              {/* Main Image/Video */}
               <div className="relative aspect-square overflow-hidden rounded-xl leather-card">
-                <Image
-                  src={product.images[selectedImage]}
-                  alt={product.name}
-                  fill
-                  className="object-cover"
-                />
+                {showVideo && product.video ? (
+                  <video
+                    src={product.video}
+                    className="w-full h-full object-cover"
+                    autoPlay
+                    muted
+                    playsInline
+                    onPlay={handleVideoPlay}
+                    onPause={handleVideoPause}
+                    onEnded={handleVideoEnd}
+                  />
+                ) : (
+                  <Image
+                    src={product.images[selectedImage]}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                  />
+                )}
 
-                {/* Navigation Arrows */}
-                {product.images.length > 1 && (
+                {/* Navigation Arrows - Only show after video ends */}
+                {!showVideo && product.images.length > 1 && videoEnded && (
                   <>
                     <button
                       onClick={prevImage}
@@ -118,29 +171,54 @@ export default function ProductDetail() {
               </div>
 
               {/* Thumbnail Images */}
-              {product.images.length > 1 && (
-                <div className="grid grid-cols-4 gap-4">
-                  {product.images.map((image, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setSelectedImage(index)}
-                      className={`aspect-square overflow-hidden rounded-lg transition-all duration-200 ${
-                        selectedImage === index
-                          ? "ring-2 ring-accent scale-105"
-                          : "hover:scale-105"
-                      }`}
-                    >
-                      <Image
-                        src={image}
-                        alt={`${product.name} view ${index + 1}`}
-                        width={100}
-                        height={100}
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  ))}
-                </div>
-              )}
+              <div className="grid grid-cols-4 gap-4">
+                {/* Video Thumbnail - First position like AliExpress */}
+                {product.video && (
+                  <button
+                    onClick={toggleVideo}
+                    className={`aspect-square overflow-hidden rounded-lg transition-all duration-200 relative group ${
+                      showVideo
+                        ? "ring-2 ring-accent scale-105"
+                        : "hover:scale-105"
+                    }`}
+                  >
+                    {/* Video thumbnail with play icon overlay */}
+                    <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
+                      <div className="text-center">
+                        <Play className="w-8 h-8 text-white mx-auto mb-2 group-hover:scale-110 transition-transform duration-200" />
+                        <span className="text-xs text-white/80 font-medium">
+                          Video
+                        </span>
+                      </div>
+                    </div>
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200" />
+                  </button>
+                )}
+
+                {/* Image Thumbnails */}
+                {product.images.map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      setSelectedImage(index);
+                      setShowVideo(false);
+                    }}
+                    className={`aspect-square overflow-hidden rounded-lg transition-all duration-200 ${
+                      selectedImage === index && !showVideo
+                        ? "ring-2 ring-accent scale-105"
+                        : "hover:scale-105"
+                    }`}
+                  >
+                    <Image
+                      src={image}
+                      alt={`${product.name} view ${index + 1}`}
+                      width={100}
+                      height={100}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Product Info */}
