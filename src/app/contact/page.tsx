@@ -40,8 +40,8 @@ export default function Contact() {
               Get in Touch
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              We'd love to hear from you. Send us a message and we'll respond as
-              soon as possible.
+              We&apos;d love to hear from you. Send us a message and we&apos;ll
+              respond as soon as possible.
             </p>
           </div>
         </section>
@@ -55,8 +55,8 @@ export default function Contact() {
                   Contact Information
                 </h2>
                 <p className="text-lg text-muted-foreground mb-8">
-                  Reach out to us through any of the following channels. We're
-                  here to help!
+                  Reach out to us through any of the following channels.
+                  We&apos;re here to help!
                 </p>
               </div>
 
@@ -73,7 +73,7 @@ export default function Contact() {
                       info@leadhershop.com
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      We'll respond within 24 hours
+                      We&apos;ll respond within 24 hours
                     </p>
                   </div>
                 </div>
