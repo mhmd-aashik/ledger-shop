@@ -56,7 +56,12 @@ export default async function TestimonialsSection() {
                     <div className="w-12 h-12 rounded-full overflow-hidden mr-4 shadow-lg">
                       {review.image?.asset ? (
                         <Image
-                          src={urlFor(review.image).width(48).height(48).url()}
+                          src={urlFor(review.image)
+                            .width(96)
+                            .height(96)
+                            .quality(90)
+                            .format("webp")
+                            .url()}
                           alt={review.image.alt || review.name}
                           width={48}
                           height={48}
