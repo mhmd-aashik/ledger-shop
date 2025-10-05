@@ -140,7 +140,7 @@ export default function Footer() {
               © {currentYear} LeadHer Shop. All rights reserved.
             </p>
             <div className="flex items-center space-x-6 text-sm text-primary-foreground/60">
-              <span>Made with ❤️ in Qatar</span>
+              <span>Made with ❤️ in Sri Lanka</span>
               <span>•</span>
               <span>Premium Quality Guaranteed</span>
             </div>
