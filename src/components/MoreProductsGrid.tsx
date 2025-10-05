@@ -61,8 +61,8 @@ export default function MoreProductsGrid() {
     }
 
     // Price range filter
-    const minPrice = parseInt(searchParams.get("minPrice")) || 0;
-    const maxPrice = parseInt(searchParams.get("maxPrice")) || 2000;
+    const minPrice = parseInt(searchParams.get("minPrice") || "0") || 0;
+    const maxPrice = parseInt(searchParams.get("maxPrice") || "2000") || 2000;
     filtered = filtered.filter(
       (product) => product.price >= minPrice && product.price <= maxPrice
     );

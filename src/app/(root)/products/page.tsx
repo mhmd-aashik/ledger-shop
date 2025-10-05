@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Header from "@/components/Header";
 import ProductFilters from "@/components/ProductFilters";
 import MoreProductsGrid from "@/components/MoreProductsGrid";
@@ -24,11 +25,15 @@ export default function Products() {
 
         {/* Product Filters */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <ProductFilters />
+          <Suspense fallback={<div>Loading filters...</div>}>
+            <ProductFilters />
+          </Suspense>
         </div>
 
         {/* More Products Grid */}
-        <MoreProductsGrid />
+        <Suspense fallback={<div>Loading products...</div>}>
+          <MoreProductsGrid />
+        </Suspense>
       </main>
 
       <Footer />

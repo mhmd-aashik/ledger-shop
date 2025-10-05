@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, X } from "lucide-react";
 
 const categories = ["All", "Wallets", "Cardholders", "Accessories"];
 const genders = ["All", "Men", "Women", "Unisex"];
@@ -37,14 +37,9 @@ export default function ProductFilters() {
   const [gender, setGender] = useState(searchParams.get("gender") || "All");
   const [sortBy, setSortBy] = useState(searchParams.get("sort") || "default");
   const [priceRange, setPriceRange] = useState([
-    parseInt(searchParams.get("minPrice")) || 0,
-    parseInt(searchParams.get("maxPrice")) || 2000,
+    parseInt(searchParams.get("minPrice") || "0") || 0,
+    parseInt(searchParams.get("maxPrice") || "2000") || 2000,
   ]);
-  const [expandedSections, setExpandedSections] = useState({
-    category: true,
-    gender: true,
-    price: true,
-  });
 
   // Debounced search
   const [debouncedSearch, setDebouncedSearch] = useState(search);
@@ -82,13 +77,6 @@ export default function ProductFilters() {
     setSortBy("default");
     setPriceRange([0, 2000]);
     router.push("/products");
-  };
-
-  const toggleSection = (section: string) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [section]: !prev[section as keyof typeof prev],
-    }));
   };
 
   const activeFiltersCount = [
@@ -264,7 +252,7 @@ export default function ProductFilters() {
                 variant="secondary"
                 className="flex items-center gap-1 bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs"
               >
-                Search: "{debouncedSearch}"
+                Search: &ldquo;{debouncedSearch}&rdquo;
                 <X
                   className="h-3 w-3 cursor-pointer hover:text-orange-900"
                   onClick={() => setSearch("")}
