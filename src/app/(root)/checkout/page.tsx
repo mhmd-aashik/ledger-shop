@@ -13,15 +13,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
+import { useUser } from "@clerk/nextjs";
 
 export default function Checkout() {
+  const userDetails = useUser();
   const router = useRouter();
   const { items, getTotalPrice, clearCart } = useCartStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const [formData, setFormData] = useState({
-    customerName: "",
-    customerEmail: "",
-    customerPhone: "",
+    customerName: userDetails.user?.fullName || "",
+    customerEmail: userDetails.user?.emailAddresses[0]?.emailAddress || "",
+    customerPhone: userDetails.user?.phoneNumbers[0]?.phoneNumber || "",
     customerAddress: "",
   });
 

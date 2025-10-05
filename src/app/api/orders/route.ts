@@ -3,7 +3,7 @@ import {
   sendOrderNotificationEmail,
   sendOrderConfirmationEmail,
 } from "@/lib/email";
-import { OrderData } from "../../../../types/email.types";
+import { OrderData } from "../../../types/email.types";
 import { v4 as uuidv4 } from "uuid";
 
 export async function POST(request: NextRequest) {
