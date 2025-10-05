@@ -1,93 +1,100 @@
 import Image from "next/image";
-import { CheckCircle, Clock, Users, Award } from "lucide-react";
-import leather2 from "../../public/assets/images/leather2.jpg";
-import leather3 from "../../public/assets/images/leather3.jpg";
+import { Star, Shield, Truck, Heart } from "lucide-react";
+import leather1 from "../../public/assets/images/leather1.jpg";
+import leather4 from "../../public/assets/images/leather4.jpg";
 
 export default function CraftsmanshipSection() {
-  const stats = [
-    { icon: Clock, label: "Hours of Crafting", value: "40+" },
-    { icon: Users, label: "Master Artisans", value: "15+" },
-    { icon: Award, label: "Years of Experience", value: "25+" },
-  ];
-
-  const process = [
-    "Premium leather selection from trusted suppliers",
-    "Hand-cutting with precision tools and techniques",
-    "Traditional stitching with waxed thread",
-    "Edge finishing and burnishing by hand",
-    "Quality inspection and final touches",
+  const features = [
+    {
+      icon: Star,
+      title: "Premium Quality",
+      description: "Handpicked materials that meet our exacting standards",
+    },
+    {
+      icon: Shield,
+      title: "Lifetime Warranty",
+      description: "Built to last with our comprehensive warranty coverage",
+    },
+    {
+      icon: Truck,
+      title: "Free Shipping",
+      description: "Complimentary delivery on all orders worldwide",
+    },
+    {
+      icon: Heart,
+      title: "Ethical Sourcing",
+      description: "Responsibly sourced materials from trusted partners",
+    },
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-br from-gray-50 to-amber-50">
+    <section className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          {/* Left Side - Content */}
-          <div>
-            <h2 className="text-4xl font-serif font-bold text-amber-900 mb-6">
-              The Art of Craftsmanship
-            </h2>
-            <p className="text-xl text-amber-700 mb-8 leading-relaxed">
-              Every Heritano piece is born from a passion for perfection. Our
-              master artisans combine traditional techniques with modern
-              precision to create leather goods that are both beautiful and
-              built to last.
-            </p>
+        {/* Header */}
+        <div className="text-center mb-16">
+          <h2 className="text-5xl font-bold text-gray-900 mb-6">
+            Why Choose Heritano?
+          </h2>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            We&apos;re not just selling leather goods – we&apos;re crafting
+            experiences that last a lifetime. Every piece tells a story of
+            quality, tradition, and uncompromising attention to detail.
+          </p>
+        </div>
 
-            {/* Process Steps */}
-            <div className="space-y-4 mb-8">
-              {process.map((step, index) => (
-                <div key={index} className="flex items-center">
-                  <CheckCircle className="w-5 h-5 text-amber-600 mr-3 flex-shrink-0" />
-                  <span className="text-amber-800">{step}</span>
-                </div>
-              ))}
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
+          {features.map((feature, index) => (
+            <div key={index} className="text-center group">
+              <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                <feature.icon className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                {feature.title}
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
+                {feature.description}
+              </p>
             </div>
+          ))}
+        </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-6">
-              {stats.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className="w-12 h-12 bg-amber-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <stat.icon className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="text-2xl font-bold text-amber-900">
-                    {stat.value}
-                  </div>
-                  <div className="text-sm text-amber-700">{stat.label}</div>
-                </div>
-              ))}
+        {/* Image Showcase */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-6">
+            <div className="relative">
+              <Image
+                src={leather1}
+                alt="Premium leather craftsmanship"
+                width={600}
+                height={400}
+                className="rounded-3xl shadow-2xl"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl"></div>
             </div>
           </div>
 
-          {/* Right Side - Images */}
-          <div className="relative">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-4">
-                <div className="aspect-square rounded-2xl overflow-hidden shadow-xl">
-                  <Image
-                    src={leather2}
-                    alt="Leather crafting process"
-                    width={300}
-                    height={300}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-                <div className="aspect-square rounded-2xl overflow-hidden shadow-xl">
-                  <Image
-                    src={leather3}
-                    alt="Finished leather product"
-                    width={300}
-                    height={300}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-              </div>
+          <div className="space-y-6">
+            <div className="relative">
+              <Image
+                src={leather4}
+                alt="Artisan at work"
+                width={600}
+                height={400}
+                className="rounded-3xl shadow-2xl"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl"></div>
             </div>
+          </div>
+        </div>
 
-            {/* Decorative Elements */}
-            <div className="absolute -top-4 -right-4 w-24 h-24 bg-amber-200 rounded-full opacity-50"></div>
-            <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-amber-300 rounded-full opacity-30"></div>
+        {/* Bottom CTA */}
+        <div className="text-center mt-16">
+          <div className="inline-flex items-center space-x-2 bg-amber-50 px-6 py-3 rounded-full">
+            <Heart className="w-5 h-5 text-amber-600" />
+            <span className="text-amber-800 font-medium">
+              Join thousands of satisfied customers worldwide
+            </span>
           </div>
         </div>
       </div>
