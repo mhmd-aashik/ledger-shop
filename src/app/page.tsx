@@ -4,7 +4,6 @@ import ProductGrid from "@/components/ProductGrid";
 import FeaturesSection from "@/components/FeaturesSection";
 import CraftsmanshipSection from "@/components/CraftsmanshipSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
-import NewsletterSection from "@/components/NewsletterSection";
 import Footer from "@/components/Footer";
 
 export default async function Home() {
@@ -17,7 +16,6 @@ export default async function Home() {
         <FeaturesSection />
         <CraftsmanshipSection />
         <TestimonialsSection />
-        <NewsletterSection />
       </main>
       <Footer />
     </div>
