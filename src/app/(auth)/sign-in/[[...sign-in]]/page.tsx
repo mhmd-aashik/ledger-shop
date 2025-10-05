@@ -153,6 +153,7 @@ export default function Page() {
                 },
               }}
               redirectUrl="/"
+              afterSignInUrl="/"
             />
           </div>
 

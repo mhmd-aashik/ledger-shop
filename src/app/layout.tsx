@@ -50,6 +50,10 @@ export default function RootLayout({
           footerActionLink: "text-[#6c47ff] hover:text-[#5a3ae6]",
         },
       }}
+      signInUrl="/sign-in"
+      signUpUrl="/sign-up"
+      afterSignInUrl="/"
+      afterSignUpUrl="/"
     >
       <html lang="en" suppressHydrationWarning>
         <body className={`${playfair.variable} ${inter.variable} antialiased`}>
