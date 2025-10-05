@@ -155,7 +155,6 @@ export default function Page() {
                 },
               }}
               redirectUrl="/"
-              afterSignUpUrl="/"
             />
           </div>
 
