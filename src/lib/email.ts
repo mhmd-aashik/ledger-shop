@@ -13,7 +13,7 @@ export async function sendOrderNotificationEmail(orderData: OrderData) {
 
     const { data, error } = await resend.emails.send({
       from: "aashikdevelop@gmail.com",
-      to: [process.env.OWNER_EMAIL || "papaaashik@gmail.com"],
+      to: "whatever@heritano.com",
       subject: `New Order #${orderData.orderId} - ${orderData.customerName}`,
       html: generateOrderEmailHTML(orderData),
     });
@@ -51,8 +51,8 @@ export async function sendOrderConfirmationEmail(orderData: OrderData) {
     }
 
     const { data, error } = await resend.emails.send({
-      from: "onboarding@resend.dev",
-      to: [orderData.customerEmail],
+      from: "whatever@heritano.com",
+      to: [orderData.customerEmail || "papaaashik@gmail.com"],
       subject: `Order Confirmation #${orderData.orderId} - LeadHer Shop`,
       html: generateOrderConfirmationHTML(orderData),
     });
