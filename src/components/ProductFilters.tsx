@@ -194,7 +194,6 @@ export default function ProductFilters() {
               </SelectContent>
             </Select>
           </div>
-
           {/* Price Range */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700">
@@ -229,8 +228,8 @@ export default function ProductFilters() {
         {/* Price Slider - Full Width */}
         <div className="mt-4 space-y-2">
           <div className="flex items-center justify-between text-sm text-gray-600">
-            <span>${priceRange[0]}</span>
-            <span>${priceRange[1]}</span>
+            <span>LKR {priceRange[0]}</span>
+            <span>LKR {priceRange[1]}</span>
           </div>
           <Slider
             value={priceRange}
@@ -300,7 +299,7 @@ export default function ProductFilters() {
                 variant="secondary"
                 className="flex items-center gap-1 bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs"
               >
-                ${priceRange[0]} - ${priceRange[1]}
+                LRK {priceRange[0]} - LKR {priceRange[1]}
                 <X
                   className="h-3 w-3 cursor-pointer hover:text-orange-900"
                   onClick={() => setPriceRange([0, 2000])}

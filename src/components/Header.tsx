@@ -14,6 +14,7 @@ export default function Header() {
   const [cartItemCount, setCartItemCount] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
   const { getTotalItems } = useCartStore();
+  const [isScrolled, setIsScrolled] = useState(false);
 
   // Fix hydration error by only updating cart count on client side
   useEffect(() => {
@@ -24,12 +25,21 @@ export default function Header() {
 
       // Subscribe to cart changes
       const unsubscribe = useCartStore.subscribe((state) => {
-        setCartItemCount(state.getTotalItems());
+        setCartItemCount(state.items.length);
       });
 
       return unsubscribe;
     }
   }, [getTotalItems]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const navigation = [
     { name: "Home", href: "/" },
@@ -40,7 +50,11 @@ export default function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-background/95 backdrop-blur-md border-b border-border `}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled
+          ? "bg-background/95 backdrop-blur-md border-b border-border"
+          : "bg-transparent"
+      }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
