@@ -1,34 +1,12 @@
 import Image from "next/image";
-import { Star, Shield, Truck, Heart } from "lucide-react";
 import leather1 from "../../public/assets/images/leather1.jpg";
 import leather4 from "../../public/assets/images/leather4.jpg";
+import { Heart } from "lucide-react";
+import { features } from "@/data/features";
 
 export default function CraftsmanshipSection() {
-  const features = [
-    {
-      icon: Star,
-      title: "Premium Quality",
-      description: "Handpicked materials that meet our exacting standards",
-    },
-    {
-      icon: Shield,
-      title: "Lifetime Warranty",
-      description: "Built to last with our comprehensive warranty coverage",
-    },
-    {
-      icon: Truck,
-      title: "Free Shipping",
-      description: "Complimentary delivery on all orders worldwide",
-    },
-    {
-      icon: Heart,
-      title: "Ethical Sourcing",
-      description: "Responsibly sourced materials from trusted partners",
-    },
-  ];
-
   return (
-    <section className="py-24 bg-white">
+    <section className="py-8 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">

@@ -6,89 +6,14 @@ import { ShoppingBag, Heart } from "lucide-react";
 import { useState } from "react";
 import { useCartStore } from "@/store/cartStore";
 import toast from "react-hot-toast";
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  category: string;
-  description: string;
-}
-
-const products: Product[] = [
-  {
-    id: "1",
-    name: "Classic Leather Wallet",
-    price: 450,
-    image: "/assets/images/leather1.jpg",
-    category: "Wallets",
-    description: "Handcrafted from premium Italian leather",
-  },
-  {
-    id: "2",
-    name: "Minimalist Cardholder",
-    price: 280,
-    image: "/assets/images/leather2.jpg",
-    category: "Cardholders",
-    description: "Sleek design for the modern professional",
-  },
-  {
-    id: "3",
-    name: "Executive Briefcase",
-    price: 1200,
-    image: "/assets/images/leather3.jpg",
-    category: "Accessories",
-    description: "Professional elegance meets functionality",
-  },
-  {
-    id: "4",
-    name: "Vintage Leather Belt",
-    price: 320,
-    image: "/assets/images/leather4.jpg",
-    category: "Accessories",
-    description: "Timeless style with contemporary comfort",
-  },
-  {
-    id: "5",
-    name: "Luxury Key Holder",
-    price: 180,
-    image: "/assets/images/leather5.jpg",
-    category: "Accessories",
-    description: "Keep your keys organized in style",
-  },
-  {
-    id: "6",
-    name: "Premium Watch Strap",
-    price: 220,
-    image: "/assets/images/leather6.jpg",
-    category: "Accessories",
-    description: "Hand-stitched for ultimate comfort",
-  },
-  {
-    id: "7",
-    name: "Business Card Holder",
-    price: 150,
-    image: "/assets/images/leather7.jpg",
-    category: "Accessories",
-    description: "Make a lasting first impression",
-  },
-  {
-    id: "8",
-    name: "Travel Wallet",
-    price: 380,
-    image: "/assets/images/leather8.jpg",
-    category: "Wallets",
-    description: "Perfect companion for your journeys",
-  },
-];
+import { products } from "@/data/products";
 
 export default function ProductGrid() {
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
   const { addToCart } = useCartStore();
 
   return (
-    <section className="py-16 lg:py-24 bg-background">
+    <section className="py-8 lg:py-8 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-16">
@@ -179,7 +104,7 @@ export default function ProductGrid() {
         </div>
 
         {/* Call to Action */}
-        <div className="text-center mt-16">
+        <div className="text-center mt-8">
           <button className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground px-8 py-4 rounded-lg font-medium text-lg transition-all duration-300 hover:scale-105 shadow-lg">
             Shop the Collection
           </button>
