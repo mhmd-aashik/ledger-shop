@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import ProductFilters from "@/components/ProductFilters";
 import MoreProductsGrid from "@/components/MoreProductsGrid";
 import Footer from "@/components/Footer";
 
@@ -20,6 +21,12 @@ export default function Products() {
             </p>
           </div>
         </section>
+
+        {/* Product Filters */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <ProductFilters />
+        </div>
+
         {/* More Products Grid */}
         <MoreProductsGrid />
       </main>
