@@ -1,4 +1,4 @@
-import { Product, ProductItem } from "../../types/products.types";
+import { Product, ProductItem } from "../types/products.types";
 
 export const products: Product[] = [
   {
@@ -67,30 +67,27 @@ export const products: Product[] = [
   },
 ];
 
-
-
-
 export const productItem: ProductItem = {
- id: "1",
- name: "Classic Leather Wallet",
- price: 450,
- images: [
-   "/assets/images/leather1.jpg",
-   "/assets/images/leather2.jpg",
-   "/assets/images/leather3.jpg",
- ],
- video: "/assets/video/video-1.mp4",
- category: "Wallets",
- description:
-   "Handcrafted from premium Italian leather, this classic wallet combines timeless elegance with modern functionality. Each piece is carefully stitched by master craftsmen using traditional techniques passed down through generations.",
- features: [
-   "Premium Italian leather construction",
-   "Hand-stitched seams for durability",
-   "Multiple card slots and cash compartments",
-   "RFID blocking technology",
-   "Lifetime craftsmanship guarantee",
- ],
- rating: 4.8,
- reviews: 127,
- inStock: true,
+  id: "1",
+  name: "Classic Leather Wallet",
+  price: 450,
+  images: [
+    "/assets/images/leather1.jpg",
+    "/assets/images/leather2.jpg",
+    "/assets/images/leather3.jpg",
+  ],
+  video: "/assets/video/video-1.mp4",
+  category: "Wallets",
+  description:
+    "Handcrafted from premium Italian leather, this classic wallet combines timeless elegance with modern functionality. Each piece is carefully stitched by master craftsmen using traditional techniques passed down through generations.",
+  features: [
+    "Premium Italian leather construction",
+    "Hand-stitched seams for durability",
+    "Multiple card slots and cash compartments",
+    "RFID blocking technology",
+    "Lifetime craftsmanship guarantee",
+  ],
+  rating: 4.8,
+  reviews: 127,
+  inStock: true,
 };
