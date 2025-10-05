@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ShoppingBag, Menu, X } from "lucide-react";
+import { ShoppingBag, Menu, X, User, LogIn } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import Image from "next/image";
 import logo from "../../public/assets/logos/logo.png";
+import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { Button } from "@/components/ui/button";
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -48,15 +50,51 @@ export default function Header() {
             ))}
           </nav>
 
-          {/* Cart & Mobile Menu */}
+          {/* Auth & Cart & Mobile Menu */}
           <div className="flex items-center space-x-4">
+            {/* Authentication */}
+            <div className="hidden md:flex items-center space-x-2">
+              <SignedOut>
+                <Link href="/sign-in">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-amber-700 hover:text-amber-900 hover:bg-amber-50 border border-amber-200"
+                  >
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Sign In
+                  </Button>
+                </Link>
+                <Link href="/sign-up">
+                  <Button
+                    size="sm"
+                    className="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
+                    <User className="w-4 h-4 mr-2" />
+                    Join Luxury
+                  </Button>
+                </Link>
+              </SignedOut>
+              <SignedIn>
+                <UserButton
+                  appearance={{
+                    elements: {
+                      avatarBox: "w-8 h-8",
+                      userButtonPopoverCard: "shadow-lg border border-gray-200",
+                      userButtonPopoverActionButton: "hover:bg-gray-50",
+                    },
+                  }}
+                />
+              </SignedIn>
+            </div>
+
             {/* Cart */}
             <Link
               href="/cart"
               className="relative p-2 text-foreground/80 hover:text-foreground transition-colors duration-200"
             >
               <ShoppingBag className="w-6 h-6" />
-              <span className="absolute -top-1 -right-1 bg-accent text-accent-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 bg-gradient-to-r from-amber-600 to-amber-700 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium shadow-lg">
                 {getTotalItems()}
               </span>
             </Link>
@@ -89,6 +127,44 @@ export default function Header() {
                   {item.name}
                 </Link>
               ))}
+
+              {/* Mobile Authentication */}
+              <div className="border-t border-border pt-3 mt-3">
+                <SignedOut>
+                  <div className="space-y-2">
+                    <Link href="/sign-in">
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-amber-700 hover:text-amber-900 hover:bg-amber-50 border border-amber-200"
+                      >
+                        <LogIn className="w-4 h-4 mr-2" />
+                        Sign In
+                      </Button>
+                    </Link>
+                    <Link href="/sign-up">
+                      <Button className="w-full justify-start bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white shadow-lg">
+                        <User className="w-4 h-4 mr-2" />
+                        Join Luxury
+                      </Button>
+                    </Link>
+                  </div>
+                </SignedOut>
+                <SignedIn>
+                  <div className="flex items-center justify-between px-3 py-2">
+                    <span className="text-sm text-foreground/80">Account</span>
+                    <UserButton
+                      appearance={{
+                        elements: {
+                          avatarBox: "w-8 h-8",
+                          userButtonPopoverCard:
+                            "shadow-lg border border-gray-200",
+                          userButtonPopoverActionButton: "hover:bg-gray-50",
+                        },
+                      }}
+                    />
+                  </div>
+                </SignedIn>
+              </div>
             </nav>
           </div>
         )}
