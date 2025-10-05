@@ -6,10 +6,16 @@ import { ShoppingBag, Menu, X, User, LogIn } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import Image from "next/image";
 import logo from "../../public/assets/logos/logo.png";
-import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { UserButton, SignedIn, SignedOut, useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 
 export default function Header() {
+  const userDetails = useUser();
+  const showStudio =
+    userDetails.user?.id === "user_33eSbn4U4H2k3E3DFbhqJd5RVky" ||
+    "user_33fW6ZfGi7rznDZzLRkWSZlCTgh";
+
+  console.log(JSON.stringify(userDetails, null, 2));
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [cartItemCount, setCartItemCount] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
@@ -46,7 +52,10 @@ export default function Header() {
     { name: "Products", href: "/products" },
     { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
-    { name: "Studio", href: "/studio" },
+    {
+      name: showStudio ? "Studio" : "",
+      href: showStudio ? "/studio" : "",
+    },
   ];
 
   return (
