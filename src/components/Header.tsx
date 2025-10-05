@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ShoppingBag, Menu, X, User, LogIn } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
@@ -11,7 +11,25 @@ import { Button } from "@/components/ui/button";
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [cartItemCount, setCartItemCount] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
   const { getTotalItems } = useCartStore();
+
+  // Fix hydration error by only updating cart count on client side
+  useEffect(() => {
+    setIsMounted(true);
+    // Only update cart count on client side to prevent hydration errors
+    if (typeof window !== "undefined") {
+      setCartItemCount(getTotalItems());
+
+      // Subscribe to cart changes
+      const unsubscribe = useCartStore.subscribe((state) => {
+        setCartItemCount(state.getTotalItems());
+      });
+
+      return unsubscribe;
+    }
+  }, [getTotalItems]);
 
   const navigation = [
     { name: "Home", href: "/" },
@@ -94,9 +112,11 @@ export default function Header() {
               className="relative p-2 text-foreground/80 hover:text-foreground transition-colors duration-200"
             >
               <ShoppingBag className="w-6 h-6" />
-              <span className="absolute -top-1 -right-1 bg-gradient-to-r from-amber-600 to-amber-700 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium shadow-lg">
-                {getTotalItems()}
-              </span>
+              {isMounted && cartItemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-gradient-to-r from-amber-600 to-amber-700 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium shadow-lg">
+                  {cartItemCount}
+                </span>
+              )}
             </Link>
 
             {/* Mobile menu button */}
