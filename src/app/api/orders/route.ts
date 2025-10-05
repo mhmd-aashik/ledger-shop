@@ -11,7 +11,6 @@ export async function POST(request: NextRequest) {
     const orderData: Omit<OrderData, "orderId" | "orderDate"> =
       await request.json();
 
-    // Validate required fields
     if (
       !orderData.customerName ||
       !orderData.customerEmail ||
@@ -46,9 +45,6 @@ export async function POST(request: NextRequest) {
       orderDate,
     };
 
-    console.log("Processing order:", orderId);
-
-    // Send notification email to owner
     const notificationResult =
       await sendOrderNotificationEmail(completeOrderData);
     if (!notificationResult.success) {
@@ -61,10 +57,7 @@ export async function POST(request: NextRequest) {
       await sendOrderConfirmationEmail(completeOrderData);
     if (!confirmationResult.success) {
       console.error("Failed to send confirmation email:", confirmationResult);
-      // Don't fail the order if email fails, just log it
     }
-
-    console.log("Order processed successfully:", orderId);
 
     return NextResponse.json({
       success: true,
