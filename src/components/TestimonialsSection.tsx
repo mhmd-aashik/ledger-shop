@@ -8,7 +8,7 @@ export default function TestimonialsSection() {
       name: "Sarah Johnson",
       location: "New York, USA",
       rating: 5,
-      text: "The quality of my Heritano wallet is exceptional. It's been my daily companion for over a year and still looks brand new. The craftsmanship is truly remarkable.",
+      text: "The quality of my Heritano wallet is exceptional. It&apos;s been my daily companion for over a year and still looks brand new. The craftsmanship is truly remarkable.",
       image: leather1,
     },
     {
@@ -35,7 +35,7 @@ export default function TestimonialsSection() {
             What Our Customers Say
           </h2>
           <p className="text-xl text-amber-700 max-w-3xl mx-auto">
-            Don't just take our word for it. Here's what our satisfied customers
+            Don&apos;t just take our word for it. Here&apos;s what our satisfied customers
             have to say about their Heritano experience.
           </p>
         </div>
@@ -63,7 +63,7 @@ export default function TestimonialsSection() {
 
               {/* Testimonial Text */}
               <p className="text-amber-800 leading-relaxed mb-6 italic">
-                "{testimonial.text}"
+                &ldquo;{testimonial.text}&rdquo;
               </p>
 
               {/* Customer Info */}
