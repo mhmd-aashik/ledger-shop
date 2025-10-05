@@ -4,7 +4,6 @@ import { OrderData } from "../../types/email.types";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendOrderNotificationEmail(orderData: OrderData) {
-  console.log("Sending order notification email for order:", orderData.orderId);
   try {
     if (!process.env.RESEND_API_KEY) {
       console.warn("Resend API key not configured. Email will not be sent.");
@@ -12,13 +11,12 @@ export async function sendOrderNotificationEmail(orderData: OrderData) {
     }
 
     const { data, error } = await resend.emails.send({
-      from: "aashikdevelop@gmail.com",
-      to: [process.env.OWNER_EMAIL || "papaaashik@gmail.com"],
+      from: "notifications@heritano.com",
+      to: "papaaashik@gmail.com",
       subject: `New Order #${orderData.orderId} - ${orderData.customerName}`,
       html: generateOrderEmailHTML(orderData),
     });
 
-    // if error, return error
     if (error) {
       console.error("Resend API error:", error);
       return {
@@ -29,7 +27,6 @@ export async function sendOrderNotificationEmail(orderData: OrderData) {
       };
     }
 
-    console.log("Order notification email sent successfully:", data?.id);
     return { success: true, messageId: data?.id };
   } catch (error) {
     console.error("Unexpected error sending order notification email:", error);
@@ -43,16 +40,18 @@ export async function sendOrderNotificationEmail(orderData: OrderData) {
 }
 
 export async function sendOrderConfirmationEmail(orderData: OrderData) {
-  console.log("Sending order confirmation email for order:", orderData.orderId);
   try {
     if (!process.env.RESEND_API_KEY) {
       console.warn("Resend API key not configured. Email will not be sent.");
       return { success: false, message: "Email service not configured" };
     }
 
+    const recipientEmail = orderData.customerEmail || "papaaashik@gmail.com";
+    console.log("Sending confirmation email to:", recipientEmail);
+
     const { data, error } = await resend.emails.send({
-      from: "onboarding@resend.dev",
-      to: [orderData.customerEmail],
+      from: "whatever@heritano.com",
+      to: [recipientEmail],
       subject: `Order Confirmation #${orderData.orderId} - LeadHer Shop`,
       html: generateOrderConfirmationHTML(orderData),
     });
@@ -67,7 +66,6 @@ export async function sendOrderConfirmationEmail(orderData: OrderData) {
       };
     }
 
-    console.log("Order confirmation email sent successfully:", data?.id);
     return { success: true, messageId: data?.id };
   } catch (error) {
     console.error("Unexpected error sending order confirmation email:", error);
