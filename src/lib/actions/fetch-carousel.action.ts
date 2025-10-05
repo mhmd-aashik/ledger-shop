@@ -5,6 +5,7 @@ export async function fetchCarousel() {
     await client.fetch(`*[_type == "carousel" && isActive == true] | order(order asc) {
     _id,
     title,
+    subtitle,
     image {
       asset->{
         _id,

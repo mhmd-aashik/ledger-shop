@@ -8,8 +8,6 @@ import { urlFor } from "@/sanity/lib/image";
 export default async function TestimonialsSection() {
   const reviews = await fetchReviews();
 
-  console.log(JSON.stringify(reviews, null, 2));
-
   return (
     <section className="py-8 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

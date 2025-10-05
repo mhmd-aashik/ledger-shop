@@ -115,18 +115,14 @@ export default function CarouselClient({ slides }: CarouselClientProps) {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
                   <div className="max-w-2xl">
                     <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-bold text-white mb-6 leading-tight">
-                      {slide.subtitle}
+                      {slide.title}
                     </h1>
-                    {!isSanitySlide && (
-                      <>
-                        <p className="text-xl md:text-2xl text-white/90 mb-8 font-light">
-                          {slide.cta}
-                        </p>
-                        <button className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-4 rounded-lg font-medium text-lg transition-all duration-300 hover:scale-105 shadow-lg">
-                          {slide.ctaLink}
-                        </button>
-                      </>
-                    )}
+                    <p className="text-xl md:text-2xl text-white/90 mb-8 font-light">
+                      {slide.subtitle}
+                    </p>
+                    <button className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-4 rounded-lg font-medium text-lg transition-all duration-300 hover:scale-105 shadow-lg">
+                      {slide.cta}
+                    </button>
                   </div>
                 </div>
               </div>
