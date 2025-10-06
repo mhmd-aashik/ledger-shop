@@ -18,15 +18,18 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [cartItemCount, setCartItemCount] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
-  const { getTotalItems } = useCartStore();
   const [isScrolled, setIsScrolled] = useState(false);
 
-  // Fix hydration error by only updating cart count on client side
+  // Handle cart count with proper hydration
   useEffect(() => {
     setIsMounted(true);
-    // Only update cart count on client side to prevent hydration errors
-    if (typeof window !== "undefined") {
-      setCartItemCount(getTotalItems());
+  }, []);
+
+  useEffect(() => {
+    if (isMounted) {
+      // Get the number of different items in cart (not total quantity)
+      const items = useCartStore.getState().items;
+      setCartItemCount(items.length);
 
       const unsubscribe = useCartStore.subscribe((state) => {
         setCartItemCount(state.items.length);
@@ -34,7 +37,7 @@ export default function Header() {
 
       return unsubscribe;
     }
-  }, [getTotalItems]);
+  }, [isMounted]);
 
   useEffect(() => {
     const handleScroll = () => {
