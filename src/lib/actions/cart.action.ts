@@ -1,10 +1,8 @@
 "use server";
 
-import { PrismaClient } from "@prisma/client";
 import { currentUser } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
-
-const prisma = new PrismaClient();
+import { prisma } from "../prisma";
 
 export interface CartItem {
   id: string;
@@ -14,7 +12,7 @@ export interface CartItem {
   price: number;
   image: string;
   slug: string;
-  category: string;
+  category: string | null;
   color: string;
   rating: number;
   reviewCount: number;
@@ -31,12 +29,43 @@ export async function getCartItems() {
       return { success: false, error: "No authenticated user" };
     }
 
-    // For now, we'll use a simple approach with localStorage for cart
-    // In a full implementation, you'd store cart items in the database
-    // This is a temporary solution until we implement proper cart storage
-    const cartItems: CartItem[] = [];
+    // Get user from database
+    const dbUser = await prisma.user.findUnique({
+      where: { clerkId: user.id },
+    });
 
-    return { success: true, items: cartItems };
+    if (!dbUser) {
+      return { success: false, error: "User not found" };
+    }
+
+    // Get cart items with product details
+    const cartItems = await prisma.cart.findMany({
+      where: { userId: dbUser.id },
+      include: {
+        product: {
+          include: {
+            category: true,
+          },
+        },
+      },
+    });
+
+    // Transform to CartItem format
+    const items: CartItem[] = cartItems.map((item) => ({
+      id: item.productId,
+      productId: item.productId,
+      quantity: item.quantity,
+      name: item.product.name,
+      price: Number(item.product.price),
+      image: item.product.images[0] || "/placeholder.jpg",
+      slug: item.product.slug,
+      category: item.product.category.name,
+      color: "Default", // You might want to add color to your product model
+      rating: Number(item.product.rating) || 0,
+      reviewCount: item.product.reviewCount,
+    }));
+
+    return { success: true, items };
   } catch (error) {
     console.error("Error getting cart items:", error);
     return { success: false, error: "Failed to get cart items" };
@@ -54,6 +83,15 @@ export async function addToCart(productId: string, quantity: number = 1) {
       return { success: false, error: "No authenticated user" };
     }
 
+    // Get user from database
+    const dbUser = await prisma.user.findUnique({
+      where: { clerkId: user.id },
+    });
+
+    if (!dbUser) {
+      return { success: false, error: "User not found" };
+    }
+
     // Check if product exists
     const product = await prisma.product.findUnique({
       where: { id: productId },
@@ -63,9 +101,41 @@ export async function addToCart(productId: string, quantity: number = 1) {
       return { success: false, error: "Product not found" };
     }
 
-    // For now, we'll use a simple approach
-    // In a full implementation, you'd store cart items in the database
-    // This is a temporary solution until we implement proper cart storage
+    // Check if item already exists in cart
+    const existingCartItem = await prisma.cart.findUnique({
+      where: {
+        userId_productId: {
+          userId: dbUser.id,
+          productId: productId,
+        },
+      },
+    });
+
+    if (existingCartItem) {
+      // Update quantity if item already exists
+      await prisma.cart.update({
+        where: {
+          userId_productId: {
+            userId: dbUser.id,
+            productId: productId,
+          },
+        },
+        data: {
+          quantity: existingCartItem.quantity + quantity,
+          updatedAt: new Date(),
+        },
+      });
+    } else {
+      // Add new item to cart
+      await prisma.cart.create({
+        data: {
+          userId: dbUser.id,
+          productId: productId,
+          quantity: quantity,
+        },
+      });
+    }
+
     revalidatePath("/cart");
     return { success: true };
   } catch (error) {
@@ -84,6 +154,25 @@ export async function removeFromCart(productId: string) {
     if (!user) {
       return { success: false, error: "No authenticated user" };
     }
+
+    // Get user from database
+    const dbUser = await prisma.user.findUnique({
+      where: { clerkId: user.id },
+    });
+
+    if (!dbUser) {
+      return { success: false, error: "User not found" };
+    }
+
+    // Remove item from cart
+    await prisma.cart.delete({
+      where: {
+        userId_productId: {
+          userId: dbUser.id,
+          productId: productId,
+        },
+      },
+    });
 
     revalidatePath("/cart");
     return { success: true };
@@ -107,6 +196,41 @@ export async function updateCartItemQuantity(
       return { success: false, error: "No authenticated user" };
     }
 
+    // Get user from database
+    const dbUser = await prisma.user.findUnique({
+      where: { clerkId: user.id },
+    });
+
+    if (!dbUser) {
+      return { success: false, error: "User not found" };
+    }
+
+    if (quantity <= 0) {
+      // Remove item if quantity is 0 or negative
+      await prisma.cart.delete({
+        where: {
+          userId_productId: {
+            userId: dbUser.id,
+            productId: productId,
+          },
+        },
+      });
+    } else {
+      // Update quantity
+      await prisma.cart.update({
+        where: {
+          userId_productId: {
+            userId: dbUser.id,
+            productId: productId,
+          },
+        },
+        data: {
+          quantity: quantity,
+          updatedAt: new Date(),
+        },
+      });
+    }
+
     revalidatePath("/cart");
     return { success: true };
   } catch (error) {
@@ -125,6 +249,20 @@ export async function clearCart() {
     if (!user) {
       return { success: false, error: "No authenticated user" };
     }
+
+    // Get user from database
+    const dbUser = await prisma.user.findUnique({
+      where: { clerkId: user.id },
+    });
+
+    if (!dbUser) {
+      return { success: false, error: "User not found" };
+    }
+
+    // Clear all cart items for user
+    await prisma.cart.deleteMany({
+      where: { userId: dbUser.id },
+    });
 
     revalidatePath("/cart");
     return { success: true };

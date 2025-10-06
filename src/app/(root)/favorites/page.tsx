@@ -164,19 +164,23 @@ export default function FavoritesPage() {
                   {/* Quick Actions */}
                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <Button
-                      onClick={() => {
-                        const added = addToCart({
-                          id: product.id,
-                          name: product.name,
-                          price: product.price,
-                          image: product.image,
-                        });
-                        if (added) {
-                          toast.success(`${product.name} added to cart!`);
-                        } else {
-                          toast.error(
-                            `${product.name} is already in your cart!`
-                          );
+                      onClick={async () => {
+                        try {
+                          const result = await addToCart(product.id, 1);
+                          if (result.success) {
+                            toast.success(`${product.name} added to cart!`);
+                            // Dispatch event to update header count
+                            window.dispatchEvent(
+                              new CustomEvent("cartUpdated")
+                            );
+                          } else {
+                            toast.error(
+                              result.error || "Failed to add to cart"
+                            );
+                          }
+                        } catch (error) {
+                          console.error("Error adding to cart:", error);
+                          toast.error("Something went wrong");
                         }
                       }}
                       className="bg-white text-foreground hover:bg-accent hover:text-accent-foreground"
