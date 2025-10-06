@@ -6,7 +6,6 @@ import Link from "next/link";
 import {
   ArrowLeft,
   ShoppingBag,
-  Heart,
   Star,
   ChevronLeft,
   ChevronRight,
@@ -14,14 +13,10 @@ import {
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import FavoriteButton from "@/components/FavoriteButton";
 import { useCartStore } from "@/store/cartStore";
 import toast from "react-hot-toast";
 import { productItem } from "@/data/products";
-
-
-
-
-
 
 export default function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState(0);
@@ -286,9 +281,19 @@ export default function ProductDetail() {
                     <ShoppingBag className="w-5 h-5" />
                     <span>Add to Cart</span>
                   </button>
-                  <button className="p-4 border border-border rounded-lg hover:bg-muted transition-colors duration-200">
-                    <Heart className="w-5 h-5" />
-                  </button>
+                  <FavoriteButton
+                    product={{
+                      id: product.id,
+                      name: product.name,
+                      price: product.price,
+                      image: product.images[0],
+                      slug: product.id, // Using id as slug for now
+                      category: product.category,
+                      rating: product.rating,
+                      reviewCount: product.reviews,
+                    }}
+                    className="p-4 border border-border rounded-lg hover:bg-muted transition-colors duration-200"
+                  />
                 </div>
 
                 {product.inStock ? (

@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ShoppingBag, CreditCard, User } from "lucide-react";
+import { ArrowLeft, ShoppingBag, CreditCard, User, MapPin } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useCartStore } from "@/store/cartStore";
@@ -12,18 +12,50 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import toast from "react-hot-toast";
 
 export default function Checkout() {
   const router = useRouter();
   const { items, getTotalPrice, clearCart } = useCartStore();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [activeTab, setActiveTab] = useState("shipping");
   const [formData, setFormData] = useState({
     customerName: "",
     customerEmail: "",
     customerPhone: "",
     customerAddress: "",
+    billingAddress: "",
+    paymentMethod: "cash_on_delivery",
+    notes: "",
   });
+
+  // Mock user data - in real app, this would come from authentication
+  const [userProfile] = useState({
+    firstName: "Sarah",
+    lastName: "Johnson",
+    email: "sarah.johnson@email.com",
+    phone: "+1 (555) 123-4567",
+    address: {
+      street: "123 Main Street",
+      city: "New York",
+      state: "NY",
+      zipCode: "10001",
+      country: "United States",
+    },
+  });
+
+  // Load user data on component mount
+  useEffect(() => {
+    // In a real app, this would fetch from user profile
+    setFormData((prev) => ({
+      ...prev,
+      customerName: `${userProfile.firstName} ${userProfile.lastName}`,
+      customerEmail: userProfile.email,
+      customerPhone: userProfile.phone,
+      customerAddress: `${userProfile.address.street}, ${userProfile.address.city}, ${userProfile.address.state} ${userProfile.address.zipCode}, ${userProfile.address.country}`,
+    }));
+  }, [userProfile]);
 
   const subtotal = getTotalPrice();
   const shipping = subtotal > 500 ? 0 : 50;
@@ -150,92 +182,264 @@ export default function Checkout() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Customer Information Form */}
+            {/* Checkout Form */}
             <div className="leather-card rounded-xl p-6">
               <h2 className="text-xl font-serif font-semibold text-foreground mb-6 flex items-center">
                 <User className="w-5 h-5 mr-2" />
-                Customer Information
+                Checkout Information
               </h2>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <Label htmlFor="customerName">Full Name *</Label>
-                  <Input
-                    id="customerName"
-                    name="customerName"
-                    type="text"
-                    value={formData.customerName}
-                    onChange={handleInputChange}
-                    placeholder="Enter your full name"
-                    required
-                    className="mt-1"
-                  />
-                </div>
+              <Tabs
+                value={activeTab}
+                onValueChange={setActiveTab}
+                className="space-y-6"
+              >
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="shipping">Shipping</TabsTrigger>
+                  <TabsTrigger value="billing">Billing</TabsTrigger>
+                  <TabsTrigger value="payment">Payment</TabsTrigger>
+                </TabsList>
 
-                <div>
-                  <Label htmlFor="customerEmail">Email Address *</Label>
-                  <Input
-                    id="customerEmail"
-                    name="customerEmail"
-                    type="email"
-                    value={formData.customerEmail}
-                    onChange={handleInputChange}
-                    placeholder="Enter your email address"
-                    required
-                    className="mt-1"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="customerPhone">Phone Number *</Label>
-                  <Input
-                    id="customerPhone"
-                    name="customerPhone"
-                    type="tel"
-                    value={formData.customerPhone}
-                    onChange={handleInputChange}
-                    placeholder="Enter your phone number"
-                    required
-                    className="mt-1"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="customerAddress">Delivery Address *</Label>
-                  <Textarea
-                    id="customerAddress"
-                    name="customerAddress"
-                    value={formData.customerAddress}
-                    onChange={handleInputChange}
-                    placeholder="Enter your complete delivery address"
-                    required
-                    className="mt-1 min-h-[100px]"
-                  />
-                </div>
-
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                  <div className="flex items-start">
-                    <CreditCard className="w-5 h-5 text-amber-600 mr-2 mt-0.5" />
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Shipping Information */}
+                  <TabsContent value="shipping" className="space-y-4">
                     <div>
-                      <h3 className="font-medium text-amber-800">
-                        Payment Information
+                      <h3 className="text-lg font-semibold mb-4 flex items-center">
+                        <MapPin className="w-5 h-5 mr-2" />
+                        Shipping Address
                       </h3>
-                      <p className="text-sm text-amber-700 mt-1">
-                        We&apos;ll contact you after order confirmation to
-                        arrange payment and delivery details.
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="customerName">Full Name *</Label>
+                          <Input
+                            id="customerName"
+                            name="customerName"
+                            type="text"
+                            value={formData.customerName}
+                            onChange={handleInputChange}
+                            placeholder="Enter your full name"
+                            required
+                            className="mt-1"
+                          />
+                        </div>
 
-                <Button
-                  type="submit"
-                  disabled={isProcessing}
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-4 px-6 rounded-lg font-medium transition-colors duration-200"
-                >
-                  {isProcessing ? "Processing Order..." : "Place Order"}
-                </Button>
-              </form>
+                        <div>
+                          <Label htmlFor="customerEmail">Email Address *</Label>
+                          <Input
+                            id="customerEmail"
+                            name="customerEmail"
+                            type="email"
+                            value={formData.customerEmail}
+                            onChange={handleInputChange}
+                            placeholder="Enter your email address"
+                            required
+                            className="mt-1"
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="customerPhone">Phone Number *</Label>
+                          <Input
+                            id="customerPhone"
+                            name="customerPhone"
+                            type="tel"
+                            value={formData.customerPhone}
+                            onChange={handleInputChange}
+                            placeholder="Enter your phone number"
+                            required
+                            className="mt-1"
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="customerAddress">
+                            Delivery Address *
+                          </Label>
+                          <Textarea
+                            id="customerAddress"
+                            name="customerAddress"
+                            value={formData.customerAddress}
+                            onChange={handleInputChange}
+                            placeholder="Enter your complete delivery address"
+                            required
+                            className="mt-1 min-h-[100px]"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  {/* Billing Information */}
+                  <TabsContent value="billing" className="space-y-4">
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4 flex items-center">
+                        <CreditCard className="w-5 h-5 mr-2" />
+                        Billing Address
+                      </h3>
+                      <div className="space-y-4">
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id="sameAsShipping"
+                            className="rounded"
+                            defaultChecked
+                          />
+                          <Label htmlFor="sameAsShipping">
+                            Same as shipping address
+                          </Label>
+                        </div>
+
+                        <div>
+                          <Label htmlFor="billingAddress">
+                            Billing Address
+                          </Label>
+                          <Textarea
+                            id="billingAddress"
+                            name="billingAddress"
+                            value={formData.billingAddress}
+                            onChange={handleInputChange}
+                            placeholder="Enter your billing address (if different from shipping)"
+                            className="mt-1 min-h-[100px]"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  {/* Payment Information */}
+                  <TabsContent value="payment" className="space-y-4">
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4 flex items-center">
+                        <CreditCard className="w-5 h-5 mr-2" />
+                        Payment Method
+                      </h3>
+                      <div className="space-y-4">
+                        <div className="space-y-3">
+                          <div className="flex items-center space-x-3 p-4 border rounded-lg">
+                            <input
+                              type="radio"
+                              id="cashOnDelivery"
+                              name="paymentMethod"
+                              value="cash_on_delivery"
+                              checked={
+                                formData.paymentMethod === "cash_on_delivery"
+                              }
+                              onChange={handleInputChange}
+                              className="text-primary"
+                            />
+                            <div className="flex-1">
+                              <Label
+                                htmlFor="cashOnDelivery"
+                                className="font-medium"
+                              >
+                                Cash on Delivery
+                              </Label>
+                              <p className="text-sm text-muted-foreground">
+                                Pay when your order is delivered
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center space-x-3 p-4 border rounded-lg">
+                            <input
+                              type="radio"
+                              id="bankTransfer"
+                              name="paymentMethod"
+                              value="bank_transfer"
+                              checked={
+                                formData.paymentMethod === "bank_transfer"
+                              }
+                              onChange={handleInputChange}
+                              className="text-primary"
+                            />
+                            <div className="flex-1">
+                              <Label
+                                htmlFor="bankTransfer"
+                                className="font-medium"
+                              >
+                                Bank Transfer
+                              </Label>
+                              <p className="text-sm text-muted-foreground">
+                                Transfer payment to our bank account
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <Label htmlFor="notes">Order Notes (Optional)</Label>
+                          <Textarea
+                            id="notes"
+                            name="notes"
+                            value={formData.notes}
+                            onChange={handleInputChange}
+                            placeholder="Any special instructions for your order"
+                            className="mt-1"
+                            rows={3}
+                          />
+                        </div>
+
+                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                          <div className="flex items-start">
+                            <CreditCard className="w-5 h-5 text-amber-600 mr-2 mt-0.5" />
+                            <div>
+                              <h4 className="font-medium text-amber-800">
+                                Payment Information
+                              </h4>
+                              <p className="text-sm text-amber-700 mt-1">
+                                We&apos;ll contact you after order confirmation
+                                to arrange payment and delivery details.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <div className="flex space-x-4">
+                    {activeTab !== "shipping" && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          const tabs = ["shipping", "billing", "payment"];
+                          const currentIndex = tabs.indexOf(activeTab);
+                          if (currentIndex > 0) {
+                            setActiveTab(tabs[currentIndex - 1]);
+                          }
+                        }}
+                      >
+                        Previous
+                      </Button>
+                    )}
+
+                    {activeTab !== "payment" ? (
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          const tabs = ["shipping", "billing", "payment"];
+                          const currentIndex = tabs.indexOf(activeTab);
+                          if (currentIndex < tabs.length - 1) {
+                            setActiveTab(tabs[currentIndex + 1]);
+                          }
+                        }}
+                        className="flex-1"
+                      >
+                        Next
+                      </Button>
+                    ) : (
+                      <Button
+                        type="submit"
+                        disabled={isProcessing}
+                        className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground py-4 px-6 rounded-lg font-medium transition-colors duration-200"
+                      >
+                        {isProcessing ? "Processing Order..." : "Place Order"}
+                      </Button>
+                    )}
+                  </div>
+                </form>
+              </Tabs>
             </div>
 
             {/* Order Summary */}

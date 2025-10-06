@@ -1,0 +1,82 @@
+"use client";
+
+import { Heart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useFavoriteStore } from "@/store/favoriteStore";
+import { cn } from "@/lib/utils";
+import toast from "react-hot-toast";
+
+interface FavoriteButtonProps {
+  product: {
+    id: string;
+    name: string;
+    price: number;
+    image: string;
+    slug: string;
+    category: string;
+    rating: number;
+    reviewCount: number;
+  };
+  variant?: "default" | "icon" | "outline";
+  size?: "sm" | "default" | "lg";
+  className?: string;
+  showText?: boolean;
+}
+
+export default function FavoriteButton({
+  product,
+  variant = "icon",
+  size = "default",
+  className,
+  showText = false,
+}: FavoriteButtonProps) {
+  const { isFavorite, toggleFavorite } = useFavoriteStore();
+  const isFavorited = isFavorite(product.id);
+
+  const handleToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    toggleFavorite(product);
+
+    if (isFavorited) {
+      toast.success("Removed from favorites");
+    } else {
+      toast.success("Added to favorites");
+    }
+  };
+
+  if (variant === "icon") {
+    return (
+      <Button
+        variant="ghost"
+        size={size}
+        onClick={handleToggle}
+        className={cn(
+          "h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 transition-colors",
+          isFavorited && "text-red-600",
+          className
+        )}
+        aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
+      >
+        <Heart className={cn("h-4 w-4", isFavorited && "fill-current")} />
+      </Button>
+    );
+  }
+
+  return (
+    <Button
+      variant={variant}
+      size={size}
+      onClick={handleToggle}
+      className={cn(
+        "transition-colors",
+        isFavorited && "bg-red-50 text-red-600 hover:bg-red-100",
+        className
+      )}
+    >
+      <Heart className={cn("h-4 w-4 mr-2", isFavorited && "fill-current")} />
+      {showText && (isFavorited ? "Remove from Favorites" : "Add to Favorites")}
+    </Button>
+  );
+}

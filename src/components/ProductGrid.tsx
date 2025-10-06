@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingBag, Heart } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import { useState } from "react";
 import { useCartStore } from "@/store/cartStore";
+import FavoriteButton from "@/components/FavoriteButton";
 import toast from "react-hot-toast";
 import { products } from "@/data/products";
 
@@ -68,9 +69,19 @@ export default function ProductGrid() {
                   >
                     <ShoppingBag className="w-5 h-5" />
                   </button>
-                  <button className="bg-white text-foreground p-3 rounded-full hover:bg-accent hover:text-accent-foreground transition-colors duration-200">
-                    <Heart className="w-5 h-5" />
-                  </button>
+                  <FavoriteButton
+                    product={{
+                      id: product.id,
+                      name: product.name,
+                      price: product.price,
+                      image: product.image,
+                      slug: product.id, // Using id as slug for now
+                      category: product.category,
+                      rating: 4.5, // Default rating
+                      reviewCount: 0, // Default review count
+                    }}
+                    className="bg-white text-foreground p-3 rounded-full hover:bg-accent hover:text-accent-foreground transition-colors duration-200"
+                  />
                 </div>
               </div>
 

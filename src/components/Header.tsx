@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ShoppingBag, Menu, X, User, LogIn } from "lucide-react";
+import { ShoppingBag, Menu, X, User, LogIn, Heart } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
+import { useFavoriteStore } from "@/store/favoriteStore";
 import Image from "next/image";
 import logo from "../../public/assets/logos/logo.png";
 import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
@@ -12,8 +13,10 @@ import { Button } from "@/components/ui/button";
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [cartItemCount, setCartItemCount] = useState(0);
+  const [favoritesCount, setFavoritesCount] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
   const { getTotalItems } = useCartStore();
+  const { getFavoritesCount } = useFavoriteStore();
   const [isScrolled, setIsScrolled] = useState(false);
 
   // Fix hydration error by only updating cart count on client side
@@ -22,15 +25,24 @@ export default function Header() {
     // Only update cart count on client side to prevent hydration errors
     if (typeof window !== "undefined") {
       setCartItemCount(getTotalItems());
+      setFavoritesCount(getFavoritesCount());
 
       // Subscribe to cart changes
-      const unsubscribe = useCartStore.subscribe((state) => {
+      const unsubscribeCart = useCartStore.subscribe((state) => {
         setCartItemCount(state.items.length);
       });
 
-      return unsubscribe;
+      // Subscribe to favorites changes
+      const unsubscribeFavorites = useFavoriteStore.subscribe((state) => {
+        setFavoritesCount(state.favorites.length);
+      });
+
+      return () => {
+        unsubscribeCart();
+        unsubscribeFavorites();
+      };
     }
-  }, [getTotalItems]);
+  }, [getTotalItems, getFavoritesCount]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -119,6 +131,19 @@ export default function Header() {
                 />
               </SignedIn>
             </div>
+
+            {/* Favorites */}
+            <Link
+              href="/favorites"
+              className="relative p-2 text-foreground/80 hover:text-foreground transition-colors duration-200"
+            >
+              <Heart className="w-6 h-6" />
+              {isMounted && favoritesCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium shadow-lg">
+                  {favoritesCount}
+                </span>
+              )}
+            </Link>
 
             {/* Cart */}
             <Link
