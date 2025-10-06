@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { User, Edit, Save, X, Heart } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -16,14 +16,33 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useFavoriteStore } from "@/store/favoriteStore";
+import { getFavoriteProducts } from "@/lib/actions/favorite.action";
 import Link from "next/link";
 import Image from "next/image";
 
 export default function ProfilePage() {
-  const { favorites, getFavoritesCount } = useFavoriteStore();
+  const [favorites, setFavorites] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
+
+  // Load favorites from database
+  useEffect(() => {
+    const loadFavorites = async () => {
+      try {
+        const result = await getFavoriteProducts();
+        if (result.success) {
+          setFavorites(result.favorites || []);
+        }
+      } catch (error) {
+        console.error("Error loading favorites:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadFavorites();
+  }, []);
 
   // Mock user data - in real app, this would come from authentication
   const [userData, setUserData] = useState({
@@ -401,7 +420,7 @@ export default function ProfilePage() {
                 <CardHeader>
                   <CardTitle>My Favorites</CardTitle>
                   <CardDescription>
-                    {getFavoritesCount()} items in your favorites
+                    {favorites.length} items in your favorites
                   </CardDescription>
                 </CardHeader>
                 <CardContent>

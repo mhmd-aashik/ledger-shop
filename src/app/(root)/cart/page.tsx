@@ -5,15 +5,76 @@ import Link from "next/link";
 import { Minus, Plus, Trash2, ArrowLeft, ShoppingBag } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { useCartStore } from "@/store/cartStore";
+import {
+  getCartItems,
+  updateCartItemQuantity,
+  removeFromCart,
+  CartItem,
+} from "@/lib/actions/cart.action";
+import { useState, useEffect } from "react";
 
 export default function Cart() {
-  const { items, updateQuantity, removeFromCart, getTotalPrice } =
-    useCartStore();
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const subtotal = getTotalPrice();
+  // Load cart items from database
+  useEffect(() => {
+    const loadCartItems = async () => {
+      try {
+        const result = await getCartItems();
+        if (result.success) {
+          setItems(result.items || []);
+        }
+      } catch (error) {
+        console.error("Error loading cart items:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadCartItems();
+  }, []);
+
+  const subtotal = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
   const shipping = subtotal > 500 ? 0 : 50;
   const total = subtotal + shipping;
+
+  const handleUpdateQuantity = async (
+    productId: string,
+    newQuantity: number
+  ) => {
+    if (newQuantity <= 0) {
+      await handleRemoveItem(productId);
+      return;
+    }
+
+    try {
+      const result = await updateCartItemQuantity(productId, newQuantity);
+      if (result.success) {
+        setItems(
+          items.map((item) =>
+            item.id === productId ? { ...item, quantity: newQuantity } : item
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+    }
+  };
+
+  const handleRemoveItem = async (productId: string) => {
+    try {
+      const result = await removeFromCart(productId);
+      if (result.success) {
+        setItems(items.filter((item) => item.id !== productId));
+      }
+    } catch (error) {
+      console.error("Error removing item:", error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -35,7 +96,13 @@ export default function Cart() {
             </h1>
           </div>
 
-          {items.length === 0 ? (
+          {isLoading ? (
+            /* Loading State */
+            <div className="text-center py-16">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading your cart...</p>
+            </div>
+          ) : items.length === 0 ? (
             /* Empty Cart */
             <div className="text-center py-16">
               <ShoppingBag className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
@@ -91,7 +158,7 @@ export default function Cart() {
                       <div className="flex items-center space-x-3">
                         <button
                           onClick={() =>
-                            updateQuantity(item.id, item.quantity - 1)
+                            handleUpdateQuantity(item.id, item.quantity - 1)
                           }
                           className="w-8 h-8 border border-border rounded-lg flex items-center justify-center hover:bg-muted transition-colors duration-200"
                         >
@@ -102,7 +169,7 @@ export default function Cart() {
                         </span>
                         <button
                           onClick={() =>
-                            updateQuantity(item.id, item.quantity + 1)
+                            handleUpdateQuantity(item.id, item.quantity + 1)
                           }
                           className="w-8 h-8 border border-border rounded-lg flex items-center justify-center hover:bg-muted transition-colors duration-200"
                         >
@@ -112,7 +179,7 @@ export default function Cart() {
 
                       {/* Remove Button */}
                       <button
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => handleRemoveItem(item.id)}
                         className="p-2 text-muted-foreground hover:text-destructive transition-colors duration-200"
                       >
                         <Trash2 className="w-5 h-5" />

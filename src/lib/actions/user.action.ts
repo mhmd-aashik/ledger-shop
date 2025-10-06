@@ -1,8 +1,11 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import { PrismaClient } from "@prisma/client";
 import { currentUser } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+
+// Create a new Prisma client instance for server actions
+const prisma = new PrismaClient();
 
 export interface CreateUserData {
   clerkId: string;
@@ -151,8 +154,26 @@ export async function deleteUser(clerkId: string) {
  * Sync user data from Clerk to database
  * This function is called when a user signs up or updates their profile
  */
-export async function syncUserFromClerk(clerkUser: any) {
+export async function syncUserFromClerk(clerkUser: {
+  id: string;
+  emailAddresses: { emailAddress: string }[];
+  firstName: string;
+  lastName: string;
+  imageUrl: string;
+}) {
   try {
+    console.log("syncUserFromClerk called with:", clerkUser);
+    console.log("prisma object:", prisma);
+    console.log("prisma type:", typeof prisma);
+
+    if (!prisma) {
+      throw new Error("Prisma client is not initialized");
+    }
+
+    if (!prisma.user) {
+      throw new Error("Prisma user model is not available");
+    }
+
     const existingUser = await prisma.user.findUnique({
       where: { clerkId: clerkUser.id },
     });

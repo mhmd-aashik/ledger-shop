@@ -3,46 +3,61 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ShoppingBag, Menu, X, User, LogIn, Heart } from "lucide-react";
-import { useCartStore } from "@/store/cartStore";
-import { useFavoriteStore } from "@/store/favoriteStore";
 import Image from "next/image";
 import logo from "../../public/assets/logos/logo.png";
-import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
+import { getCartItems } from "@/lib/actions/cart.action";
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [cartItemCount, setCartItemCount] = useState(0);
   const [favoritesCount, setFavoritesCount] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
-  const { getTotalItems } = useCartStore();
-  const { getFavoritesCount } = useFavoriteStore();
   const [isScrolled, setIsScrolled] = useState(false);
 
-  // Fix hydration error by only updating cart count on client side
+  // Function to refresh counts
+  const refreshCounts = async () => {
+    try {
+      // Load cart items
+      const cartResult = await getCartItems();
+      if (cartResult.success) {
+        setCartItemCount(cartResult.items?.length || 0);
+      }
+
+      // Load favorites count from API
+      const favoritesResponse = await fetch("/api/favorites/count");
+      const favoritesData = await favoritesResponse.json();
+      setFavoritesCount(favoritesData.count || 0);
+    } catch (error) {
+      console.error("Error loading counts:", error);
+    }
+  };
+
+  // Load cart and favorites count from database
   useEffect(() => {
     setIsMounted(true);
-    // Only update cart count on client side to prevent hydration errors
-    if (typeof window !== "undefined") {
-      setCartItemCount(getTotalItems());
-      setFavoritesCount(getFavoritesCount());
+    refreshCounts();
+  }, []);
 
-      // Subscribe to cart changes
-      const unsubscribeCart = useCartStore.subscribe((state) => {
-        setCartItemCount(state.items.length);
-      });
+  // Listen for storage events to refresh counts when favorites change
+  useEffect(() => {
+    const handleStorageChange = () => {
+      refreshCounts();
+    };
 
-      // Subscribe to favorites changes
-      const unsubscribeFavorites = useFavoriteStore.subscribe((state) => {
-        setFavoritesCount(state.favorites.length);
-      });
+    window.addEventListener("storage", handleStorageChange);
 
-      return () => {
-        unsubscribeCart();
-        unsubscribeFavorites();
-      };
-    }
-  }, [getTotalItems, getFavoritesCount]);
+    // Also listen for custom events
+    window.addEventListener("favoritesUpdated", handleStorageChange);
+    window.addEventListener("cartUpdated", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("favoritesUpdated", handleStorageChange);
+      window.removeEventListener("cartUpdated", handleStorageChange);
+    };
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {

@@ -14,7 +14,7 @@ import {
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import FavoriteButton from "@/components/FavoriteButton";
-import { useCartStore } from "@/store/cartStore";
+import { addToCart } from "@/lib/actions/cart.action";
 import toast from "react-hot-toast";
 import { productItem } from "@/data/products";
 
@@ -23,7 +23,7 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [showVideo, setShowVideo] = useState(true); // Start with video
   const [videoEnded, setVideoEnded] = useState(false);
-  const { addToCartWithQuantity } = useCartStore();
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   const product = productItem;
 
@@ -262,20 +262,29 @@ export default function ProductDetail() {
 
                 <div className="flex space-x-4">
                   <button
-                    onClick={() => {
-                      addToCartWithQuantity(
-                        {
-                          id: product.id,
-                          name: product.name,
-                          price: product.price,
-                          image: product.images[0],
-                        },
-                        quantity
-                      );
-                      toast.success(
-                        `${quantity} x ${product.name} added to cart!`
-                      );
+                    onClick={async () => {
+                      if (isAddingToCart) return;
+
+                      setIsAddingToCart(true);
+                      try {
+                        const result = await addToCart(product.id, quantity);
+                        if (result.success) {
+                          toast.success(
+                            `${quantity} x ${product.name} added to cart!`
+                          );
+                          // Dispatch event to update header count
+                          window.dispatchEvent(new CustomEvent("cartUpdated"));
+                        } else {
+                          toast.error(result.error || "Failed to add to cart");
+                        }
+                      } catch (error) {
+                        console.error("Error adding to cart:", error);
+                        toast.error("Something went wrong");
+                      } finally {
+                        setIsAddingToCart(false);
+                      }
                     }}
+                    disabled={isAddingToCart}
                     className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground py-4 px-6 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
                   >
                     <ShoppingBag className="w-5 h-5" />

@@ -7,7 +7,7 @@ import Link from "next/link";
 import { ArrowLeft, ShoppingBag, CreditCard, User, MapPin } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { useCartStore } from "@/store/cartStore";
+import { getCartItems, clearCart } from "@/lib/actions/cart.action";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,9 +17,29 @@ import toast from "react-hot-toast";
 
 export default function Checkout() {
   const router = useRouter();
-  const { items, getTotalPrice, clearCart } = useCartStore();
+  const [items, setItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState("shipping");
+
+  // Load cart items from database
+  useEffect(() => {
+    const loadCartItems = async () => {
+      try {
+        const result = await getCartItems();
+        if (result.success) {
+          setItems(result.items || []);
+        }
+      } catch (error) {
+        console.error("Error loading cart items:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadCartItems();
+  }, []);
+
   const [formData, setFormData] = useState({
     customerName: "",
     customerEmail: "",
@@ -57,7 +77,10 @@ export default function Checkout() {
     }));
   }, [userProfile]);
 
-  const subtotal = getTotalPrice();
+  const subtotal = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
   const shipping = subtotal > 500 ? 0 : 50;
   const total = subtotal + shipping;
 
@@ -120,7 +143,12 @@ export default function Checkout() {
       const result = await response.json();
 
       if (result.success) {
-        clearCart();
+        const clearResult = await clearCart();
+        if (clearResult.success) {
+          setItems([]);
+          // Dispatch event to update header count
+          window.dispatchEvent(new CustomEvent("cartUpdated"));
+        }
         toast.success(
           "Order placed successfully! Check your email for confirmation."
         );

@@ -1,34 +1,77 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, ShoppingBag, Star, Trash2, ArrowLeft } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import FavoriteButton from "@/components/FavoriteButton";
-import { useFavoriteStore } from "@/store/favoriteStore";
-import { useCartStore } from "@/store/cartStore";
+import {
+  getFavoriteProducts,
+  removeFromFavorites,
+} from "@/lib/actions/favorite.action";
+import { addToCart } from "@/lib/actions/cart.action";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 
 export default function FavoritesPage() {
-  const { favorites, clearFavorites, removeFromFavorites } = useFavoriteStore();
-  const { addToCart } = useCartStore();
+  const [favorites, setFavorites] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isClearing, setIsClearing] = useState(false);
+
+  // Load favorites from database
+  useEffect(() => {
+    const loadFavorites = async () => {
+      try {
+        const result = await getFavoriteProducts();
+        if (result.success) {
+          setFavorites(result.favorites || []);
+        }
+      } catch (error) {
+        console.error("Error loading favorites:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadFavorites();
+  }, []);
 
   const handleClearAll = async () => {
     setIsClearing(true);
-    // Add a small delay for better UX
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    clearFavorites();
-    toast.success("All favorites cleared");
-    setIsClearing(false);
+    try {
+      // Remove all favorites one by one
+      for (const favorite of favorites) {
+        await removeFromFavorites(favorite.id);
+      }
+      setFavorites([]);
+      toast.success("All favorites cleared");
+      // Dispatch event to update header count
+      window.dispatchEvent(new CustomEvent("favoritesUpdated"));
+    } catch (error) {
+      console.error("Error clearing favorites:", error);
+      toast.error("Failed to clear favorites");
+    } finally {
+      setIsClearing(false);
+    }
   };
 
-  const handleRemoveItem = (productId: string, productName: string) => {
-    removeFromFavorites(productId);
-    toast.success(`${productName} removed from favorites`);
+  const handleRemoveItem = async (productId: string, productName: string) => {
+    try {
+      const result = await removeFromFavorites(productId);
+      if (result.success) {
+        setFavorites(favorites.filter((fav) => fav.id !== productId));
+        toast.success(`${productName} removed from favorites`);
+        // Dispatch event to update header count
+        window.dispatchEvent(new CustomEvent("favoritesUpdated"));
+      } else {
+        toast.error(result.error || "Failed to remove from favorites");
+      }
+    } catch (error) {
+      console.error("Error removing favorite:", error);
+      toast.error("Something went wrong");
+    }
   };
 
   if (favorites.length === 0) {
