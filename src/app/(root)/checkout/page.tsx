@@ -324,8 +324,8 @@ export default function Checkout() {
                           Payment Information
                         </h4>
                         <p className="text-sm text-amber-700 mt-1">
-                          We&apos;ll contact you after order confirmation
-                          to arrange payment and delivery details.
+                          We&apos;ll contact you after order confirmation to
+                          arrange payment and delivery details.
                         </p>
                       </div>
                     </div>
