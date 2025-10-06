@@ -1,34 +1,12 @@
 import { Star, Quote } from "lucide-react";
 import Image from "next/image";
-import leather1 from "../../public/assets/images/leather1.jpg";
+import { testimonials } from "@/data/testimonials";
 
 export default function TestimonialsSection() {
-  const testimonials = [
-    {
-      name: "Sarah Johnson",
-      location: "New York, USA",
-      rating: 5,
-      text: "The quality of my Heritano wallet is exceptional. It&apos;s been my daily companion for over a year and still looks brand new. The craftsmanship is truly remarkable.",
-      image: leather1,
-    },
-    {
-      name: "Ahmed Al-Rashid",
-      location: "Dubai, UAE",
-      rating: 5,
-      text: "I've owned many luxury leather goods, but nothing compares to Heritano. The attention to detail and premium materials make it worth every penny.",
-      image: leather1,
-    },
-    {
-      name: "Emma Thompson",
-      location: "London, UK",
-      rating: 5,
-      text: "The customer service was outstanding, and the product exceeded my expectations. This is what true luxury feels like - timeless and elegant.",
-      image: leather1,
-    },
-  ];
+ 
 
   return (
-    <section className="py-20 bg-white">
+    <section className="py-8 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-serif font-bold text-amber-900 mb-4">

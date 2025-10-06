@@ -16,45 +16,12 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useCartStore } from "@/store/cartStore";
 import toast from "react-hot-toast";
+import { productItem } from "@/data/products";
 
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  images: string[];
-  video?: string;
-  category: string;
-  description: string;
-  features: string[];
-  rating: number;
-  reviews: number;
-  inStock: boolean;
-}
 
-const product: Product = {
-  id: "1",
-  name: "Classic Leather Wallet",
-  price: 450,
-  images: [
-    "/assets/images/leather1.jpg",
-    "/assets/images/leather2.jpg",
-    "/assets/images/leather3.jpg",
-  ],
-  video: "/assets/video/video-1.mp4",
-  category: "Wallets",
-  description:
-    "Handcrafted from premium Italian leather, this classic wallet combines timeless elegance with modern functionality. Each piece is carefully stitched by master craftsmen using traditional techniques passed down through generations.",
-  features: [
-    "Premium Italian leather construction",
-    "Hand-stitched seams for durability",
-    "Multiple card slots and cash compartments",
-    "RFID blocking technology",
-    "Lifetime craftsmanship guarantee",
-  ],
-  rating: 4.8,
-  reviews: 127,
-  inStock: true,
-};
+
+
+
 
 export default function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState(0);
@@ -62,6 +29,8 @@ export default function ProductDetail() {
   const [showVideo, setShowVideo] = useState(true); // Start with video
   const [videoEnded, setVideoEnded] = useState(false);
   const { addToCartWithQuantity } = useCartStore();
+
+  const product = productItem;
 
   const nextImage = () => {
     setSelectedImage((prev) => (prev + 1) % product.images.length);
@@ -134,6 +103,8 @@ export default function ProductDetail() {
                     alt={product.name}
                     fill
                     className="object-cover"
+                    priority
+                    draggable={false}
                   />
                 )}
 

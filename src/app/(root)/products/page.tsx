@@ -1,5 +1,7 @@
+import { Suspense } from "react";
 import Header from "@/components/Header";
-import ProductGrid from "@/components/ProductGrid";
+import ProductFilters from "@/components/ProductFilters";
+import MoreProductsGrid from "@/components/MoreProductsGrid";
 import Footer from "@/components/Footer";
 
 export default function Products() {
@@ -9,7 +11,7 @@ export default function Products() {
 
       <main className="pt-16 lg:pt-20">
         {/* Hero Section */}
-        <section className="bg-leather-gradient py-16">
+        <section className="bg-leather-gradient py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 className="text-4xl md:text-5xl font-serif font-bold text-foreground mb-4">
               Our Products
@@ -21,8 +23,17 @@ export default function Products() {
           </div>
         </section>
 
-        {/* Product Grid */}
-        <ProductGrid />
+        {/* Product Filters */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Suspense fallback={<div>Loading filters...</div>}>
+            <ProductFilters />
+          </Suspense>
+        </div>
+
+        {/* More Products Grid */}
+        <Suspense fallback={<div>Loading products...</div>}>
+          <MoreProductsGrid />
+        </Suspense>
       </main>
 
       <Footer />
