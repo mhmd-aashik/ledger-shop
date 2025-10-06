@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { User, Edit, Save, X, Heart } from "lucide-react";
+import { useUser } from "@clerk/nextjs";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -17,8 +18,33 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getFavoriteProducts } from "@/lib/actions/favorite.action";
+import { getCurrentUser, updateUserProfile } from "@/lib/actions/user.action";
+import { toast } from "sonner";
 import Link from "next/link";
 import Image from "next/image";
+
+// Type for user data
+type UserData = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  imageUrl: string;
+  phone: string;
+  dateOfBirth: string;
+  bio: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
+  preferences: {
+    newsletter: boolean;
+    marketing: boolean;
+    sms: boolean;
+  };
+};
 
 // Type for favorite products with category
 type FavoriteProduct = {
@@ -71,94 +97,198 @@ type FavoriteProduct = {
 };
 
 export default function ProfilePage() {
+  const { user, isLoaded } = useUser();
   const [favorites, setFavorites] = useState<FavoriteProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [editData, setEditData] = useState<UserData | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Load favorites from database
+  // Helper function to safely get current data
+  const getCurrentData = () => {
+    return isEditing ? editData : userData;
+  };
+
+  // Load user data and favorites from database
   useEffect(() => {
-    const loadFavorites = async () => {
+    const loadUserData = async () => {
+      if (!isLoaded) return;
+
       try {
-        const result = await getFavoriteProducts();
-        if (result.success) {
-          setFavorites(result.favorites || []);
+        setIsLoading(true);
+
+        // Load favorites
+        const favoritesResult = await getFavoriteProducts();
+        if (favoritesResult.success) {
+          setFavorites(favoritesResult.favorites || []);
+        }
+
+        // Load user data from database
+        const userResult = await getCurrentUser();
+        if (userResult.success && "user" in userResult && userResult.user) {
+          const dbUser = userResult.user;
+          const clerkUser = user;
+
+          // Merge Clerk data with database data
+          const mergedUserData = {
+            firstName: clerkUser?.firstName || dbUser.firstName || "",
+            lastName: clerkUser?.lastName || dbUser.lastName || "",
+            email:
+              clerkUser?.emailAddresses?.[0]?.emailAddress ||
+              dbUser.email ||
+              "",
+            imageUrl: clerkUser?.imageUrl || dbUser.imageUrl || "",
+            phone: dbUser.profile?.phone || "",
+            dateOfBirth: dbUser.profile?.dateOfBirth
+              ? new Date(dbUser.profile.dateOfBirth).toISOString().split("T")[0]
+              : "",
+            bio: dbUser.profile?.bio || "",
+            address: dbUser.addresses?.[0]
+              ? {
+                  street: dbUser.addresses[0].address1 || "",
+                  city: dbUser.addresses[0].city || "",
+                  state: dbUser.addresses[0].state || "",
+                  zipCode: dbUser.addresses[0].postalCode || "",
+                  country: dbUser.addresses[0].country || "",
+                }
+              : {
+                  street: "",
+                  city: "",
+                  state: "",
+                  zipCode: "",
+                  country: "",
+                },
+            preferences: {
+              newsletter: dbUser.profile?.newsletterSubscribed || false,
+              marketing: dbUser.profile?.marketingEmails || false,
+              sms: dbUser.profile?.smsNotifications || false,
+            },
+          };
+
+          setUserData(mergedUserData);
+          setEditData(mergedUserData);
+        } else {
+          // Fallback to Clerk data only
+          const clerkUserData = {
+            firstName: user?.firstName || "",
+            lastName: user?.lastName || "",
+            email: user?.emailAddresses?.[0]?.emailAddress || "",
+            imageUrl: user?.imageUrl || "",
+            phone: "",
+            dateOfBirth: "",
+            bio: "",
+            address: {
+              street: "",
+              city: "",
+              state: "",
+              zipCode: "",
+              country: "",
+            },
+            preferences: {
+              newsletter: false,
+              marketing: false,
+              sms: false,
+            },
+          };
+
+          setUserData(clerkUserData);
+          setEditData(clerkUserData);
         }
       } catch (error) {
-        console.error("Error loading favorites:", error);
+        console.error("Error loading user data:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadFavorites();
-  }, []);
-
-  // Mock user data - in real app, this would come from authentication
-  const [userData, setUserData] = useState({
-    firstName: "Sarah",
-    lastName: "Johnson",
-    email: "sarah.johnson@email.com",
-    phone: "+1 (555) 123-4567",
-    dateOfBirth: "1990-05-15",
-    bio: "Leather goods enthusiast and fashion lover. Always looking for quality craftsmanship.",
-    address: {
-      street: "123 Main Street",
-      city: "New York",
-      state: "NY",
-      zipCode: "10001",
-      country: "United States",
-    },
-    preferences: {
-      newsletter: true,
-      marketing: false,
-      sms: true,
-    },
-  });
-
-  const [editData, setEditData] = useState(userData);
+    loadUserData();
+  }, [isLoaded, user]);
 
   const handleEdit = () => {
-    setEditData(userData);
+    if (userData) {
+      setEditData({ ...userData });
+    }
     setIsEditing(true);
   };
 
-  const handleSave = () => {
-    setUserData(editData);
-    setIsEditing(false);
+  const handleSave = async () => {
+    if (!user || !editData) return;
+
+    try {
+      setIsSaving(true);
+
+      // Update user profile with all data
+      const result = await updateUserProfile(user.id, {
+        firstName: editData.firstName,
+        lastName: editData.lastName,
+        imageUrl: editData.imageUrl,
+        phone: editData.phone,
+        dateOfBirth: editData.dateOfBirth,
+        bio: editData.bio,
+        address: editData.address,
+        preferences: editData.preferences,
+      });
+
+      if (result.success) {
+        setUserData(editData);
+        setIsEditing(false);
+        toast.success("Profile updated successfully!");
+      } else {
+        console.error("Failed to save user data:", result.error);
+        toast.error("Failed to update profile. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error saving user data:", error);
+      toast.error("An error occurred while updating your profile.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancel = () => {
-    setEditData(userData);
+    if (userData) {
+      setEditData({ ...userData });
+    }
     setIsEditing(false);
   };
 
   const handleInputChange = (field: string, value: string) => {
     if (field.includes(".")) {
       const [parent, child] = field.split(".");
-      setEditData((prev) => ({
-        ...prev,
-        [parent]: {
-          ...(prev[parent as keyof typeof prev] as Record<string, unknown>),
-          [child]: value,
-        },
-      }));
+      setEditData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          [parent]: {
+            ...(prev[parent as keyof typeof prev] as Record<string, unknown>),
+            [child]: value,
+          },
+        };
+      });
     } else {
-      setEditData((prev) => ({
-        ...prev,
-        [field]: value,
-      }));
+      setEditData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          [field]: value,
+        };
+      });
     }
   };
 
   const handlePreferenceChange = (preference: string, value: boolean) => {
-    setEditData((prev) => ({
-      ...prev,
-      preferences: {
-        ...prev.preferences,
-        [preference]: value,
-      },
-    }));
+    setEditData((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        preferences: {
+          ...prev.preferences,
+          [preference]: value,
+        },
+      };
+    });
   };
 
   const recentOrders = [
@@ -178,7 +308,7 @@ export default function ProfilePage() {
     },
   ];
 
-  if (isLoading) {
+  if (!isLoaded || isLoading || !userData) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -245,11 +375,15 @@ export default function ProfilePage() {
                       </Button>
                     ) : (
                       <div className="flex space-x-2">
-                        <Button onClick={handleSave}>
+                        <Button onClick={handleSave} disabled={isSaving}>
                           <Save className="w-4 h-4 mr-2" />
-                          Save
+                          {isSaving ? "Saving..." : "Save"}
                         </Button>
-                        <Button onClick={handleCancel} variant="outline">
+                        <Button
+                          onClick={handleCancel}
+                          variant="outline"
+                          disabled={isSaving}
+                        >
                           <X className="w-4 h-4 mr-2" />
                           Cancel
                         </Button>
@@ -260,16 +394,28 @@ export default function ProfilePage() {
                 <CardContent className="space-y-6">
                   {/* Profile Picture */}
                   <div className="flex items-center space-x-4">
-                    <div className="w-20 h-20 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center">
-                      <User className="w-10 h-10 text-white" />
-                    </div>
+                    {userData.imageUrl ? (
+                      <div className="w-20 h-20 rounded-full overflow-hidden">
+                        <Image
+                          src={userData.imageUrl}
+                          alt={`${userData.firstName} ${userData.lastName}`}
+                          width={80}
+                          height={80}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-20 h-20 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center">
+                        <User className="w-10 h-10 text-white" />
+                      </div>
+                    )}
                     <div>
                       <h3 className="text-xl font-semibold">
-                        {isEditing ? editData.firstName : userData.firstName}{" "}
-                        {isEditing ? editData.lastName : userData.lastName}
+                        {getCurrentData()?.firstName || ""}{" "}
+                        {getCurrentData()?.lastName || ""}
                       </h3>
                       <p className="text-muted-foreground">
-                        {isEditing ? editData.email : userData.email}
+                        {getCurrentData()?.email || ""}
                       </p>
                     </div>
                   </div>
@@ -280,9 +426,7 @@ export default function ProfilePage() {
                       <Label htmlFor="firstName">First Name</Label>
                       <Input
                         id="firstName"
-                        value={
-                          isEditing ? editData.firstName : userData.firstName
-                        }
+                        value={getCurrentData()?.firstName || ""}
                         onChange={(e) =>
                           handleInputChange("firstName", e.target.value)
                         }
@@ -294,9 +438,7 @@ export default function ProfilePage() {
                       <Label htmlFor="lastName">Last Name</Label>
                       <Input
                         id="lastName"
-                        value={
-                          isEditing ? editData.lastName : userData.lastName
-                        }
+                        value={getCurrentData()?.lastName || ""}
                         onChange={(e) =>
                           handleInputChange("lastName", e.target.value)
                         }
@@ -309,7 +451,7 @@ export default function ProfilePage() {
                       <Input
                         id="email"
                         type="email"
-                        value={isEditing ? editData.email : userData.email}
+                        value={getCurrentData()?.email || ""}
                         onChange={(e) =>
                           handleInputChange("email", e.target.value)
                         }
@@ -321,7 +463,7 @@ export default function ProfilePage() {
                       <Label htmlFor="phone">Phone</Label>
                       <Input
                         id="phone"
-                        value={isEditing ? editData.phone : userData.phone}
+                        value={getCurrentData()?.phone || ""}
                         onChange={(e) =>
                           handleInputChange("phone", e.target.value)
                         }
@@ -334,11 +476,7 @@ export default function ProfilePage() {
                       <Input
                         id="dateOfBirth"
                         type="date"
-                        value={
-                          isEditing
-                            ? editData.dateOfBirth
-                            : userData.dateOfBirth
-                        }
+                        value={getCurrentData()?.dateOfBirth || ""}
                         onChange={(e) =>
                           handleInputChange("dateOfBirth", e.target.value)
                         }
@@ -352,7 +490,7 @@ export default function ProfilePage() {
                     <Label htmlFor="bio">Bio</Label>
                     <Textarea
                       id="bio"
-                      value={isEditing ? editData.bio : userData.bio}
+                      value={getCurrentData()?.bio || ""}
                       onChange={(e) => handleInputChange("bio", e.target.value)}
                       disabled={!isEditing}
                       className="mt-1"
@@ -368,11 +506,7 @@ export default function ProfilePage() {
                         <Label htmlFor="street">Street Address</Label>
                         <Input
                           id="street"
-                          value={
-                            isEditing
-                              ? editData.address.street
-                              : userData.address.street
-                          }
+                          value={getCurrentData()?.address.street || ""}
                           onChange={(e) =>
                             handleInputChange("address.street", e.target.value)
                           }
@@ -384,11 +518,7 @@ export default function ProfilePage() {
                         <Label htmlFor="city">City</Label>
                         <Input
                           id="city"
-                          value={
-                            isEditing
-                              ? editData.address.city
-                              : userData.address.city
-                          }
+                          value={getCurrentData()?.address.city || ""}
                           onChange={(e) =>
                             handleInputChange("address.city", e.target.value)
                           }
@@ -400,11 +530,7 @@ export default function ProfilePage() {
                         <Label htmlFor="state">State</Label>
                         <Input
                           id="state"
-                          value={
-                            isEditing
-                              ? editData.address.state
-                              : userData.address.state
-                          }
+                          value={getCurrentData()?.address.state || ""}
                           onChange={(e) =>
                             handleInputChange("address.state", e.target.value)
                           }
@@ -416,11 +542,7 @@ export default function ProfilePage() {
                         <Label htmlFor="zipCode">ZIP Code</Label>
                         <Input
                           id="zipCode"
-                          value={
-                            isEditing
-                              ? editData.address.zipCode
-                              : userData.address.zipCode
-                          }
+                          value={getCurrentData()?.address.zipCode || ""}
                           onChange={(e) =>
                             handleInputChange("address.zipCode", e.target.value)
                           }
@@ -432,11 +554,7 @@ export default function ProfilePage() {
                         <Label htmlFor="country">Country</Label>
                         <Input
                           id="country"
-                          value={
-                            isEditing
-                              ? editData.address.country
-                              : userData.address.country
-                          }
+                          value={getCurrentData()?.address.country || ""}
                           onChange={(e) =>
                             handleInputChange("address.country", e.target.value)
                           }
@@ -564,9 +682,7 @@ export default function ProfilePage() {
                         type="checkbox"
                         id="newsletter"
                         checked={
-                          isEditing
-                            ? editData.preferences.newsletter
-                            : userData.preferences.newsletter
+                          getCurrentData()?.preferences.newsletter || false
                         }
                         onChange={(e) =>
                           handlePreferenceChange("newsletter", e.target.checked)
@@ -586,9 +702,7 @@ export default function ProfilePage() {
                         type="checkbox"
                         id="marketing"
                         checked={
-                          isEditing
-                            ? editData.preferences.marketing
-                            : userData.preferences.marketing
+                          getCurrentData()?.preferences.marketing || false
                         }
                         onChange={(e) =>
                           handlePreferenceChange("marketing", e.target.checked)
@@ -607,11 +721,7 @@ export default function ProfilePage() {
                       <input
                         type="checkbox"
                         id="sms"
-                        checked={
-                          isEditing
-                            ? editData.preferences.sms
-                            : userData.preferences.sms
-                        }
+                        checked={getCurrentData()?.preferences.sms || false}
                         onChange={(e) =>
                           handlePreferenceChange("sms", e.target.checked)
                         }

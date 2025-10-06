@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ShoppingBag, CreditCard, User, MapPin } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getCartItems, clearCart, CartItem } from "@/lib/actions/cart.action";
+import { getCurrentUser } from "@/lib/actions/user.action";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,9 +18,23 @@ import toast from "react-hot-toast";
 
 export default function Checkout() {
   const router = useRouter();
+  const { user, isLoaded } = useUser();
   const [items, setItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [userProfile, setUserProfile] = useState<{
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    address: {
+      street: string;
+      city: string;
+      state: string;
+      zipCode: string;
+      country: string;
+    };
+  } | null>(null);
 
   // Load cart items from database
   useEffect(() => {
@@ -46,32 +62,116 @@ export default function Checkout() {
     notes: "",
   });
 
-  // Mock user data - in real app, this would come from authentication
-  const [userProfile] = useState({
-    firstName: "Sarah",
-    lastName: "Johnson",
-    email: "sarah.johnson@email.com",
-    phone: "+1 (555) 123-4567",
-    address: {
-      street: "123 Main Street",
-      city: "New York",
-      state: "NY",
-      zipCode: "10001",
-      country: "United States",
-    },
-  });
-
-  // Load user data on component mount
+  // Load user profile data from database
   useEffect(() => {
-    // In a real app, this would fetch from user profile
-    setFormData((prev) => ({
-      ...prev,
-      customerName: `${userProfile.firstName} ${userProfile.lastName}`,
-      customerEmail: userProfile.email,
-      customerPhone: userProfile.phone,
-      customerAddress: `${userProfile.address.street}, ${userProfile.address.city}, ${userProfile.address.state} ${userProfile.address.zipCode}, ${userProfile.address.country}`,
-    }));
-  }, [userProfile]);
+    const loadUserProfile = async () => {
+      if (!isLoaded || !user) return;
+
+      try {
+        const result = await getCurrentUser();
+        if (result.success && "user" in result && result.user) {
+          const dbUser = result.user;
+          const clerkUser = user;
+
+          // Merge Clerk data with database data
+          const mergedProfile = {
+            firstName: clerkUser?.firstName || dbUser.firstName || "",
+            lastName: clerkUser?.lastName || dbUser.lastName || "",
+            email:
+              clerkUser?.emailAddresses?.[0]?.emailAddress ||
+              dbUser.email ||
+              "",
+            phone: dbUser.profile?.phone || "",
+            address: dbUser.addresses?.[0]
+              ? {
+                  street: dbUser.addresses[0].address1 || "",
+                  city: dbUser.addresses[0].city || "",
+                  state: dbUser.addresses[0].state || "",
+                  zipCode: dbUser.addresses[0].postalCode || "",
+                  country: dbUser.addresses[0].country || "",
+                }
+              : {
+                  street: "",
+                  city: "",
+                  state: "",
+                  zipCode: "",
+                  country: "",
+                },
+          };
+
+          setUserProfile(mergedProfile);
+
+          // Pre-populate form with user data
+          setFormData((prev) => ({
+            ...prev,
+            customerName:
+              `${mergedProfile.firstName} ${mergedProfile.lastName}`.trim() ||
+              "",
+            customerEmail: mergedProfile.email,
+            customerPhone: mergedProfile.phone,
+            customerAddress: mergedProfile.address.street
+              ? `${mergedProfile.address.street}, ${mergedProfile.address.city}, ${mergedProfile.address.state} ${mergedProfile.address.zipCode}, ${mergedProfile.address.country}`.trim()
+              : "",
+          }));
+        } else {
+          // Fallback to Clerk data only
+          const clerkProfile = {
+            firstName: user?.firstName || "",
+            lastName: user?.lastName || "",
+            email: user?.emailAddresses?.[0]?.emailAddress || "",
+            phone: "",
+            address: {
+              street: "",
+              city: "",
+              state: "",
+              zipCode: "",
+              country: "",
+            },
+          };
+
+          setUserProfile(clerkProfile);
+
+          setFormData((prev) => ({
+            ...prev,
+            customerName:
+              `${clerkProfile.firstName} ${clerkProfile.lastName}`.trim() || "",
+            customerEmail: clerkProfile.email,
+            customerPhone: clerkProfile.phone,
+            customerAddress: "",
+          }));
+        }
+      } catch (error) {
+        console.error("Error loading user profile:", error);
+        // Fallback to Clerk data only
+        const clerkProfile = {
+          firstName: user?.firstName || "",
+          lastName: user?.lastName || "",
+          email: user?.emailAddresses?.[0]?.emailAddress || "",
+          phone: "",
+          address: {
+            street: "",
+            city: "",
+            state: "",
+            zipCode: "",
+            country: "",
+          },
+        };
+
+        setUserProfile(clerkProfile);
+
+        setFormData((prev) => ({
+          ...prev,
+          customerName:
+            `${clerkProfile.firstName} ${clerkProfile.lastName}`.trim() || "",
+          customerEmail: clerkProfile.email,
+          customerPhone: clerkProfile.phone,
+          customerAddress: "",
+        }));
+      }
+    };
+
+    loadUserProfile();
+  }, [isLoaded, user]);
 
   const subtotal = items.reduce(
     (sum: number, item: CartItem) => sum + item.price * item.quantity,
@@ -160,7 +260,7 @@ export default function Checkout() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || !isLoaded || !userProfile) {
     return (
       <div className="min-h-screen bg-background">
         <Header />

@@ -72,6 +72,99 @@ export async function updateUser(clerkId: string, data: UpdateUserData) {
 }
 
 /**
+ * Update user profile with comprehensive data
+ */
+export async function updateUserProfile(
+  clerkId: string,
+  data: {
+    firstName?: string;
+    lastName?: string;
+    imageUrl?: string;
+    phone?: string;
+    dateOfBirth?: string;
+    bio?: string;
+    address?: {
+      street: string;
+      city: string;
+      state: string;
+      zipCode: string;
+      country: string;
+    };
+    preferences?: {
+      newsletter: boolean;
+      marketing: boolean;
+      sms: boolean;
+    };
+  }
+) {
+  try {
+    // Update basic user info
+    const user = await prisma.user.update({
+      where: { clerkId },
+      data: {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        imageUrl: data.imageUrl,
+      },
+    });
+
+    // Update or create profile
+    await prisma.profile.upsert({
+      where: { userId: user.id },
+      update: {
+        phone: data.phone,
+        dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
+        bio: data.bio,
+        newsletterSubscribed: data.preferences?.newsletter || false,
+        marketingEmails: data.preferences?.marketing || false,
+        smsNotifications: data.preferences?.sms || false,
+      },
+      create: {
+        userId: user.id,
+        phone: data.phone,
+        dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
+        bio: data.bio,
+        newsletterSubscribed: data.preferences?.newsletter || false,
+        marketingEmails: data.preferences?.marketing || false,
+        smsNotifications: data.preferences?.sms || false,
+      },
+    });
+
+    // Update or create address if provided
+    if (data.address) {
+      // First, deactivate existing default addresses
+      await prisma.address.updateMany({
+        where: { userId: user.id, isDefault: true },
+        data: { isDefault: false },
+      });
+
+      // Create new default address
+      await prisma.address.create({
+        data: {
+          userId: user.id,
+          type: "SHIPPING",
+          firstName: data.firstName || "",
+          lastName: data.lastName || "",
+          address1: data.address.street,
+          city: data.address.city,
+          state: data.address.state,
+          postalCode: data.address.zipCode,
+          country: data.address.country,
+          isDefault: true,
+          isActive: true,
+        },
+      });
+    }
+
+    revalidatePath("/profile");
+    return { success: true, user };
+  } catch (error) {
+    console.error("Error updating user profile:", error);
+    return { success: false, error: "Failed to update user profile" };
+  }
+}
+
+/**
  * Get user by Clerk ID
  */
 export async function getUserByClerkId(clerkId: string) {
