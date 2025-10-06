@@ -162,10 +162,6 @@ export async function syncUserFromClerk(clerkUser: {
   imageUrl: string;
 }) {
   try {
-    console.log("syncUserFromClerk called with:", clerkUser);
-    console.log("prisma object:", prisma);
-    console.log("prisma type:", typeof prisma);
-
     if (!prisma) {
       throw new Error("Prisma client is not initialized");
     }

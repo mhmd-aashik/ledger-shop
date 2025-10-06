@@ -22,7 +22,11 @@ export async function getFavoriteProducts() {
       include: {
         favorites: {
           include: {
-            product: true,
+            product: {
+              include: {
+                category: true,
+              },
+            },
           },
         },
       },
@@ -32,7 +36,14 @@ export async function getFavoriteProducts() {
       return { success: false, error: "User not found in database" };
     }
 
-    const favorites = dbUser.favorites.map((fav) => fav.product);
+    const favorites = dbUser.favorites.map((fav) => ({
+      ...fav.product,
+      price: fav.product.price.toNumber(),
+      compareAtPrice: fav.product.compareAtPrice?.toNumber() || null,
+      costPrice: fav.product.costPrice?.toNumber() || null,
+      weight: fav.product.weight?.toNumber() || null,
+      rating: fav.product.rating?.toNumber() || null,
+    }));
 
     return { success: true, favorites };
   } catch (error) {

@@ -441,3 +441,19 @@ model Cart {
   @@unique([userId, productId], name: "userId_productId")
   @@map("cart")
 }
+
+
+model Carousel {
+  id        String   @id @default(cuid())
+  title     String
+  subtitle  String
+  description String
+  image     String
+  isActive  Boolean @default(true)
+  link      String?
+  linkText  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("carousels")
+}

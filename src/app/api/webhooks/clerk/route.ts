@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { Webhook } from "svix";
 import { headers } from "next/headers";
 import { syncUserFromClerk, deleteUser } from "@/lib/actions/user.action";
@@ -24,7 +24,16 @@ export async function POST(req: NextRequest) {
   // Create a new Svix instance with your secret.
   const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET || "");
 
-  let evt: any;
+  let evt: {
+    type: string;
+    data: {
+      id: string;
+      email_addresses: Array<{ email_address: string }>;
+      first_name: string;
+      last_name: string;
+      image_url: string;
+    };
+  };
 
   // Verify the payload with the headers
   try {
@@ -32,7 +41,16 @@ export async function POST(req: NextRequest) {
       "svix-id": svix_id,
       "svix-timestamp": svix_timestamp,
       "svix-signature": svix_signature,
-    });
+    }) as {
+      type: string;
+      data: {
+        id: string;
+        email_addresses: Array<{ email_address: string }>;
+        first_name: string;
+        last_name: string;
+        image_url: string;
+      };
+    };
   } catch (err) {
     console.error("Error verifying webhook:", err);
     return new Response("Error occured", {
@@ -48,7 +66,9 @@ export async function POST(req: NextRequest) {
 
     const result = await syncUserFromClerk({
       id,
-      emailAddresses: email_addresses,
+      emailAddresses: email_addresses.map((addr) => ({
+        emailAddress: addr.email_address,
+      })),
       firstName: first_name,
       lastName: last_name,
       imageUrl: image_url,
@@ -67,7 +87,9 @@ export async function POST(req: NextRequest) {
 
     const result = await syncUserFromClerk({
       id,
-      emailAddresses: email_addresses,
+      emailAddresses: email_addresses.map((addr) => ({
+        emailAddress: addr.email_address,
+      })),
       firstName: first_name,
       lastName: last_name,
       imageUrl: image_url,

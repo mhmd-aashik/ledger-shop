@@ -14,9 +14,70 @@ import {
 import { addToCart } from "@/lib/actions/cart.action";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
+// Type for the product returned from getFavoriteProducts (with numbers instead of Decimals)
+interface FavoriteProduct {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  shortDescription: string | null;
+  price: number;
+  compareAtPrice: number | null;
+  costPrice: number | null;
+  sku: string | null;
+  barcode: string | null;
+  trackQuantity: boolean;
+  quantity: number;
+  lowStockThreshold: number;
+  images: string[];
+  video: string | null;
+  thumbnail: string | null;
+  categoryId: string;
+  category: {
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    image: string | null;
+    parentId: string | null;
+    sortOrder: number;
+    isActive: boolean;
+    metaTitle: string | null;
+    metaDescription: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+  };
+  tags: string[];
+  features: string[];
+  materials: string[];
+  dimensions: string | null;
+  weight: number | null;
+  metaTitle: string | null;
+  metaDescription: string | null;
+  status: string;
+  isActive: boolean;
+  isFeatured: boolean;
+  rating: number | null;
+  reviewCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+  publishedAt: Date | null;
+}
+
+// Type for the transformed product that matches FavoriteButton expectations
+interface TransformedProduct {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  slug: string;
+  category: string;
+  rating: number;
+  reviewCount: number;
+}
 
 export default function FavoritesPage() {
-  const [favorites, setFavorites] = useState([]);
+  const [favorites, setFavorites] = useState<TransformedProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isClearing, setIsClearing] = useState(false);
 
@@ -26,7 +87,20 @@ export default function FavoritesPage() {
       try {
         const result = await getFavoriteProducts();
         if (result.success) {
-          setFavorites(result.favorites || []);
+          // Transform the products to match the expected interface
+          const transformedFavorites: TransformedProduct[] = (
+            result.favorites || []
+          ).map((product: FavoriteProduct) => ({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image: product.images[0] || "/placeholder.jpg",
+            slug: product.slug,
+            category: product.category.name || "Uncategorized",
+            rating: product.rating || 0,
+            reviewCount: product.reviewCount || 0,
+          }));
+          setFavorites(transformedFavorites);
         }
       } catch (error) {
         console.error("Error loading favorites:", error);
@@ -73,6 +147,28 @@ export default function FavoritesPage() {
       toast.error("Something went wrong");
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="pt-16 lg:pt-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="text-center py-16">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <h1 className="text-2xl font-serif font-bold text-foreground mb-4">
+                Loading your favorites...
+              </h1>
+              <p className="text-muted-foreground">
+                Please wait while we load your favorite products
+              </p>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   if (favorites.length === 0) {
     return (

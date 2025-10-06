@@ -20,8 +20,58 @@ import { getFavoriteProducts } from "@/lib/actions/favorite.action";
 import Link from "next/link";
 import Image from "next/image";
 
+// Type for favorite products with category
+type FavoriteProduct = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  shortDescription: string | null;
+  price: number;
+  compareAtPrice: number | null;
+  costPrice: number | null;
+  sku: string | null;
+  barcode: string | null;
+  trackQuantity: boolean;
+  quantity: number;
+  lowStockThreshold: number;
+  images: string[];
+  video: string | null;
+  thumbnail: string | null;
+  categoryId: string;
+  category: {
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    image: string | null;
+    parentId: string | null;
+    sortOrder: number;
+    isActive: boolean;
+    metaTitle: string | null;
+    metaDescription: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+  };
+  tags: string[];
+  features: string[];
+  materials: string[];
+  dimensions: string | null;
+  weight: number | null;
+  metaTitle: string | null;
+  metaDescription: string | null;
+  status: string;
+  isActive: boolean;
+  isFeatured: boolean;
+  rating: number | null;
+  reviewCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+  publishedAt: Date | null;
+};
+
 export default function ProfilePage() {
-  const [favorites, setFavorites] = useState([]);
+  const [favorites, setFavorites] = useState<FavoriteProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
@@ -127,6 +177,28 @@ export default function ProfilePage() {
       items: ["Minimalist Cardholder"],
     },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="pt-16 lg:pt-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="text-center py-16">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <h1 className="text-2xl font-serif font-bold text-foreground mb-4">
+                Loading your profile...
+              </h1>
+              <p className="text-muted-foreground">
+                Please wait while we load your profile data
+              </p>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -438,7 +510,9 @@ export default function ProfilePage() {
                         <div key={product.id} className="border rounded-lg p-4">
                           <div className="flex items-center space-x-3">
                             <Image
-                              src={product.image}
+                              src={
+                                product.images[0] || "/placeholder-product.jpg"
+                              }
                               alt={product.name}
                               width={60}
                               height={60}
@@ -447,7 +521,7 @@ export default function ProfilePage() {
                             <div className="flex-1">
                               <h4 className="font-medium">{product.name}</h4>
                               <p className="text-sm text-muted-foreground">
-                                {product.price} LKR
+                                LKR {product.price}
                               </p>
                             </div>
                           </div>
