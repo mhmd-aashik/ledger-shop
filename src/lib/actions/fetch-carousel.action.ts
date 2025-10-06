@@ -1,8 +1,8 @@
 import { client } from "@/sanity/lib/client";
 
 export async function fetchCarousel() {
-  const carousel =
-    await client.fetch(`*[_type == "carousel" && isActive == true] | order(order asc) {
+  const carousel = await client.fetch(
+    `*[_type == "carousel" && isActive == true] | order(order asc) {
     _id,
     title,
     subtitle,
@@ -17,6 +17,11 @@ export async function fetchCarousel() {
     cta,
     ctaLink,
     isActive
-  }`);
+  }`,
+    {},
+    {
+      cache: "no-store",
+    }
+  );
   return carousel;
 }
