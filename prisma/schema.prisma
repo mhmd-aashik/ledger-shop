@@ -1,0 +1,27 @@
+// Main Prisma Schema - LeadHer Shop E-commerce
+// Copy models from individual files as needed
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Individual model files available:
+// - user.prisma
+// - profile.prisma  
+// - address.prisma
+// - category.prisma
+// - product.prisma
+// - favorite.prisma
+// - wishlist.prisma
+// - wishlist-item.prisma
+// - order.prisma
+// - order-item.prisma
+// - review.prisma
+// - recently-viewed.prisma
+
+// Copy models from individual files here when needed

@@ -1,0 +1,23 @@
+// OrderItem Model - Individual items in orders
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  
+  // Item Details
+  quantity  Int
+  price     Decimal @db.Decimal(10, 2) // Price at time of order
+  total     Decimal @db.Decimal(10, 2) // quantity * price
+  
+  // Product snapshot (in case product changes later)
+  productName String
+  productSku  String?
+  productImage String?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  @@map("order_items")
+}

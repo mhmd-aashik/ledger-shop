@@ -1,0 +1,15 @@
+// RecentlyViewed Model - Track recently viewed products
+model RecentlyViewed {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  // Metadata
+  viewedAt  DateTime @default(now())
+  sessionId String?  // Track if viewed in same session
+
+  @@unique([userId, productId, sessionId])
+  @@map("recently_viewed")
+}

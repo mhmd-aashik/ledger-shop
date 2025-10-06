@@ -1,0 +1,15 @@
+// Favorite Model - User favorite products
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  // Metadata
+  addedAt   DateTime @default(now())
+  notes     String?  // Optional notes about why they favorited this item
+
+  @@unique([userId, productId])
+  @@map("favorites")
+}
