@@ -10,8 +10,6 @@ export const dynamic = "force-dynamic";
 export const dynamicParams = true;
 export const maxDuration = 10;
 export const fetchCache = "force-cache";
-export const revalidateTag = "*";
-export const runtime = "nodejs";
 
 export default async function Home() {
   return (
