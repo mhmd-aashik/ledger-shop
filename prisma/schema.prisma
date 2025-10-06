@@ -28,6 +28,7 @@ model User {
   reviews   Review[]
   wishlists Wishlist[]
   recentlyViewed RecentlyViewed[]
+  cart      Cart[]
 
   @@map("users")
 }
@@ -201,6 +202,7 @@ model Product {
   reviews       Review[]
   wishlistItems WishlistItem[]
   recentlyViewed RecentlyViewed[]
+  cart          Cart[]
 
   @@map("products")
 }
@@ -419,4 +421,23 @@ model RecentlyViewed {
 
   @@unique([userId, productId, sessionId])
   @@map("recently_viewed")
+}
+
+// Cart Model - User shopping cart
+model Cart {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  // Cart Item Details
+  quantity  Int      @default(1)
+  
+  // Metadata
+  addedAt   DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, productId], name: "userId_productId")
+  @@map("cart")
 }
