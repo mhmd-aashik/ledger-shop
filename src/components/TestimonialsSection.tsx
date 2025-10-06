@@ -5,6 +5,8 @@ import { fetchReviews } from "@/lib/actions/fetch-review.action";
 import { ReviewTypes } from "../types/review.types";
 import { urlFor } from "@/sanity/lib/image";
 
+// export const revalidate = 0;
+
 export default async function TestimonialsSection() {
   const reviews = await fetchReviews();
 
