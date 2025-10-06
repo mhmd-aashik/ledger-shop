@@ -1,5 +1,4 @@
 // Main Prisma Schema - LeadHer Shop E-commerce
-// Copy models from individual files as needed
 
 generator client {
   provider = "prisma-client-js"
@@ -10,18 +9,414 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Individual model files available:
-// - user.prisma
-// - profile.prisma  
-// - address.prisma
-// - category.prisma
-// - product.prisma
-// - favorite.prisma
-// - wishlist.prisma
-// - wishlist-item.prisma
-// - order.prisma
-// - order-item.prisma
-// - review.prisma
-// - recently-viewed.prisma
+// User Model - Authentication and basic user data
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
+  firstName String?
+  lastName  String?
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-// Copy models from individual files here when needed
+  // Relations
+  profile   Profile?
+  favorites Favorite[]
+  orders    Order[]
+  addresses Address[]
+  reviews   Review[]
+  wishlists Wishlist[]
+  recentlyViewed RecentlyViewed[]
+
+  @@map("users")
+}
+
+// Profile Model - Extended user profile information
+model Profile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Personal Information
+  phone     String?
+  dateOfBirth DateTime?
+  gender    Gender?
+  bio       String?
+  
+  // Preferences
+  newsletterSubscribed Boolean @default(false)
+  marketingEmails     Boolean @default(false)
+  smsNotifications    Boolean @default(false)
+  
+  // Social Media
+  instagramHandle String?
+  twitterHandle   String?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("profiles")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+// Address Model - User shipping and billing addresses
+model Address {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Address Details
+  type        AddressType @default(SHIPPING)
+  firstName   String
+  lastName    String
+  company     String?
+  address1    String
+  address2    String?
+  city        String
+  state       String
+  postalCode  String
+  country     String @default("US")
+  phone       String?
+  
+  // Flags
+  isDefault   Boolean @default(false)
+  isActive    Boolean @default(true)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  orders Order[] @relation("ShippingAddress")
+
+  @@map("addresses")
+}
+
+enum AddressType {
+  SHIPPING
+  BILLING
+  BOTH
+}
+
+// Category Model - Product categories
+model Category {
+  id          String   @id @default(cuid())
+  
+  // Basic Info
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  image       String?  // Category image URL
+  
+  // Hierarchy
+  parentId    String?
+  parent      Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryHierarchy")
+  
+  // Display
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  products Product[]
+
+  @@map("categories")
+}
+
+// Product Model - E-commerce products
+model Product {
+  id          String   @id @default(cuid())
+  
+  // Basic Info
+  name        String
+  slug        String   @unique
+  description String
+  shortDescription String?
+  
+  // Pricing
+  price       Decimal  @db.Decimal(10, 2)
+  compareAtPrice Decimal? @db.Decimal(10, 2)
+  costPrice   Decimal? @db.Decimal(10, 2)
+  
+  // Inventory
+  sku         String?  @unique
+  barcode     String?  @unique
+  trackQuantity Boolean @default(true)
+  quantity    Int      @default(0)
+  lowStockThreshold Int @default(5)
+  
+  // Media
+  images      String[] // Array of image URLs
+  video       String?  // Video URL
+  thumbnail   String?  // Thumbnail image URL
+  
+  // Categorization
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  tags        String[] // Array of tags
+  
+  // Product Details
+  features    String[] // Array of features
+  materials   String[] // Array of materials used
+  dimensions  String?  // Product dimensions
+  weight      Decimal? @db.Decimal(8, 2) // Weight in grams
+  
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  
+  // Status
+  status      ProductStatus @default(DRAFT)
+  isActive    Boolean @default(true)
+  isFeatured  Boolean @default(false)
+  
+  // Ratings & Reviews
+  rating      Decimal? @db.Decimal(3, 2) // Average rating 0-5
+  reviewCount Int      @default(0)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  publishedAt DateTime?
+
+  // Relations
+  favorites     Favorite[]
+  orderItems    OrderItem[]
+  reviews       Review[]
+  wishlistItems WishlistItem[]
+  recentlyViewed RecentlyViewed[]
+
+  @@map("products")
+}
+
+enum ProductStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+  OUT_OF_STOCK
+}
+
+// Favorite Model - User favorite products
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  // Metadata
+  addedAt   DateTime @default(now())
+  notes     String?  // Optional notes about why they favorited this item
+
+  @@unique([userId, productId])
+  @@map("favorites")
+}
+
+// Order Model - Customer orders
+model Order {
+  id          String   @id @default(cuid())
+  orderNumber String   @unique
+  
+  // Customer Info
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  
+  // Customer Details (for guest orders)
+  customerEmail    String
+  customerName     String
+  customerPhone    String?
+  
+  // Order Details
+  status          OrderStatus @default(PENDING)
+  paymentStatus   PaymentStatus @default(PENDING)
+  fulfillmentStatus FulfillmentStatus @default(UNFULFILLED)
+  
+  // Pricing
+  subtotal        Decimal @db.Decimal(10, 2)
+  taxAmount       Decimal @db.Decimal(10, 2) @default(0)
+  shippingAmount  Decimal @db.Decimal(10, 2) @default(0)
+  discountAmount  Decimal @db.Decimal(10, 2) @default(0)
+  totalAmount     Decimal @db.Decimal(10, 2)
+  
+  // Shipping
+  shippingAddressId String?
+  shippingAddress   Address? @relation("ShippingAddress", fields: [shippingAddressId], references: [id])
+  
+  // Payment
+  paymentMethod    String?
+  paymentReference String?
+  paidAt          DateTime?
+  
+  // Fulfillment
+  trackingNumber  String?
+  shippedAt       DateTime?
+  deliveredAt     DateTime?
+  
+  // Notes
+  notes           String?
+  internalNotes   String? // Internal notes for staff
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  items OrderItem[]
+
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum FulfillmentStatus {
+  UNFULFILLED
+  PARTIALLY_FULFILLED
+  FULFILLED
+  CANCELLED
+}
+
+// OrderItem Model - Individual items in orders
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  
+  // Item Details
+  quantity  Int
+  price     Decimal @db.Decimal(10, 2) // Price at time of order
+  total     Decimal @db.Decimal(10, 2) // quantity * price
+  
+  // Product snapshot (in case product changes later)
+  productName String
+  productSku  String?
+  productImage String?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  @@map("order_items")
+}
+
+// Wishlist Model - User wishlists
+model Wishlist {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Wishlist Details
+  name        String   @default("My Wishlist")
+  description String?
+  isPublic    Boolean  @default(false)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  items WishlistItem[]
+
+  @@map("wishlists")
+}
+
+// WishlistItem Model - Items in user wishlists
+model WishlistItem {
+  id         String   @id @default(cuid())
+  wishlistId String
+  wishlist   Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  // Item Details
+  quantity   Int      @default(1)
+  priority   Priority @default(MEDIUM)
+  notes      String?
+  
+  // Timestamps
+  addedAt    DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([wishlistId, productId])
+  @@map("wishlist_items")
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+// Review Model - Product reviews
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  // Review Content
+  rating    Int      @db.SmallInt // 1-5 stars
+  title     String?
+  comment   String?
+  
+  // Flags
+  isVerified Boolean @default(false)
+  isPublic   Boolean @default(true)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, productId])
+  @@map("reviews")
+}
+
+// RecentlyViewed Model - Track recently viewed products
+model RecentlyViewed {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  // Metadata
+  viewedAt  DateTime @default(now())
+  sessionId String?  // Track if viewed in same session
+
+  @@unique([userId, productId, sessionId])
+  @@map("recently_viewed")
+}

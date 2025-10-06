@@ -3,6 +3,7 @@ import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import { ClerkProvider } from "@clerk/nextjs";
+import { UserSyncProvider } from "@/components/UserSyncProvider";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -53,9 +54,9 @@ export default function RootLayout({
     >
       <html lang="en" suppressHydrationWarning>
         <body className={`${playfair.variable} ${inter.variable} antialiased`}>
-          {children}
+          <UserSyncProvider>{children}</UserSyncProvider>
           <Toaster
-            position="top-right"
+            position="bottom-right"
             toastOptions={{
               duration: 3000,
               style: {
