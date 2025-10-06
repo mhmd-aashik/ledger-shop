@@ -457,3 +457,16 @@ model Carousel {
 
   @@map("carousels")
 }
+
+
+model OfferBanner {
+  id        String   @id @default(cuid())
+  title     String
+  description String
+  image     String
+  isActive  Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("offer_banners")
+}

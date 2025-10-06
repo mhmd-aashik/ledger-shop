@@ -21,8 +21,19 @@ export async function POST(req: NextRequest) {
   const payload = await req.json();
   const body = JSON.stringify(payload);
 
+  // Check if webhook secret is configured
+  const webhookSecret = process.env.CLERK_WEBHOOK_SECRET;
+  if (!webhookSecret || webhookSecret === "whsec_your_webhook_secret_here") {
+    console.error("CLERK_WEBHOOK_SECRET is not properly configured");
+    return new Response("Webhook secret not configured", {
+      status: 500,
+    });
+  }
+
   // Create a new Svix instance with your secret.
-  const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET || "");
+  const wh = new Webhook(webhookSecret);
+
+  // how is my webhook route = https://yourdomain.com/api/webhooks/clerk
 
   let evt: {
     type: string;
@@ -53,7 +64,7 @@ export async function POST(req: NextRequest) {
     };
   } catch (err) {
     console.error("Error verifying webhook:", err);
-    return new Response("Error occured", {
+    return new Response("Error verifying webhook signature", {
       status: 400,
     });
   }
@@ -115,6 +126,8 @@ export async function POST(req: NextRequest) {
 
     console.log("User deleted:", id);
   }
+
+  console.log("Webhook received:", eventType + " for user: " + evt.data.id);
 
   return new Response("", { status: 200 });
 }
