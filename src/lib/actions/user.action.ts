@@ -137,6 +137,19 @@ export async function getCurrentUser() {
  */
 export async function deleteUser(clerkId: string) {
   try {
+    // First check if user exists
+    const existingUser = await prisma.user.findUnique({
+      where: { clerkId },
+      select: { id: true },
+    });
+
+    if (!existingUser) {
+      console.log(
+        `User with clerkId ${clerkId} not found in database, skipping deletion`
+      );
+      return { success: true, message: "User not found in database" };
+    }
+
     // Delete user (cascade will handle related data)
     await prisma.user.delete({
       where: { clerkId },

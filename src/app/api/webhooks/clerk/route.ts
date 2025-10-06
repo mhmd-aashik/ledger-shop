@@ -124,7 +124,11 @@ export async function POST(req: NextRequest) {
       return new Response("Error deleting user", { status: 500 });
     }
 
-    console.log("User deleted:", id);
+    console.log(
+      "User deleted:",
+      id,
+      result.message ? `- ${result.message}` : ""
+    );
   }
 
   console.log("Webhook received:", eventType + " for user: " + evt.data.id);
