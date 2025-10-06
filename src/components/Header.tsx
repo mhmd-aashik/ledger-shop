@@ -13,9 +13,8 @@ export default function Header() {
   const userDetails = useUser();
   const showStudio =
     userDetails.user?.id === "user_33eSbn4U4H2k3E3DFbhqJd5RVky" ||
-    "user_33fW6ZfGi7rznDZzLRkWSZlCTgh";
+    userDetails.user?.id === "user_33fW6ZfGi7rznDZzLRkWSZlCTgh";
 
-  console.log(JSON.stringify(userDetails, null, 2));
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [cartItemCount, setCartItemCount] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
@@ -29,7 +28,6 @@ export default function Header() {
     if (typeof window !== "undefined") {
       setCartItemCount(getTotalItems());
 
-      // Subscribe to cart changes
       const unsubscribe = useCartStore.subscribe((state) => {
         setCartItemCount(state.items.length);
       });
@@ -52,10 +50,7 @@ export default function Header() {
     { name: "Products", href: "/products" },
     { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
-    {
-      name: showStudio ? "Studio" : "",
-      href: showStudio ? "/studio" : "",
-    },
+    ...(showStudio ? [{ name: "Studio", href: "/studio" }] : []),
   ];
 
   return (
