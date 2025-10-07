@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { User, Edit, Save, X, LogOut, AlertTriangle } from "lucide-react";
-import { useUser, useClerk } from "@clerk/nextjs";
+import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,8 +49,7 @@ interface ProfileTabProps {
 export default function ProfileTab({
   userData: initialUserData,
 }: ProfileTabProps) {
-  const { user } = useUser();
-  const { signOut } = useClerk();
+  const { data: session } = useSession();
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState<UserData>(initialUserData);
   const [editData, setEditData] = useState<UserData>(initialUserData);
@@ -68,13 +67,13 @@ export default function ProfileTab({
   };
 
   const handleSave = async () => {
-    if (!user || !editData) return;
+    if (!session?.user || !editData) return;
 
     try {
       setIsSaving(true);
 
       // Update user profile with all data
-      const result = await updateUserProfile(user.id, {
+      const result = await updateUserProfile(session.user.id, {
         firstName: editData.firstName,
         lastName: editData.lastName,
         imageUrl: editData.imageUrl,

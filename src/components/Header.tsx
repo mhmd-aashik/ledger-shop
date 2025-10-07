@@ -19,9 +19,19 @@ import Image from "next/image";
 import logo from "../../public/assets/logos/logo.png";
 import { Button } from "@/components/ui/button";
 import { getCartItems } from "@/lib/actions/cart.action";
-import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { useSession, signOut } from "next-auth/react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function Header() {
+  const { data: session } = useSession();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [cartItemCount, setCartItemCount] = useState(0);
   const [favoritesCount, setFavoritesCount] = useState(0);
@@ -196,40 +206,91 @@ export default function Header() {
 
               {/* Authentication */}
               <div className="hidden md:flex items-center space-x-2 ml-2">
-                <SignedOut>
-                  <Link href="/sign-in">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-amber-700 hover:text-amber-900 hover:bg-amber-50 border border-amber-200 rounded-xl"
+                {!session ? (
+                  <>
+                    <Link href="/sign-in">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-amber-700 hover:text-amber-900 hover:bg-amber-50 border border-amber-200 rounded-xl"
+                      >
+                        <LogIn className="w-4 h-4 mr-2" />
+                        Sign In
+                      </Button>
+                    </Link>
+                    <Link href="/sign-up">
+                      <Button
+                        size="sm"
+                        className="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
+                      >
+                        <User className="w-4 h-4 mr-2" />
+                        Join Luxury
+                      </Button>
+                    </Link>
+                  </>
+                ) : (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="relative h-10 w-10 rounded-xl"
+                      >
+                        <Avatar className="h-10 w-10 rounded-xl shadow-lg">
+                          <AvatarImage
+                            src={session.user?.image || ""}
+                            alt={session.user?.name || ""}
+                          />
+                          <AvatarFallback className="bg-amber-100 text-amber-700 font-semibold">
+                            {session.user?.name?.charAt(0) || "U"}
+                          </AvatarFallback>
+                        </Avatar>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      className="w-56 shadow-xl border border-amber-200 rounded-xl"
+                      align="end"
+                      forceMount
                     >
-                      <LogIn className="w-4 h-4 mr-2" />
-                      Sign In
-                    </Button>
-                  </Link>
-                  <Link href="/sign-up">
-                    <Button
-                      size="sm"
-                      className="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
-                    >
-                      <User className="w-4 h-4 mr-2" />
-                      Join Luxury
-                    </Button>
-                  </Link>
-                </SignedOut>
-                <SignedIn>
-                  <UserButton
-                    appearance={{
-                      elements: {
-                        avatarBox: "w-10 h-10 rounded-xl shadow-lg",
-                        userButtonPopoverCard:
-                          "shadow-xl border border-amber-200 rounded-xl",
-                        userButtonPopoverActionButton:
-                          "hover:bg-amber-50 rounded-lg",
-                      },
-                    }}
-                  />
-                </SignedIn>
+                      <DropdownMenuLabel className="font-normal">
+                        <div className="flex flex-col space-y-1">
+                          <p className="text-sm font-medium leading-none">
+                            {session.user?.name}
+                          </p>
+                          <p className="text-xs leading-none text-muted-foreground">
+                            {session.user?.email}
+                          </p>
+                        </div>
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link href="/profile" className="cursor-pointer">
+                          <User className="mr-2 h-4 w-4" />
+                          <span>Profile</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/favorites" className="cursor-pointer">
+                          <Heart className="mr-2 h-4 w-4" />
+                          <span>Favorites</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/orders" className="cursor-pointer">
+                          <ShoppingBag className="mr-2 h-4 w-4" />
+                          <span>Orders</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onSelect={() => signOut({ callbackUrl: "/" })}
+                      >
+                        <LogIn className="mr-2 h-4 w-4" />
+                        <span>Sign out</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
 
               {/* Mobile menu button */}
@@ -284,7 +345,7 @@ export default function Header() {
 
                 {/* Mobile Authentication */}
                 <div className="border-t border-amber-200/50 pt-4 mt-4">
-                  <SignedOut>
+                  {!session ? (
                     <div className="space-y-3">
                       <Link href="/sign-in">
                         <Button
@@ -302,25 +363,66 @@ export default function Header() {
                         </Button>
                       </Link>
                     </div>
-                  </SignedOut>
-                  <SignedIn>
-                    <div className="flex items-center justify-between px-4 py-3 bg-amber-50/50 rounded-xl">
-                      <span className="text-sm font-medium text-gray-700">
-                        Account
-                      </span>
-                      <UserButton
-                        appearance={{
-                          elements: {
-                            avatarBox: "w-10 h-10 rounded-xl shadow-lg",
-                            userButtonPopoverCard:
-                              "shadow-xl border border-amber-200 rounded-xl",
-                            userButtonPopoverActionButton:
-                              "hover:bg-amber-50 rounded-lg",
-                          },
-                        }}
-                      />
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-3 px-4 py-3 bg-amber-50/50 rounded-xl">
+                        <Avatar className="h-10 w-10 rounded-xl shadow-lg">
+                          <AvatarImage
+                            src={session.user?.image || ""}
+                            alt={session.user?.name || ""}
+                          />
+                          <AvatarFallback className="bg-amber-100 text-amber-700 font-semibold">
+                            {session.user?.name?.charAt(0) || "U"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900">
+                            {session.user?.name}
+                          </p>
+                          <p className="text-xs text-gray-600">
+                            {session.user?.email}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Link href="/profile" className="block">
+                          <Button
+                            variant="ghost"
+                            className="w-full justify-start"
+                          >
+                            <User className="w-4 h-4 mr-2" />
+                            Profile
+                          </Button>
+                        </Link>
+                        <Link href="/favorites" className="block">
+                          <Button
+                            variant="ghost"
+                            className="w-full justify-start"
+                          >
+                            <Heart className="w-4 h-4 mr-2" />
+                            Favorites
+                          </Button>
+                        </Link>
+                        <Link href="/orders" className="block">
+                          <Button
+                            variant="ghost"
+                            className="w-full justify-start"
+                          >
+                            <ShoppingBag className="w-4 h-4 mr-2" />
+                            Orders
+                          </Button>
+                        </Link>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => signOut({ callbackUrl: "/" })}
+                        >
+                          <LogIn className="w-4 h-4 mr-2" />
+                          Sign out
+                        </Button>
+                      </div>
                     </div>
-                  </SignedIn>
+                  )}
                 </div>
               </nav>
             </div>

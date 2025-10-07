@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useSession } from "next-auth/react";
 
 export function useUserSync() {
-  const { user, isLoaded } = useUser();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
-    if (isLoaded && user) {
+    if (status === "authenticated" && session?.user) {
       // Sync user data to database when user is loaded
       fetch("/api/sync-user", {
         method: "POST",
@@ -27,7 +27,7 @@ export function useUserSync() {
           console.error("Error syncing user:", error);
         });
     }
-  }, [isLoaded, user]);
+  }, [status, session]);
 
-  return { user, isLoaded };
+  return { user: session?.user, isLoaded: status !== "loading" };
 }

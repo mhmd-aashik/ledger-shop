@@ -1,7 +1,8 @@
 "use server";
 
 import { PrismaClient } from "@prisma/client";
-import { currentUser } from "@clerk/nextjs/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { CreateUserData, UpdateUserData } from "./types/user.action.types";
 
@@ -15,11 +16,10 @@ export async function createUser(data: CreateUserData) {
   try {
     const user = await prisma.user.create({
       data: {
-        clerkId: data.clerkId,
         email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        imageUrl: data.imageUrl,
+        firstName: data.firstName || null,
+        lastName: data.lastName || null,
+        imageUrl: data.imageUrl || null,
       },
     });
 
@@ -52,10 +52,10 @@ export async function createUser(data: CreateUserData) {
 /**
  * Update an existing user in the database
  */
-export async function updateUser(clerkId: string, data: UpdateUserData) {
+export async function updateUser(userId: string, data: UpdateUserData) {
   try {
     const user = await prisma.user.update({
-      where: { clerkId },
+      where: { id: userId },
       data: {
         firstName: data.firstName,
         lastName: data.lastName,
@@ -75,7 +75,7 @@ export async function updateUser(clerkId: string, data: UpdateUserData) {
  * Update user profile with comprehensive data
  */
 export async function updateUserProfile(
-  clerkId: string,
+  userId: string,
   data: {
     firstName?: string;
     lastName?: string;
@@ -100,7 +100,7 @@ export async function updateUserProfile(
   try {
     // Update basic user info
     const user = await prisma.user.update({
-      where: { clerkId },
+      where: { id: userId },
       data: {
         firstName: data.firstName,
         lastName: data.lastName,
@@ -167,10 +167,10 @@ export async function updateUserProfile(
 /**
  * Get user by Clerk ID
  */
-export async function getUserByClerkId(clerkId: string) {
+export async function getUserById(userId: string) {
   try {
     const user = await prisma.user.findUnique({
-      where: { clerkId },
+      where: { id: userId },
       include: {
         profile: true,
         addresses: true,
@@ -194,17 +194,17 @@ export async function getUserByClerkId(clerkId: string) {
 }
 
 /**
- * Get current user from Clerk and database
+ * Get current user from Auth.js and database
  */
 export async function getCurrentUser() {
   try {
-    const clerkUser = await currentUser();
+    const session = await getServerSession(authOptions);
 
-    if (!clerkUser) {
+    if (!session?.user?.id) {
       return { success: false, error: "No authenticated user" };
     }
 
-    const result = await getUserByClerkId(clerkUser.id);
+    const result = await getUserById(session.user.id);
     return result;
   } catch (error) {
     console.error("Error getting current user:", error);
@@ -215,24 +215,24 @@ export async function getCurrentUser() {
 /**
  * Delete user and all related data
  */
-export async function deleteUser(clerkId: string) {
+export async function deleteUser(userId: string) {
   try {
     // First check if user exists
     const existingUser = await prisma.user.findUnique({
-      where: { clerkId },
+      where: { id: userId },
       select: { id: true },
     });
 
     if (!existingUser) {
       console.log(
-        `User with clerkId ${clerkId} not found in database, skipping deletion`
+        `User with id ${userId} not found in database, skipping deletion`
       );
       return { success: true, message: "User not found in database" };
     }
 
     // Delete user (cascade will handle related data)
     await prisma.user.delete({
-      where: { clerkId },
+      where: { id: userId },
     });
 
     revalidatePath("/");
@@ -244,15 +244,14 @@ export async function deleteUser(clerkId: string) {
 }
 
 /**
- * Sync user data from Clerk to database
+ * Sync user data from Auth.js to database
  * This function is called when a user signs up or updates their profile
  */
-export async function syncUserFromClerk(clerkUser: {
+export async function syncUserFromAuth(authUser: {
   id: string;
-  emailAddresses: { emailAddress: string }[];
-  firstName: string;
-  lastName: string;
-  imageUrl: string;
+  email: string;
+  name?: string;
+  image?: string;
 }) {
   try {
     if (!prisma) {
@@ -264,28 +263,29 @@ export async function syncUserFromClerk(clerkUser: {
     }
 
     const existingUser = await prisma.user.findUnique({
-      where: { clerkId: clerkUser.id },
+      where: { id: authUser.id },
     });
 
     if (existingUser) {
       // Update existing user
-      return await updateUser(clerkUser.id, {
-        firstName: clerkUser.firstName,
-        lastName: clerkUser.lastName,
-        imageUrl: clerkUser.imageUrl,
+      const nameParts = authUser.name?.split(" ") || [];
+      return await updateUser(authUser.id, {
+        firstName: nameParts[0] || "",
+        lastName: nameParts.slice(1).join(" ") || "",
+        imageUrl: authUser.image,
       });
     } else {
       // Create new user
+      const nameParts = authUser.name?.split(" ") || [];
       return await createUser({
-        clerkId: clerkUser.id,
-        email: clerkUser.emailAddresses[0]?.emailAddress || "",
-        firstName: clerkUser.firstName,
-        lastName: clerkUser.lastName,
-        imageUrl: clerkUser.imageUrl,
+        email: authUser.email,
+        firstName: nameParts[0] || "",
+        lastName: nameParts.slice(1).join(" ") || "",
+        imageUrl: authUser.image,
       });
     }
   } catch (error) {
-    console.error("Error syncing user from Clerk:", error);
+    console.error("Error syncing user from Auth.js:", error);
     return { success: false, error: "Failed to sync user" };
   }
 }
@@ -293,10 +293,10 @@ export async function syncUserFromClerk(clerkUser: {
 /**
  * Check if user exists in database
  */
-export async function userExists(clerkId: string) {
+export async function userExists(userId: string) {
   try {
     const user = await prisma.user.findUnique({
-      where: { clerkId },
+      where: { id: userId },
       select: { id: true },
     });
 

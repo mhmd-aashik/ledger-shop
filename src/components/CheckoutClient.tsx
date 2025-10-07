@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { ShoppingBag, CreditCard, User, MapPin } from "lucide-react";
@@ -16,7 +16,7 @@ import toast from "react-hot-toast";
 
 export default function CheckoutClient() {
   const router = useRouter();
-  const { user, isLoaded } = useUser();
+  const { data: session, status } = useSession();
   const [items, setItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -63,22 +63,22 @@ export default function CheckoutClient() {
   // Load user profile data from database
   useEffect(() => {
     const loadUserProfile = async () => {
-      if (!isLoaded || !user) return;
+      if (status !== "authenticated" || !session?.user) return;
 
       try {
         const result = await getCurrentUser();
         if (result.success && "user" in result && result.user) {
           const dbUser = result.user;
-          const clerkUser = user;
 
-          // Merge Clerk data with database data
+          // Merge Auth.js data with database data
           const mergedProfile = {
-            firstName: clerkUser?.firstName || dbUser.firstName || "",
-            lastName: clerkUser?.lastName || dbUser.lastName || "",
-            email:
-              clerkUser?.emailAddresses?.[0]?.emailAddress ||
-              dbUser.email ||
+            firstName:
+              session?.user?.name?.split(" ")[0] || dbUser.firstName || "",
+            lastName:
+              session?.user?.name?.split(" ").slice(1).join(" ") ||
+              dbUser.lastName ||
               "",
+            email: session?.user?.email || dbUser.email || "",
             phone: dbUser.profile?.phone || "",
             address: dbUser.addresses?.[0]
               ? {
@@ -112,11 +112,11 @@ export default function CheckoutClient() {
               : "",
           }));
         } else {
-          // Fallback to Clerk data only
-          const clerkProfile = {
-            firstName: user?.firstName || "",
-            lastName: user?.lastName || "",
-            email: user?.emailAddresses?.[0]?.emailAddress || "",
+          // Fallback to Auth.js data only
+          const authProfile = {
+            firstName: session?.user?.name?.split(" ")[0] || "",
+            lastName: session?.user?.name?.split(" ").slice(1).join(" ") || "",
+            email: session?.user?.email || "",
             phone: "",
             address: {
               street: "",
@@ -127,24 +127,24 @@ export default function CheckoutClient() {
             },
           };
 
-          setUserProfile(clerkProfile);
+          setUserProfile(authProfile);
 
           setFormData((prev) => ({
             ...prev,
             customerName:
-              `${clerkProfile.firstName} ${clerkProfile.lastName}`.trim() || "",
-            customerEmail: clerkProfile.email,
-            customerPhone: clerkProfile.phone,
+              `${authProfile.firstName} ${authProfile.lastName}`.trim() || "",
+            customerEmail: authProfile.email,
+            customerPhone: authProfile.phone,
             customerAddress: "",
           }));
         }
       } catch (error) {
         console.error("Error loading user profile:", error);
-        // Fallback to Clerk data only
-        const clerkProfile = {
-          firstName: user?.firstName || "",
-          lastName: user?.lastName || "",
-          email: user?.emailAddresses?.[0]?.emailAddress || "",
+        // Fallback to Auth.js data only
+        const authProfile = {
+          firstName: session?.user?.name?.split(" ")[0] || "",
+          lastName: session?.user?.name?.split(" ").slice(1).join(" ") || "",
+          email: session?.user?.email || "",
           phone: "",
           address: {
             street: "",
@@ -155,21 +155,21 @@ export default function CheckoutClient() {
           },
         };
 
-        setUserProfile(clerkProfile);
+        setUserProfile(authProfile);
 
         setFormData((prev) => ({
           ...prev,
           customerName:
-            `${clerkProfile.firstName} ${clerkProfile.lastName}`.trim() || "",
-          customerEmail: clerkProfile.email,
-          customerPhone: clerkProfile.phone,
+            `${authProfile.firstName} ${authProfile.lastName}`.trim() || "",
+          customerEmail: authProfile.email,
+          customerPhone: authProfile.phone,
           customerAddress: "",
         }));
       }
     };
 
     loadUserProfile();
-  }, [isLoaded, user]);
+  }, [status, session]);
 
   const subtotal = items.reduce(
     (sum: number, item: CartItem) => sum + item.price * item.quantity,
@@ -258,7 +258,7 @@ export default function CheckoutClient() {
     }
   };
 
-  if (isLoading || !isLoaded || !userProfile) {
+  if (isLoading || status === "loading" || !userProfile) {
     return (
       <div className="text-center py-16">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>

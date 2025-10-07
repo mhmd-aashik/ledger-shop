@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useSession } from "next-auth/react";
 import { Label } from "@/components/ui/label";
 import {
   Card,
@@ -44,7 +44,7 @@ interface SettingsTabProps {
 export default function SettingsTab({
   userData: initialUserData,
 }: SettingsTabProps) {
-  const { user } = useUser();
+  const { data: session } = useSession();
   const [userData, setUserData] = useState<UserData>(initialUserData);
   const [editData, setEditData] = useState<UserData>(initialUserData);
   const [isEditing] = useState(false);
@@ -56,7 +56,7 @@ export default function SettingsTab({
   };
 
   const handlePreferenceChange = async (preference: string, value: boolean) => {
-    if (!user) return;
+    if (!session?.user) return;
 
     const updatedPreferences = {
       ...getCurrentData()?.preferences,
@@ -71,7 +71,7 @@ export default function SettingsTab({
     try {
       setIsSaving(true);
 
-      const result = await updateUserProfile(user.id, {
+      const result = await updateUserProfile(session.user.id, {
         preferences: updatedPreferences,
       });
 

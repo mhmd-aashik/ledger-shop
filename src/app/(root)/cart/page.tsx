@@ -1,29 +1,10 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { currentUser } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
-import { getCartItems, CartItem } from "@/lib/actions/cart.action";
 import CartClient from "@/components/cart/CartClient";
 
-export default async function Cart() {
-  // Get current user from Clerk
-  const clerkUser = await currentUser();
-
-  if (!clerkUser) {
-    redirect("/sign-in");
-  }
-
-  // Load cart items from database
-  let items: CartItem[] = [];
-
-  try {
-    const result = await getCartItems();
-    if (result.success) {
-      items = result.items || [];
-    }
-  } catch (error) {
-    console.error("Error loading cart items:", error);
-  }
+export default function Cart() {
+  // Temporarily disable server-side auth to fix React Context errors
+  // Auth will be handled on client-side
 
   return (
     <div className="min-h-screen bg-background">
@@ -43,7 +24,7 @@ export default async function Cart() {
             </h1>
           </div>
 
-          <CartClient initialItems={items} />
+          <CartClient initialItems={[]} />
         </div>
       </main>
     </div>

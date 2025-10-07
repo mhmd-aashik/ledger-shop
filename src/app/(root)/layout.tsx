@@ -1,4 +1,4 @@
-import HeaderServer from "@/components/HeaderServer";
+import HeaderServerSafe from "@/components/HeaderServerSafe";
 import Footer from "@/components/Footer";
 
 export default function RootLayout({
@@ -8,7 +8,7 @@ export default function RootLayout({
 }>) {
   return (
     <>
-      <HeaderServer />
+      <HeaderServerSafe />
       {children}
       <Footer />
     </>

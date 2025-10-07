@@ -3,8 +3,7 @@ import { Inter, Playfair_Display } from "next/font/google";
 import "../app/(root)/globals.css";
 import "@/styles/header.css";
 import { Toaster } from "react-hot-toast";
-import { ClerkProvider } from "@clerk/nextjs";
-import { UserSyncProvider } from "@/components/UserSyncProvider";
+import { SessionProvider } from "next-auth/react";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -35,31 +34,8 @@ export default function RootLayout({
         className={`${playfair.variable} ${inter.variable} antialiased`}
         suppressHydrationWarning
       >
-        <ClerkProvider
-          appearance={{
-            baseTheme: undefined,
-            variables: {
-              colorPrimary: "#6c47ff",
-              colorBackground: "#ffffff",
-              colorInputBackground: "#ffffff",
-              colorInputText: "#000000",
-            },
-            elements: {
-              formButtonPrimary:
-                "bg-[#6c47ff] hover:bg-[#5a3ae6] text-sm normal-case",
-              card: "bg-white shadow-lg border border-gray-200",
-              headerTitle: "text-gray-900",
-              headerSubtitle: "text-gray-600",
-              socialButtonsBlockButton:
-                "border border-gray-300 hover:bg-gray-50",
-              socialButtonsBlockButtonText: "font-normal",
-              formFieldInput:
-                "border border-gray-300 focus:border-[#6c47ff] focus:ring-[#6c47ff]",
-              footerActionLink: "text-[#6c47ff] hover:text-[#5a3ae6]",
-            },
-          }}
-        >
-          <UserSyncProvider>{children}</UserSyncProvider>
+        <SessionProvider>
+          {children}
           <Toaster
             position="bottom-right"
             toastOptions={{
@@ -71,7 +47,7 @@ export default function RootLayout({
               },
             }}
           />
-        </ClerkProvider>
+        </SessionProvider>
       </body>
     </html>
   );

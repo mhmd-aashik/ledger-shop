@@ -1,24 +1,24 @@
 import { NextResponse } from "next/server";
-import { currentUser } from "@clerk/nextjs/server";
-import { syncUserFromClerk } from "@/lib/actions/user.action";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+import { syncUserFromAuth } from "@/lib/actions/user.action";
 
 export async function POST() {
   try {
-    const clerkUser = await currentUser();
+    const session = await getServerSession(authOptions);
 
-    if (!clerkUser) {
+    if (!session?.user) {
       return NextResponse.json(
         { success: false, error: "No authenticated user" },
         { status: 401 }
       );
     }
 
-    const result = await syncUserFromClerk({
-      id: clerkUser.id,
-      emailAddresses: clerkUser.emailAddresses,
-      firstName: clerkUser.firstName || "",
-      lastName: clerkUser.lastName || "",
-      imageUrl: clerkUser.imageUrl || "",
+    const result = await syncUserFromAuth({
+      id: session.user.id!,
+      email: session.user.email!,
+      name: session.user.name || "",
+      image: session.user.image || "",
     });
 
     if (result.success) {

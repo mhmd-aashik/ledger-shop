@@ -1,17 +1,18 @@
 import { NextResponse } from "next/server";
-import { currentUser } from "@clerk/nextjs/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
-    const user = await currentUser();
+    const session = await getServerSession(authOptions);
 
-    if (!user) {
+    if (!session?.user?.id) {
       return NextResponse.json({ count: 0 });
     }
 
     const dbUser = await prisma.user.findUnique({
-      where: { clerkId: user.id },
+      where: { id: session.user.id },
     });
 
     if (!dbUser) {
@@ -28,6 +29,3 @@ export async function GET() {
     return NextResponse.json({ count: 0 });
   }
 }
-
-
-

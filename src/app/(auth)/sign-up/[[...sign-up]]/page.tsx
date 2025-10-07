@@ -1,12 +1,19 @@
-import { SignUp } from "@clerk/nextjs";
+import { getSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import logo from "../../../../../public/assets/logos/logo.png";
 import leather4 from "../../../../../public/assets/images/leather4.jpg";
 import leather5 from "../../../../../public/assets/images/leather5.jpg";
 import leather6 from "../../../../../public/assets/images/leather6.jpg";
+import { SignUpForm } from "@/components/auth/SignUpForm";
 
-export default function Page() {
+export default async function Page() {
+  const session = await getSession();
+
+  if (session) {
+    redirect("/");
+  }
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Product Showcase */}
@@ -126,36 +133,7 @@ export default function Page() {
 
           {/* Sign Up Form */}
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-amber-200/50 p-8">
-            <SignUp
-              appearance={{
-                elements: {
-                  rootBox: "w-full",
-                  card: "shadow-none border-0 bg-transparent",
-                  headerTitle: "hidden",
-                  headerSubtitle: "hidden",
-                  socialButtonsBlockButton:
-                    "border-2 border-amber-300 hover:bg-amber-50 hover:border-amber-400 transition-all duration-300 font-medium text-amber-800",
-                  socialButtonsBlockButtonText: "font-semibold",
-                  formFieldInput:
-                    "border-2 border-amber-200 focus:border-amber-500 focus:ring-amber-500/20 transition-all duration-300 bg-amber-50/50 text-amber-900 placeholder-amber-600",
-                  formButtonPrimary:
-                    "bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105",
-                  footerActionLink:
-                    "text-amber-600 hover:text-amber-700 font-semibold transition-colors duration-300",
-                  identityPreviewText: "text-amber-700",
-                  formFieldLabel: "text-amber-800 font-semibold",
-                  formFieldErrorText: "text-red-600 font-medium",
-                  formFieldSuccessText: "text-green-600 font-medium",
-                  footerActionText: "text-amber-700",
-                  formResendCodeLink:
-                    "text-amber-600 hover:text-amber-700 font-semibold",
-                  formFieldHintText: "text-amber-600",
-                  formFieldWarningText: "text-amber-600",
-                  formFieldInfoText: "text-amber-600",
-                },
-              }}
-              redirectUrl="/"
-            />
+            <SignUpForm />
           </div>
 
           {/* Footer */}
