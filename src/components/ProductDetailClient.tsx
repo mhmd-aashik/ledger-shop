@@ -5,7 +5,7 @@ import Image from "next/image";
 import { ShoppingBag, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import FavoriteButton from "@/components/FavoriteButton";
 import { addToCart } from "@/lib/actions/cart.action";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { ProductItem } from "../../types/products.types";
 
 interface ProductDetailClientProps {

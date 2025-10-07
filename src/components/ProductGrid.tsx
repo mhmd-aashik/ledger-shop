@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 import { useState } from "react";
 import FavoriteButton from "@/components/FavoriteButton";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { products } from "@/data/products";
 import { addToCart } from "@/lib/actions/cart.action";
 import { Button } from "./ui/button";

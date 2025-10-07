@@ -31,7 +31,15 @@ export default function HeaderClient() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const { cartCount, favoritesCount, isRefreshing } = useCounts();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+
+  // Debug session status
+  useEffect(() => {
+    console.log("Session status:", status);
+    console.log("Session data:", session);
+    console.log("Is authenticated:", status === "authenticated");
+    console.log("Has session:", !!session);
+  }, [status, session]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -191,7 +199,13 @@ export default function HeaderClient() {
                 )}
               </Link>
 
-              {!session && (
+              {status === "loading" && (
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-amber-100 rounded-full animate-pulse" />
+                  <div className="w-16 h-8 bg-amber-100 rounded-xl animate-pulse" />
+                </div>
+              )}
+              {status === "unauthenticated" && !session && (
                 <>
                   <Link href="/sign-in">
                     <Button
@@ -214,7 +228,7 @@ export default function HeaderClient() {
                   </Link>
                 </>
               )}
-              {session && (
+              {(status === "authenticated" || session) && (
                 <Button
                   onClick={() => signOut()}
                   variant="ghost"
@@ -287,7 +301,13 @@ export default function HeaderClient() {
 
               {/* Mobile Authentication */}
               <div className="border-t border-amber-200/50 pt-4 mt-4">
-                {!session && (
+                {status === "loading" && (
+                  <div className="space-y-3">
+                    <div className="w-full h-10 bg-amber-100 rounded-xl animate-pulse" />
+                    <div className="w-full h-10 bg-amber-100 rounded-xl animate-pulse" />
+                  </div>
+                )}
+                {status === "unauthenticated" && !session && (
                   <div className="space-y-3">
                     <Link href="/sign-in">
                       <Button
@@ -306,7 +326,7 @@ export default function HeaderClient() {
                     </Link>
                   </div>
                 )}
-                {session && (
+                {(status === "authenticated" || session) && (
                   <Button
                     onClick={() => signOut()}
                     variant="ghost"

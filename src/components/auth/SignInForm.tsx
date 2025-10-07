@@ -14,7 +14,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 
 export function SignInForm() {
   const [email, setEmail] = useState("");

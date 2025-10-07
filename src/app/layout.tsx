@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "../app/(root)/globals.css";
 import "@/styles/header.css";
-import { Toaster } from "react-hot-toast";
+import { Toaster } from "sonner";
 import { SessionProvider } from "next-auth/react";
 
 const inter = Inter({
@@ -38,14 +38,9 @@ export default function RootLayout({
           {children}
           <Toaster
             position="bottom-right"
-            toastOptions={{
-              duration: 3000,
-              style: {
-                background: "oklch(0.25 0.08 35)",
-                color: "oklch(0.95 0.02 45)",
-                border: "1px solid oklch(0.8 0.05 40)",
-              },
-            }}
+            duration={3000}
+            theme="light"
+            richColors
           />
         </SessionProvider>
       </body>
