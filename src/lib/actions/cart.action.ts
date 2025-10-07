@@ -1,7 +1,6 @@
 "use server";
 
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { prisma } from "../prisma";
 
@@ -24,7 +23,7 @@ export interface CartItem {
  */
 export async function getCartItems() {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user?.id) {
       return { success: false, error: "No authenticated user" };
@@ -78,7 +77,7 @@ export async function getCartItems() {
  */
 export async function addToCart(productId: string, quantity: number = 1) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user?.id) {
       return { success: false, error: "No authenticated user" };
@@ -150,7 +149,7 @@ export async function addToCart(productId: string, quantity: number = 1) {
  */
 export async function removeFromCart(productId: string) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user?.id) {
       return { success: false, error: "No authenticated user" };
@@ -191,7 +190,7 @@ export async function updateCartItemQuantity(
   quantity: number
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user?.id) {
       return { success: false, error: "No authenticated user" };
@@ -245,7 +244,7 @@ export async function updateCartItemQuantity(
  */
 export async function clearCart() {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user?.id) {
       return { success: false, error: "No authenticated user" };

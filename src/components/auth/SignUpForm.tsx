@@ -29,8 +29,8 @@ export function SignUpForm() {
     setIsLoading(true);
 
     try {
-      // Create user account
-      const response = await fetch("/api/auth/signup", {
+      // Create user account using Auth.js
+      const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -86,95 +86,93 @@ export function SignUpForm() {
 
   return (
     <Card className="w-full border-0 shadow-none bg-transparent">
-      <CardHeader className="space-y-1">
+      <CardHeader className="space-y-1 pb-6">
         <CardTitle className="text-2xl font-bold text-amber-900">
           Create Account
         </CardTitle>
         <CardDescription className="text-amber-700">
-          Enter your information to create your account
+          Enter your details to create your account
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label
-                htmlFor="firstName"
-                className="text-amber-800 font-semibold"
-              >
+              <Label htmlFor="firstName" className="text-amber-900 font-medium">
                 First Name
               </Label>
               <Input
                 id="firstName"
                 type="text"
-                placeholder="First name"
+                placeholder="John"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 required
-                className="border-2 border-amber-200 focus:border-amber-500 focus:ring-amber-500/20 transition-all duration-300 bg-amber-50/50 text-amber-900 placeholder-amber-600"
+                className="border-amber-300 focus:border-amber-500 focus:ring-amber-500"
               />
             </div>
             <div className="space-y-2">
-              <Label
-                htmlFor="lastName"
-                className="text-amber-800 font-semibold"
-              >
+              <Label htmlFor="lastName" className="text-amber-900 font-medium">
                 Last Name
               </Label>
               <Input
                 id="lastName"
                 type="text"
-                placeholder="Last name"
+                placeholder="Doe"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 required
-                className="border-2 border-amber-200 focus:border-amber-500 focus:ring-amber-500/20 transition-all duration-300 bg-amber-50/50 text-amber-900 placeholder-amber-600"
+                className="border-amber-300 focus:border-amber-500 focus:ring-amber-500"
               />
             </div>
           </div>
+
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-amber-800 font-semibold">
+            <Label htmlFor="email" className="text-amber-900 font-medium">
               Email
             </Label>
             <Input
               id="email"
               type="email"
-              placeholder="Enter your email"
+              placeholder="john@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="border-2 border-amber-200 focus:border-amber-500 focus:ring-amber-500/20 transition-all duration-300 bg-amber-50/50 text-amber-900 placeholder-amber-600"
+              className="border-amber-300 focus:border-amber-500 focus:ring-amber-500"
             />
           </div>
+
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-amber-800 font-semibold">
+            <Label htmlFor="password" className="text-amber-900 font-medium">
               Password
             </Label>
             <Input
               id="password"
               type="password"
-              placeholder="Create a password"
+              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="border-2 border-amber-200 focus:border-amber-500 focus:ring-amber-500/20 transition-all duration-300 bg-amber-50/50 text-amber-900 placeholder-amber-600"
+              minLength={6}
+              className="border-amber-300 focus:border-amber-500 focus:ring-amber-500"
             />
           </div>
+
           <Button
             type="submit"
-            className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+            className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-semibold py-3 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl"
             disabled={isLoading}
           >
-            {isLoading ? "Creating account..." : "Create Account"}
+            {isLoading ? "Creating Account..." : "Create Account"}
           </Button>
         </form>
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <Separator className="w-full" />
+            <Separator className="w-full border-amber-300" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-transparent px-2 text-amber-600">
+            <span className="bg-white px-2 text-amber-600 font-medium">
               Or continue with
             </span>
           </div>
@@ -183,9 +181,9 @@ export function SignUpForm() {
         <Button
           type="button"
           variant="outline"
+          className="w-full border-amber-300 text-amber-700 hover:bg-amber-50 hover:border-amber-400 font-semibold py-3 rounded-xl transition-all duration-300"
           onClick={handleGoogleSignUp}
           disabled={isLoading}
-          className="w-full border-2 border-amber-300 hover:bg-amber-50 hover:border-amber-400 transition-all duration-300 font-medium text-amber-800"
         >
           <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
             <path

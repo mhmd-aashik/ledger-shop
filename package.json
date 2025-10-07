@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next-auth": "^4.24.10",
+    "next-auth": "5.0.0-beta.25",
     "@auth/prisma-adapter": "^2.7.4",
     "bcryptjs": "^2.4.3",
     "@hookform/resolvers": "^5.2.2",

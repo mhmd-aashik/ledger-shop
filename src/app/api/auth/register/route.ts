@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Error in signup API:", error);
+    console.error("Error in register API:", error);
     return NextResponse.json(
       { success: false, error: "Internal server error" },
       { status: 500 }

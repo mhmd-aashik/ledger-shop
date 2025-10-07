@@ -1,8 +1,7 @@
 "use server";
 
 import { PrismaClient } from "@prisma/client";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
 const prisma = new PrismaClient();
@@ -12,7 +11,7 @@ const prisma = new PrismaClient();
  */
 export async function getFavoriteProducts() {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user?.id) {
       return { success: false, error: "No authenticated user" };
@@ -58,7 +57,7 @@ export async function getFavoriteProducts() {
  */
 export async function addToFavorites(productId: string) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user?.id) {
       return { success: false, error: "No authenticated user" };
@@ -116,7 +115,7 @@ export async function addToFavorites(productId: string) {
  */
 export async function removeFromFavorites(productId: string) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user?.id) {
       return { success: false, error: "No authenticated user" };
@@ -150,14 +149,14 @@ export async function removeFromFavorites(productId: string) {
  */
 export async function isProductFavorited(productId: string) {
   try {
-    const user = await currentUser();
+    const user = await auth();
 
     if (!user) {
       return { success: false, isFavorited: false };
     }
 
     const dbUser = await prisma.user.findUnique({
-      where: { clerkId: user.id },
+      where: { id: user.user.id },
     });
 
     if (!dbUser) {

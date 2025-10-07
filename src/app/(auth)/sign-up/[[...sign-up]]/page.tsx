@@ -1,4 +1,4 @@
-import { getSession } from "next-auth/react";
+import { auth } from "@/lib/auth";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -9,7 +9,7 @@ import leather6 from "../../../../../public/assets/images/leather6.jpg";
 import { SignUpForm } from "@/components/auth/SignUpForm";
 
 export default async function Page() {
-  const session = await getSession();
+  const session = await auth();
 
   if (session) {
     redirect("/");

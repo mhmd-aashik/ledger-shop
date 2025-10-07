@@ -1,8 +1,7 @@
 "use server";
 
 import { PrismaClient } from "@prisma/client";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { CreateUserData, UpdateUserData } from "./types/user.action.types";
 
@@ -198,7 +197,7 @@ export async function getUserById(userId: string) {
  */
 export async function getCurrentUser() {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user?.id) {
       return { success: false, error: "No authenticated user" };

@@ -12,7 +12,5 @@ export const prisma =
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
-// Test the connection
-prisma.$connect().catch((error) => {
-  console.error("Failed to connect to database:", error);
-});
+// Lazy connection - only connect when actually used
+// This prevents Edge Runtime issues in middleware

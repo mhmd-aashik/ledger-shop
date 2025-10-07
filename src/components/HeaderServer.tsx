@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { getCartItems } from "@/lib/actions/cart.action";
 import { getFavoriteProducts } from "@/lib/actions/favorite.action";
 import { CountProvider } from "./CountProvider";
@@ -12,7 +11,7 @@ export default async function HeaderServer() {
 
   try {
     // Get current user from Auth.js with error handling
-    session = await getServerSession(authOptions);
+    session = await auth();
   } catch (error) {
     console.error("Session error (likely JWT decryption issue):", error);
     // Continue without session - user will need to sign in again
