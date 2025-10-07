@@ -11,7 +11,7 @@ export async function clearSession() {
     const cookieStore = await cookies();
     const nextAuthCookies = [
       "authjs.session-token",
-      "authjs.csrf-token", 
+      "authjs.csrf-token",
       "authjs.callback-url",
       "__Secure-authjs.session-token",
       "__Host-authjs.csrf-token",
