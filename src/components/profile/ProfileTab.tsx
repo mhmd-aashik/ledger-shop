@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { User, Edit, Save, X } from "lucide-react";
-import { useUser } from "@clerk/nextjs";
+import { User, Edit, Save, X, LogOut, AlertTriangle } from "lucide-react";
+import { useUser, useClerk } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,10 +50,12 @@ export default function ProfileTab({
   userData: initialUserData,
 }: ProfileTabProps) {
   const { user } = useUser();
+  const { signOut } = useClerk();
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState<UserData>(initialUserData);
   const [editData, setEditData] = useState<UserData>(initialUserData);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // Helper function to safely get current data
   const getCurrentData = () => {
@@ -102,6 +104,19 @@ export default function ProfileTab({
   const handleCancel = () => {
     setEditData({ ...userData });
     setIsEditing(false);
+  };
+
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      await signOut();
+      toast.success("Logged out successfully!");
+    } catch (error) {
+      console.error("Error logging out:", error);
+      toast.error("Failed to log out. Please try again.");
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -326,6 +341,36 @@ export default function ProfileTab({
                 />
               </div>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Logout Section */}
+      <Card className="border-red-200 mt-4">
+        <CardHeader>
+          <CardTitle className="text-red-600 flex items-center space-x-2">
+            <AlertTriangle className="w-5 h-5" />
+            <span>Account Actions</span>
+          </CardTitle>
+          <CardDescription>Manage your account and session</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium text-gray-900">Sign Out</h3>
+              <p className="text-sm text-muted-foreground">
+                Sign out of your account on this device
+              </p>
+            </div>
+            <Button
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              variant="destructive"
+              className="flex items-center space-x-2"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>{isLoggingOut ? "Signing Out..." : "Sign Out"}</span>
+            </Button>
           </div>
         </CardContent>
       </Card>

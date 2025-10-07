@@ -181,19 +181,6 @@ export default function HeaderClient() {
                   </Button>
                 </Link>
               </SignedOut>
-              <SignedIn>
-                <UserButton
-                  appearance={{
-                    elements: {
-                      avatarBox: "w-10 h-10 rounded-xl shadow-lg",
-                      userButtonPopoverCard:
-                        "shadow-xl border border-amber-200 rounded-xl",
-                      userButtonPopoverActionButton:
-                        "hover:bg-amber-50 rounded-lg",
-                    },
-                  }}
-                />
-              </SignedIn>
             </div>
 
             {/* Mobile menu button */}
@@ -265,24 +252,6 @@ export default function HeaderClient() {
                     </Link>
                   </div>
                 </SignedOut>
-                <SignedIn>
-                  <div className="flex items-center justify-between px-4 py-3 bg-amber-50/50 rounded-xl">
-                    <span className="text-sm font-medium text-gray-700">
-                      Account
-                    </span>
-                    <UserButton
-                      appearance={{
-                        elements: {
-                          avatarBox: "w-10 h-10 rounded-xl shadow-lg",
-                          userButtonPopoverCard:
-                            "shadow-xl border border-amber-200 rounded-xl",
-                          userButtonPopoverActionButton:
-                            "hover:bg-amber-50 rounded-lg",
-                        },
-                      }}
-                    />
-                  </div>
-                </SignedIn>
               </div>
             </nav>
           </div>
