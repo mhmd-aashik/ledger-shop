@@ -1,27 +1,10 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { User, Edit, Save, X, Heart } from "lucide-react";
-import { useUser } from "@clerk/nextjs";
+import { currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getFavoriteProducts } from "@/lib/actions/favorite.action";
-import { getCurrentUser, updateUserProfile } from "@/lib/actions/user.action";
-import { toast } from "sonner";
-import Link from "next/link";
-import Image from "next/image";
+import { getCurrentUser } from "@/lib/actions/user.action";
+import ProfileTabs from "@/components/profile/ProfileTabs";
 
 // Type for user data
 type UserData = {
@@ -96,249 +79,119 @@ type FavoriteProduct = {
   publishedAt: Date | null;
 };
 
-// i want to cache this page but im using useEffect so i cant use revalidate
+export default async function ProfilePage() {
+  // Get current user from Clerk
+  const clerkUser = await currentUser();
 
-
-export default function ProfilePage() {
-  const { user, isLoaded } = useUser();
-  const [favorites, setFavorites] = useState<FavoriteProduct[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState("profile");
-  const [userData, setUserData] = useState<UserData | null>(null);
-  const [editData, setEditData] = useState<UserData | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
-
-  // Helper function to safely get current data
-  const getCurrentData = () => {
-    return isEditing ? editData : userData;
-  };
+  if (!clerkUser) {
+    redirect("/sign-in");
+  }
 
   // Load user data and favorites from database
-  useEffect(() => {
-    const loadUserData = async () => {
-      if (!isLoaded) return;
+  let userData: UserData;
+  let favorites: FavoriteProduct[] = [];
 
-      try {
-        setIsLoading(true);
+  try {
+    // Load favorites
+    const favoritesResult = await getFavoriteProducts();
+    if (favoritesResult.success) {
+      favorites = favoritesResult.favorites || [];
+    }
 
-        // Load favorites
-        const favoritesResult = await getFavoriteProducts();
-        if (favoritesResult.success) {
-          setFavorites(favoritesResult.favorites || []);
-        }
+    // Load user data from database
+    const userResult = await getCurrentUser();
+    if (userResult.success && "user" in userResult && userResult.user) {
+      const dbUser = userResult.user;
 
-        // Load user data from database
-        const userResult = await getCurrentUser();
-        if (userResult.success && "user" in userResult && userResult.user) {
-          const dbUser = userResult.user;
-          const clerkUser = user;
-
-          // Merge Clerk data with database data
-          const mergedUserData = {
-            firstName: clerkUser?.firstName || dbUser.firstName || "",
-            lastName: clerkUser?.lastName || dbUser.lastName || "",
-            email:
-              clerkUser?.emailAddresses?.[0]?.emailAddress ||
-              dbUser.email ||
-              "",
-            imageUrl: clerkUser?.imageUrl || dbUser.imageUrl || "",
-            phone: dbUser.profile?.phone || "",
-            dateOfBirth: dbUser.profile?.dateOfBirth
-              ? new Date(dbUser.profile.dateOfBirth).toISOString().split("T")[0]
-              : "",
-            bio: dbUser.profile?.bio || "",
-            address: dbUser.addresses?.[0]
-              ? {
-                  street: dbUser.addresses[0].address1 || "",
-                  city: dbUser.addresses[0].city || "",
-                  state: dbUser.addresses[0].state || "",
-                  zipCode: dbUser.addresses[0].postalCode || "",
-                  country: dbUser.addresses[0].country || "",
-                }
-              : {
-                  street: "",
-                  city: "",
-                  state: "",
-                  zipCode: "",
-                  country: "",
-                },
-            preferences: {
-              newsletter: dbUser.profile?.newsletterSubscribed || false,
-              marketing: dbUser.profile?.marketingEmails || false,
-              sms: dbUser.profile?.smsNotifications || false,
-            },
-          };
-
-          setUserData(mergedUserData);
-          setEditData(mergedUserData);
-        } else {
-          // Fallback to Clerk data only
-          const clerkUserData = {
-            firstName: user?.firstName || "",
-            lastName: user?.lastName || "",
-            email: user?.emailAddresses?.[0]?.emailAddress || "",
-            imageUrl: user?.imageUrl || "",
-            phone: "",
-            dateOfBirth: "",
-            bio: "",
-            address: {
+      // Merge Clerk data with database data
+      userData = {
+        firstName: clerkUser.firstName || dbUser.firstName || "",
+        lastName: clerkUser.lastName || dbUser.lastName || "",
+        email:
+          clerkUser.emailAddresses?.[0]?.emailAddress || dbUser.email || "",
+        imageUrl: clerkUser.imageUrl || dbUser.imageUrl || "",
+        phone: dbUser.profile?.phone || "",
+        dateOfBirth: dbUser.profile?.dateOfBirth
+          ? new Date(dbUser.profile.dateOfBirth).toISOString().split("T")[0]
+          : "",
+        bio: dbUser.profile?.bio || "",
+        address: dbUser.addresses?.[0]
+          ? {
+              street: dbUser.addresses[0].address1 || "",
+              city: dbUser.addresses[0].city || "",
+              state: dbUser.addresses[0].state || "",
+              zipCode: dbUser.addresses[0].postalCode || "",
+              country: dbUser.addresses[0].country || "",
+            }
+          : {
               street: "",
               city: "",
               state: "",
               zipCode: "",
               country: "",
             },
-            preferences: {
-              newsletter: false,
-              marketing: false,
-              sms: false,
-            },
-          };
-
-          setUserData(clerkUserData);
-          setEditData(clerkUserData);
-        }
-      } catch (error) {
-        console.error("Error loading user data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadUserData();
-  }, [isLoaded, user]);
-
-  const handleEdit = () => {
-    if (userData) {
-      setEditData({ ...userData });
-    }
-    setIsEditing(true);
-  };
-
-  const handleSave = async () => {
-    if (!user || !editData) return;
-
-    try {
-      setIsSaving(true);
-
-      // Update user profile with all data
-      const result = await updateUserProfile(user.id, {
-        firstName: editData.firstName,
-        lastName: editData.lastName,
-        imageUrl: editData.imageUrl,
-        phone: editData.phone,
-        dateOfBirth: editData.dateOfBirth,
-        bio: editData.bio,
-        address: editData.address,
-        preferences: editData.preferences,
-      });
-
-      if (result.success) {
-        setUserData(editData);
-        setIsEditing(false);
-        toast.success("Profile updated successfully!");
-      } else {
-        console.error("Failed to save user data:", result.error);
-        toast.error("Failed to update profile. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error saving user data:", error);
-      toast.error("An error occurred while updating your profile.");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleCancel = () => {
-    if (userData) {
-      setEditData({ ...userData });
-    }
-    setIsEditing(false);
-  };
-
-  const handleInputChange = (field: string, value: string) => {
-    if (field.includes(".")) {
-      const [parent, child] = field.split(".");
-      setEditData((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          [parent]: {
-            ...(prev[parent as keyof typeof prev] as Record<string, unknown>),
-            [child]: value,
-          },
-        };
-      });
-    } else {
-      setEditData((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          [field]: value,
-        };
-      });
-    }
-  };
-
-  const handlePreferenceChange = (preference: string, value: boolean) => {
-    setEditData((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
         preferences: {
-          ...prev.preferences,
-          [preference]: value,
+          newsletter: dbUser.profile?.newsletterSubscribed || false,
+          marketing: dbUser.profile?.marketingEmails || false,
+          sms: dbUser.profile?.smsNotifications || false,
         },
       };
-    });
-  };
-
-  const recentOrders = [
-    {
-      id: "ORD-001",
-      date: "2024-01-15",
-      status: "Delivered",
-      total: 299.0,
-      items: ["Classic Leather Wallet"],
-    },
-    {
-      id: "ORD-002",
-      date: "2024-01-10",
-      status: "Processing",
-      total: 149.5,
-      items: ["Minimalist Cardholder"],
-    },
-  ];
-
-  if (!isLoaded || isLoading || !userData) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <main className="pt-16 lg:pt-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="text-center py-16">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <h1 className="text-2xl font-serif font-bold text-foreground mb-4">
-                Loading your profile...
-              </h1>
-              <p className="text-muted-foreground">
-                Please wait while we load your profile data
-              </p>
-            </div>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
+    } else {
+      // Fallback to Clerk data only
+      userData = {
+        firstName: clerkUser.firstName || "",
+        lastName: clerkUser.lastName || "",
+        email: clerkUser.emailAddresses?.[0]?.emailAddress || "",
+        imageUrl: clerkUser.imageUrl || "",
+        phone: "",
+        dateOfBirth: "",
+        bio: "",
+        address: {
+          street: "",
+          city: "",
+          state: "",
+          zipCode: "",
+          country: "",
+        },
+        preferences: {
+          newsletter: false,
+          marketing: false,
+          sms: false,
+        },
+      };
+    }
+  } catch (error) {
+    console.error("Error loading user data:", error);
+    // Fallback to Clerk data only
+    userData = {
+      firstName: clerkUser.firstName || "",
+      lastName: clerkUser.lastName || "",
+      email: clerkUser.emailAddresses?.[0]?.emailAddress || "",
+      imageUrl: clerkUser.imageUrl || "",
+      phone: "",
+      dateOfBirth: "",
+      bio: "",
+      address: {
+        street: "",
+        city: "",
+        state: "",
+        zipCode: "",
+        country: "",
+      },
+      preferences: {
+        newsletter: false,
+        marketing: false,
+        sms: false,
+      },
+    };
   }
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <main className="pt-16 lg:pt-20">
+        {/* Header */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl lg:text-4xl font-serif font-bold text-foreground">
               My Profile
@@ -348,395 +201,7 @@ export default function ProfilePage() {
             </p>
           </div>
 
-          <Tabs
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="space-y-6"
-          >
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="profile">Profile</TabsTrigger>
-              <TabsTrigger value="orders">Orders</TabsTrigger>
-              <TabsTrigger value="favorites">Favorites</TabsTrigger>
-              <TabsTrigger value="settings">Settings</TabsTrigger>
-            </TabsList>
-
-            {/* Profile Tab */}
-            <TabsContent value="profile">
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle>Personal Information</CardTitle>
-                      <CardDescription>
-                        Update your personal details and contact information
-                      </CardDescription>
-                    </div>
-                    {!isEditing ? (
-                      <Button onClick={handleEdit} variant="outline">
-                        <Edit className="w-4 h-4 mr-2" />
-                        Edit Profile
-                      </Button>
-                    ) : (
-                      <div className="flex space-x-2">
-                        <Button onClick={handleSave} disabled={isSaving}>
-                          <Save className="w-4 h-4 mr-2" />
-                          {isSaving ? "Saving..." : "Save"}
-                        </Button>
-                        <Button
-                          onClick={handleCancel}
-                          variant="outline"
-                          disabled={isSaving}
-                        >
-                          <X className="w-4 h-4 mr-2" />
-                          Cancel
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Profile Picture */}
-                  <div className="flex items-center space-x-4">
-                    {userData.imageUrl ? (
-                      <div className="w-20 h-20 rounded-full overflow-hidden">
-                        <Image
-                          src={userData.imageUrl}
-                          alt={`${userData.firstName} ${userData.lastName}`}
-                          width={80}
-                          height={80}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    ) : (
-                      <div className="w-20 h-20 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center">
-                        <User className="w-10 h-10 text-white" />
-                      </div>
-                    )}
-                    <div>
-                      <h3 className="text-xl font-semibold">
-                        {getCurrentData()?.firstName || ""}{" "}
-                        {getCurrentData()?.lastName || ""}
-                      </h3>
-                      <p className="text-muted-foreground">
-                        {getCurrentData()?.email || ""}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Personal Information Form */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <Label htmlFor="firstName">First Name</Label>
-                      <Input
-                        id="firstName"
-                        value={getCurrentData()?.firstName || ""}
-                        onChange={(e) =>
-                          handleInputChange("firstName", e.target.value)
-                        }
-                        disabled={!isEditing}
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="lastName">Last Name</Label>
-                      <Input
-                        id="lastName"
-                        value={getCurrentData()?.lastName || ""}
-                        onChange={(e) =>
-                          handleInputChange("lastName", e.target.value)
-                        }
-                        disabled={!isEditing}
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={getCurrentData()?.email || ""}
-                        onChange={(e) =>
-                          handleInputChange("email", e.target.value)
-                        }
-                        disabled={!isEditing}
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="phone">Phone</Label>
-                      <Input
-                        id="phone"
-                        value={getCurrentData()?.phone || ""}
-                        onChange={(e) =>
-                          handleInputChange("phone", e.target.value)
-                        }
-                        disabled={!isEditing}
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="dateOfBirth">Date of Birth</Label>
-                      <Input
-                        id="dateOfBirth"
-                        type="date"
-                        value={getCurrentData()?.dateOfBirth || ""}
-                        onChange={(e) =>
-                          handleInputChange("dateOfBirth", e.target.value)
-                        }
-                        disabled={!isEditing}
-                        className="mt-1"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="bio">Bio</Label>
-                    <Textarea
-                      id="bio"
-                      value={getCurrentData()?.bio || ""}
-                      onChange={(e) => handleInputChange("bio", e.target.value)}
-                      disabled={!isEditing}
-                      className="mt-1"
-                      rows={3}
-                    />
-                  </div>
-
-                  {/* Address */}
-                  <div>
-                    <h4 className="text-lg font-semibold mb-4">Address</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="md:col-span-2">
-                        <Label htmlFor="street">Street Address</Label>
-                        <Input
-                          id="street"
-                          value={getCurrentData()?.address.street || ""}
-                          onChange={(e) =>
-                            handleInputChange("address.street", e.target.value)
-                          }
-                          disabled={!isEditing}
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="city">City</Label>
-                        <Input
-                          id="city"
-                          value={getCurrentData()?.address.city || ""}
-                          onChange={(e) =>
-                            handleInputChange("address.city", e.target.value)
-                          }
-                          disabled={!isEditing}
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="state">State</Label>
-                        <Input
-                          id="state"
-                          value={getCurrentData()?.address.state || ""}
-                          onChange={(e) =>
-                            handleInputChange("address.state", e.target.value)
-                          }
-                          disabled={!isEditing}
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="zipCode">ZIP Code</Label>
-                        <Input
-                          id="zipCode"
-                          value={getCurrentData()?.address.zipCode || ""}
-                          onChange={(e) =>
-                            handleInputChange("address.zipCode", e.target.value)
-                          }
-                          disabled={!isEditing}
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="country">Country</Label>
-                        <Input
-                          id="country"
-                          value={getCurrentData()?.address.country || ""}
-                          onChange={(e) =>
-                            handleInputChange("address.country", e.target.value)
-                          }
-                          disabled={!isEditing}
-                          className="mt-1"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Orders Tab */}
-            <TabsContent value="orders">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Order History</CardTitle>
-                  <CardDescription>
-                    View your recent orders and their status
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {recentOrders.map((order) => (
-                      <div key={order.id} className="border rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <h3 className="font-semibold">Order #{order.id}</h3>
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs ${
-                              order.status === "Delivered"
-                                ? "bg-green-100 text-green-800"
-                                : "bg-yellow-100 text-yellow-800"
-                            }`}
-                          >
-                            {order.status}
-                          </span>
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-2">
-                          {order.date} • {order.items.join(", ")}
-                        </p>
-                        <p className="font-semibold">${order.total}</p>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Favorites Tab */}
-            <TabsContent value="favorites">
-              <Card>
-                <CardHeader>
-                  <CardTitle>My Favorites</CardTitle>
-                  <CardDescription>
-                    {favorites.length} items in your favorites
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {favorites.length === 0 ? (
-                    <div className="text-center py-8">
-                      <Heart className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                      <p className="text-muted-foreground">No favorites yet</p>
-                      <Link href="/products">
-                        <Button className="mt-4">Browse Products</Button>
-                      </Link>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {favorites.slice(0, 6).map((product) => (
-                        <div key={product.id} className="border rounded-lg p-4">
-                          <div className="flex items-center space-x-3">
-                            <Image
-                              src={
-                                product.images[0] || "/placeholder-product.jpg"
-                              }
-                              alt={product.name}
-                              width={60}
-                              height={60}
-                              className="rounded-lg object-cover"
-                            />
-                            <div className="flex-1">
-                              <h4 className="font-medium">{product.name}</h4>
-                              <p className="text-sm text-muted-foreground">
-                                LKR {product.price}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {favorites.length > 6 && (
-                    <div className="text-center mt-4">
-                      <Link href="/favorites">
-                        <Button variant="outline">View All Favorites</Button>
-                      </Link>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Settings Tab */}
-            <TabsContent value="settings">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Preferences</CardTitle>
-                  <CardDescription>
-                    Manage your notification and privacy settings
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label htmlFor="newsletter">
-                          Newsletter Subscription
-                        </Label>
-                        <p className="text-sm text-muted-foreground">
-                          Receive updates about new products and offers
-                        </p>
-                      </div>
-                      <input
-                        type="checkbox"
-                        id="newsletter"
-                        checked={
-                          getCurrentData()?.preferences.newsletter || false
-                        }
-                        onChange={(e) =>
-                          handlePreferenceChange("newsletter", e.target.checked)
-                        }
-                        disabled={!isEditing}
-                        className="rounded"
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label htmlFor="marketing">Marketing Emails</Label>
-                        <p className="text-sm text-muted-foreground">
-                          Receive promotional emails and special offers
-                        </p>
-                      </div>
-                      <input
-                        type="checkbox"
-                        id="marketing"
-                        checked={
-                          getCurrentData()?.preferences.marketing || false
-                        }
-                        onChange={(e) =>
-                          handlePreferenceChange("marketing", e.target.checked)
-                        }
-                        disabled={!isEditing}
-                        className="rounded"
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label htmlFor="sms">SMS Notifications</Label>
-                        <p className="text-sm text-muted-foreground">
-                          Receive order updates via SMS
-                        </p>
-                      </div>
-                      <input
-                        type="checkbox"
-                        id="sms"
-                        checked={getCurrentData()?.preferences.sms || false}
-                        onChange={(e) =>
-                          handlePreferenceChange("sms", e.target.checked)
-                        }
-                        disabled={!isEditing}
-                        className="rounded"
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+          <ProfileTabs userData={userData} favorites={favorites} />
         </div>
       </main>
       <Footer />
