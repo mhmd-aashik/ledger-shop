@@ -1,12 +1,9 @@
 "use server";
 
-import { PrismaClient } from "@prisma/client";
 import { currentUser } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { CreateUserData, UpdateUserData } from "./types/user.action.types";
-
-// Create a new Prisma client instance for server actions
-const prisma = new PrismaClient();
+import { prisma } from "../prisma";
 
 /**
  * Create a new user in the database
