@@ -1,17 +1,20 @@
 import Image from "next/image";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { CartItem } from "@/lib/actions/cart.action";
+import { InlineLoading } from "@/components/Loading";
 
 interface CartItemsProps {
   items: CartItem[];
   onUpdateQuantity: (productId: string, newQuantity: number) => void;
   onRemoveItem: (productId: string) => void;
+  isUpdating?: boolean;
 }
 
 export default function CartItems({
   items,
   onUpdateQuantity,
   onRemoveItem,
+  isUpdating = false,
 }: CartItemsProps) {
   return (
     <div className="lg:col-span-2 space-y-6">
@@ -47,27 +50,42 @@ export default function CartItems({
             <div className="flex items-center space-x-3">
               <button
                 onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
-                className="w-8 h-8 border border-border rounded-lg flex items-center justify-center hover:bg-muted transition-colors duration-200"
+                disabled={isUpdating}
+                className="w-8 h-8 border border-border rounded-lg flex items-center justify-center hover:bg-muted transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Minus className="w-4 h-4" />
+                {isUpdating ? (
+                  <InlineLoading size="sm" />
+                ) : (
+                  <Minus className="w-4 h-4" />
+                )}
               </button>
               <span className="w-8 text-center font-medium">
                 {item.quantity}
               </span>
               <button
                 onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-                className="w-8 h-8 border border-border rounded-lg flex items-center justify-center hover:bg-muted transition-colors duration-200"
+                disabled={isUpdating}
+                className="w-8 h-8 border border-border rounded-lg flex items-center justify-center hover:bg-muted transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Plus className="w-4 h-4" />
+                {isUpdating ? (
+                  <InlineLoading size="sm" />
+                ) : (
+                  <Plus className="w-4 h-4" />
+                )}
               </button>
             </div>
 
             {/* Remove Button */}
             <button
               onClick={() => onRemoveItem(item.id)}
-              className="p-2 text-muted-foreground hover:text-destructive transition-colors duration-200"
+              disabled={isUpdating}
+              className="p-2 text-muted-foreground hover:text-destructive transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Trash2 className="w-5 h-5" />
+              {isUpdating ? (
+                <InlineLoading size="sm" />
+              ) : (
+                <Trash2 className="w-5 h-5" />
+              )}
             </button>
           </div>
         </div>

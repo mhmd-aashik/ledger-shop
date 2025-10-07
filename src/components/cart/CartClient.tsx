@@ -12,6 +12,7 @@ import {
 import { toast } from "sonner";
 import CartItems from "./CartItems";
 import OrderSummary from "./OrderSummary";
+import { InlineLoading } from "@/components/Loading";
 
 interface CartClientProps {
   initialItems: CartItem[];
@@ -19,6 +20,7 @@ interface CartClientProps {
 
 export default function CartClient({ initialItems }: CartClientProps) {
   const [items, setItems] = useState<CartItem[]>(initialItems);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const subtotal = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -36,6 +38,7 @@ export default function CartClient({ initialItems }: CartClientProps) {
       return;
     }
 
+    setIsUpdating(true);
     try {
       const result = await updateCartItemQuantity(productId, newQuantity);
       if (result.success) {
@@ -51,10 +54,13 @@ export default function CartClient({ initialItems }: CartClientProps) {
     } catch (error) {
       console.error("Error updating quantity:", error);
       toast.error("Failed to update quantity");
+    } finally {
+      setIsUpdating(false);
     }
   };
 
   const handleRemoveItem = async (productId: string) => {
+    setIsUpdating(true);
     try {
       const result = await removeFromCart(productId);
       if (result.success) {
@@ -66,6 +72,8 @@ export default function CartClient({ initialItems }: CartClientProps) {
     } catch (error) {
       console.error("Error removing item:", error);
       toast.error("Failed to remove item");
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -95,6 +103,7 @@ export default function CartClient({ initialItems }: CartClientProps) {
         items={items}
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveItem}
+        isUpdating={isUpdating}
       />
       <OrderSummary subtotal={subtotal} shipping={shipping} total={total} />
     </div>
