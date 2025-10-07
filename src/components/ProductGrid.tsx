@@ -2,15 +2,17 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingBag, Heart } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import { useState } from "react";
-import { useCartStore } from "@/store/cartStore";
+import FavoriteButton from "@/components/FavoriteButton";
 import toast from "react-hot-toast";
 import { products } from "@/data/products";
+import { addToCart } from "@/lib/actions/cart.action";
+import { Button } from "./ui/button";
 
 export default function ProductGrid() {
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
-  const { addToCart } = useCartStore();
+  const [isLoading, setIsLoading] = useState<string | null>(null);
 
   return (
     <section className="py-8 lg:py-8 bg-background">
@@ -51,26 +53,44 @@ export default function ProductGrid() {
                   }`}
                 >
                   <button
-                    onClick={() => {
-                      const added = addToCart({
-                        id: product.id,
-                        name: product.name,
-                        price: product.price,
-                        image: product.image,
-                      });
-                      if (added) {
-                        toast.success(`${product.name} added to cart!`);
-                      } else {
-                        toast.error(`${product.name} is already in your cart!`);
+                    onClick={async () => {
+                      if (isLoading === product.id) return;
+
+                      setIsLoading(product.id);
+                      try {
+                        const result = await addToCart(product.id, 1);
+                        if (result.success) {
+                          toast.success(`${product.name} added to cart!`);
+                          // Dispatch custom event to update header count
+                          window.dispatchEvent(new CustomEvent("cartUpdated"));
+                        } else {
+                          toast.error(result.error || "Failed to add to cart");
+                        }
+                      } catch (error) {
+                        console.error("Error adding to cart:", error);
+                        toast.error("Something went wrong");
+                      } finally {
+                        setIsLoading(null);
                       }
                     }}
-                    className="bg-white text-foreground p-3 rounded-full hover:bg-accent hover:text-accent-foreground transition-colors duration-200"
+                    disabled={isLoading === product.id}
+                    className="bg-white text-foreground p-3 rounded-full hover:bg-accent hover:text-accent-foreground transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ShoppingBag className="w-5 h-5" />
                   </button>
-                  <button className="bg-white text-foreground p-3 rounded-full hover:bg-accent hover:text-accent-foreground transition-colors duration-200">
-                    <Heart className="w-5 h-5" />
-                  </button>
+                  <FavoriteButton
+                    product={{
+                      id: product.id,
+                      name: product.name,
+                      price: product.price,
+                      image: product.image,
+                      slug: product.id, // Using id as slug for now
+                      category: product.category,
+                      rating: 4.5, // Default rating
+                      reviewCount: 0, // Default review count
+                    }}
+                    className="bg-white text-foreground p-3 rounded-full hover:bg-accent hover:text-accent-foreground transition-colors duration-200"
+                  />
                 </div>
               </div>
 
@@ -104,11 +124,14 @@ export default function ProductGrid() {
         </div>
 
         {/* Call to Action */}
-        <div className="text-center mt-8">
-          <button className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground px-8 py-4 rounded-lg font-medium text-lg transition-all duration-300 hover:scale-105 shadow-lg">
+        <Link
+          href="/products"
+          className="text-center mt-8 w-fit flex justify-center mx-auto"
+        >
+          <Button className="bg-gradient-to-r from-primary hover:cursor-pointer to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground px-8 py-7 rounded-lg font-medium text-lg transition-all duration-300 hover:scale-105 shadow-lg">
             Shop the Collection
-          </button>
-        </div>
+          </Button>
+        </Link>
       </div>
     </section>
   );

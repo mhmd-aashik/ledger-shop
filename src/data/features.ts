@@ -15,7 +15,7 @@ export const features = [
  {
    icon: Truck,
    title: "Free Shipping",
-   description: "Complimentary delivery on all orders worldwide",
+   description: "Complimentary delivery on all orders in Sri Lanka",
  },
  {
    icon: Heart,
