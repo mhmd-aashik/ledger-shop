@@ -1,17 +1,23 @@
-import { currentUser } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth";
 import { getCartItems } from "@/lib/actions/cart.action";
 import { getFavoriteProducts } from "@/lib/actions/favorite.action";
 import { CountProvider } from "./CountProvider";
 import HeaderClient from "./HeaderClient";
 
 export default async function HeaderServer() {
-  // Get current user from Clerk
-  const clerkUser = await currentUser();
-
+  let session = null;
   let initialCartCount = 0;
   let initialFavoritesCount = 0;
 
-  if (clerkUser) {
+  try {
+    // Get current user from Auth.js with error handling
+    session = await auth();
+  } catch (error) {
+    console.error("Session error (likely JWT decryption issue):", error);
+    // Continue without session - user will need to sign in again
+  }
+
+  if (session?.user) {
     try {
       // Load cart count
       const cartResult = await getCartItems();

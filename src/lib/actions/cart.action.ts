@@ -1,6 +1,6 @@
 "use server";
 
-import { currentUser } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { prisma } from "../prisma";
 
@@ -23,15 +23,15 @@ export interface CartItem {
  */
 export async function getCartItems() {
   try {
-    const user = await currentUser();
+    const session = await auth();
 
-    if (!user) {
+    if (!session?.user?.id) {
       return { success: false, error: "No authenticated user" };
     }
 
     // Get user from database
     const dbUser = await prisma.user.findUnique({
-      where: { clerkId: user.id },
+      where: { id: session.user.id },
     });
 
     if (!dbUser) {
@@ -77,15 +77,15 @@ export async function getCartItems() {
  */
 export async function addToCart(productId: string, quantity: number = 1) {
   try {
-    const user = await currentUser();
+    const session = await auth();
 
-    if (!user) {
+    if (!session?.user?.id) {
       return { success: false, error: "No authenticated user" };
     }
 
     // Get user from database
     const dbUser = await prisma.user.findUnique({
-      where: { clerkId: user.id },
+      where: { id: session.user.id },
     });
 
     if (!dbUser) {
@@ -149,15 +149,15 @@ export async function addToCart(productId: string, quantity: number = 1) {
  */
 export async function removeFromCart(productId: string) {
   try {
-    const user = await currentUser();
+    const session = await auth();
 
-    if (!user) {
+    if (!session?.user?.id) {
       return { success: false, error: "No authenticated user" };
     }
 
     // Get user from database
     const dbUser = await prisma.user.findUnique({
-      where: { clerkId: user.id },
+      where: { id: session.user.id },
     });
 
     if (!dbUser) {
@@ -190,15 +190,15 @@ export async function updateCartItemQuantity(
   quantity: number
 ) {
   try {
-    const user = await currentUser();
+    const session = await auth();
 
-    if (!user) {
+    if (!session?.user?.id) {
       return { success: false, error: "No authenticated user" };
     }
 
     // Get user from database
     const dbUser = await prisma.user.findUnique({
-      where: { clerkId: user.id },
+      where: { id: session.user.id },
     });
 
     if (!dbUser) {
@@ -244,15 +244,15 @@ export async function updateCartItemQuantity(
  */
 export async function clearCart() {
   try {
-    const user = await currentUser();
+    const session = await auth();
 
-    if (!user) {
+    if (!session?.user?.id) {
       return { success: false, error: "No authenticated user" };
     }
 
     // Get user from database
     const dbUser = await prisma.user.findUnique({
-      where: { clerkId: user.id },
+      where: { id: session.user.id },
     });
 
     if (!dbUser) {

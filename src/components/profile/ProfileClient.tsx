@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { User, Edit, Save, X, Heart } from "lucide-react";
-import { useUser } from "@clerk/nextjs";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -98,8 +98,11 @@ interface ProfileClientProps {
   favorites: FavoriteProduct[];
 }
 
-export default function ProfileClient({ initialUserData, favorites }: ProfileClientProps) {
-  const { user } = useUser();
+export default function ProfileClient({
+  initialUserData,
+  favorites,
+}: ProfileClientProps) {
+  const { data: session } = useSession();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
   const [userData, setUserData] = useState<UserData>(initialUserData);
@@ -117,13 +120,13 @@ export default function ProfileClient({ initialUserData, favorites }: ProfileCli
   };
 
   const handleSave = async () => {
-    if (!user || !editData) return;
+    if (!session?.user || !editData) return;
 
     try {
       setIsSaving(true);
 
       // Update user profile with all data
-      const result = await updateUserProfile(user.id, {
+      const result = await updateUserProfile(session.user.id, {
         firstName: editData.firstName,
         lastName: editData.lastName,
         imageUrl: editData.imageUrl,
@@ -328,9 +331,7 @@ export default function ProfileClient({ initialUserData, favorites }: ProfileCli
                     id="email"
                     type="email"
                     value={getCurrentData()?.email || ""}
-                    onChange={(e) =>
-                      handleInputChange("email", e.target.value)
-                    }
+                    onChange={(e) => handleInputChange("email", e.target.value)}
                     disabled={!isEditing}
                     className="mt-1"
                   />
@@ -340,9 +341,7 @@ export default function ProfileClient({ initialUserData, favorites }: ProfileCli
                   <Input
                     id="phone"
                     value={getCurrentData()?.phone || ""}
-                    onChange={(e) =>
-                      handleInputChange("phone", e.target.value)
-                    }
+                    onChange={(e) => handleInputChange("phone", e.target.value)}
                     disabled={!isEditing}
                     className="mt-1"
                   />
@@ -486,11 +485,11 @@ export default function ProfileClient({ initialUserData, favorites }: ProfileCli
             <CardHeader>
               <CardTitle>My Favorites</CardTitle>
               <CardDescription>
-                {favorites.length} items in your favorites
+                {favorites?.length || 0} items in your favorites
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {favorites.length === 0 ? (
+              {(favorites?.length || 0) === 0 ? (
                 <div className="text-center py-8">
                   <Heart className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                   <p className="text-muted-foreground">No favorites yet</p>
@@ -500,13 +499,11 @@ export default function ProfileClient({ initialUserData, favorites }: ProfileCli
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {favorites.slice(0, 6).map((product) => (
+                  {(favorites || []).slice(0, 6).map((product) => (
                     <div key={product.id} className="border rounded-lg p-4">
                       <div className="flex items-center space-x-3">
                         <Image
-                          src={
-                            product.images[0] || "/placeholder-product.jpg"
-                          }
+                          src={product.images[0] || "/placeholder-product.jpg"}
                           alt={product.name}
                           width={60}
                           height={60}
@@ -523,7 +520,7 @@ export default function ProfileClient({ initialUserData, favorites }: ProfileCli
                   ))}
                 </div>
               )}
-              {favorites.length > 6 && (
+              {(favorites?.length || 0) > 6 && (
                 <div className="text-center mt-4">
                   <Link href="/favorites">
                     <Button variant="outline">View All Favorites</Button>
@@ -547,9 +544,7 @@ export default function ProfileClient({ initialUserData, favorites }: ProfileCli
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="newsletter">
-                      Newsletter Subscription
-                    </Label>
+                    <Label htmlFor="newsletter">Newsletter Subscription</Label>
                     <p className="text-sm text-muted-foreground">
                       Receive updates about new products and offers
                     </p>
@@ -557,9 +552,7 @@ export default function ProfileClient({ initialUserData, favorites }: ProfileCli
                   <input
                     type="checkbox"
                     id="newsletter"
-                    checked={
-                      getCurrentData()?.preferences.newsletter || false
-                    }
+                    checked={getCurrentData()?.preferences.newsletter || false}
                     onChange={(e) =>
                       handlePreferenceChange("newsletter", e.target.checked)
                     }
@@ -577,9 +570,7 @@ export default function ProfileClient({ initialUserData, favorites }: ProfileCli
                   <input
                     type="checkbox"
                     id="marketing"
-                    checked={
-                      getCurrentData()?.preferences.marketing || false
-                    }
+                    checked={getCurrentData()?.preferences.marketing || false}
                     onChange={(e) =>
                       handlePreferenceChange("marketing", e.target.checked)
                     }

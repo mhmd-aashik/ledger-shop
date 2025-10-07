@@ -1,7 +1,7 @@
 "use server";
 
 import { PrismaClient } from "@prisma/client";
-import { currentUser } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
 const prisma = new PrismaClient();
@@ -11,14 +11,14 @@ const prisma = new PrismaClient();
  */
 export async function getFavoriteProducts() {
   try {
-    const user = await currentUser();
+    const session = await auth();
 
-    if (!user) {
+    if (!session?.user?.id) {
       return { success: false, error: "No authenticated user" };
     }
 
     const dbUser = await prisma.user.findUnique({
-      where: { clerkId: user.id },
+      where: { id: session.user.id },
       include: {
         favorites: {
           include: {
@@ -57,14 +57,14 @@ export async function getFavoriteProducts() {
  */
 export async function addToFavorites(productId: string) {
   try {
-    const user = await currentUser();
+    const session = await auth();
 
-    if (!user) {
+    if (!session?.user?.id) {
       return { success: false, error: "No authenticated user" };
     }
 
     const dbUser = await prisma.user.findUnique({
-      where: { clerkId: user.id },
+      where: { id: session.user.id },
     });
 
     if (!dbUser) {
@@ -115,14 +115,14 @@ export async function addToFavorites(productId: string) {
  */
 export async function removeFromFavorites(productId: string) {
   try {
-    const user = await currentUser();
+    const session = await auth();
 
-    if (!user) {
+    if (!session?.user?.id) {
       return { success: false, error: "No authenticated user" };
     }
 
     const dbUser = await prisma.user.findUnique({
-      where: { clerkId: user.id },
+      where: { id: session.user.id },
     });
 
     if (!dbUser) {
@@ -149,14 +149,14 @@ export async function removeFromFavorites(productId: string) {
  */
 export async function isProductFavorited(productId: string) {
   try {
-    const user = await currentUser();
+    const user = await auth();
 
     if (!user) {
       return { success: false, isFavorited: false };
     }
 
     const dbUser = await prisma.user.findUnique({
-      where: { clerkId: user.id },
+      where: { id: user.user.id },
     });
 
     if (!dbUser) {

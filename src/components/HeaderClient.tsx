@@ -19,7 +19,7 @@ import {
 import Image from "next/image";
 import logo from "../../public/assets/logos/logo.png";
 import { Button } from "@/components/ui/button";
-import { SignedOut } from "@clerk/nextjs";
+import { useSession, signOut } from "next-auth/react";
 import { useCounts } from "./CountProvider";
 
 export default function HeaderClient() {
@@ -31,6 +31,7 @@ export default function HeaderClient() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const { cartCount, favoritesCount } = useCounts();
+  const { data: session } = useSession();
 
   useEffect(() => {
     setIsMounted(true);
@@ -186,27 +187,40 @@ export default function HeaderClient() {
                 )}
               </Link>
 
-              <SignedOut>
-                <Link href="/sign-in">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-amber-700 hover:text-amber-900 hover:bg-amber-50 border border-amber-200 rounded-xl"
-                  >
-                    <LogIn className="w-4 h-4 mr-2" />
-                    Sign In
-                  </Button>
-                </Link>
-                <Link href="/sign-up">
-                  <Button
-                    size="sm"
-                    className="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
-                  >
-                    <User className="w-4 h-4 mr-2" />
-                    Join Luxury
-                  </Button>
-                </Link>
-              </SignedOut>
+              {!session && (
+                <>
+                  <Link href="/sign-in">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-amber-700 hover:text-amber-900 hover:bg-amber-50 border border-amber-200 rounded-xl"
+                    >
+                      <LogIn className="w-4 h-4 mr-2" />
+                      Sign In
+                    </Button>
+                  </Link>
+                  <Link href="/sign-up">
+                    <Button
+                      size="sm"
+                      className="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
+                    >
+                      <User className="w-4 h-4 mr-2" />
+                      Join Luxury
+                    </Button>
+                  </Link>
+                </>
+              )}
+              {session && (
+                <Button
+                  onClick={() => signOut()}
+                  variant="ghost"
+                  size="sm"
+                  className="text-amber-700 hover:text-amber-900 hover:bg-amber-50 border border-amber-200 rounded-xl"
+                >
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -269,7 +283,7 @@ export default function HeaderClient() {
 
               {/* Mobile Authentication */}
               <div className="border-t border-amber-200/50 pt-4 mt-4">
-                <SignedOut>
+                {!session && (
                   <div className="space-y-3">
                     <Link href="/sign-in">
                       <Button
@@ -287,7 +301,17 @@ export default function HeaderClient() {
                       </Button>
                     </Link>
                   </div>
-                </SignedOut>
+                )}
+                {session && (
+                  <Button
+                    onClick={() => signOut()}
+                    variant="ghost"
+                    className="w-full justify-start text-amber-700 hover:text-amber-900 hover:bg-amber-50 border border-amber-200 rounded-xl"
+                  >
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </Button>
+                )}
               </div>
             </nav>
           </div>

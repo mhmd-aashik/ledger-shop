@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import "../globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
+import { SessionProvider } from "next-auth/react";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminHeader from "@/components/admin/AdminHeader";
 
@@ -29,29 +29,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider
-      appearance={{
-        baseTheme: undefined,
-        variables: {
-          colorPrimary: "#6c47ff",
-          colorBackground: "#ffffff",
-          colorInputBackground: "#ffffff",
-          colorInputText: "#000000",
-        },
-        elements: {
-          formButtonPrimary:
-            "bg-[#6c47ff] hover:bg-[#5a3ae6] text-sm normal-case",
-          card: "bg-white shadow-lg border border-gray-200",
-          headerTitle: "text-gray-900",
-          headerSubtitle: "text-gray-600",
-          socialButtonsBlockButton: "border border-gray-300 hover:bg-gray-50",
-          socialButtonsBlockButtonText: "font-normal",
-          formFieldInput:
-            "border border-gray-300 focus:border-[#6c47ff] focus:ring-[#6c47ff]",
-          footerActionLink: "text-[#6c47ff] hover:text-[#5a3ae6]",
-        },
-      }}
-    >
+    <SessionProvider>
       <html lang="en" suppressHydrationWarning>
         <body className={`${playfair.variable} ${inter.variable} antialiased`}>
           <div className="min-h-screen bg-gray-50">
@@ -78,6 +56,6 @@ export default function AdminLayout({
           />
         </body>
       </html>
-    </ClerkProvider>
+    </SessionProvider>
   );
 }
