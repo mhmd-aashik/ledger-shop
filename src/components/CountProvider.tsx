@@ -39,13 +39,6 @@ export function CountProvider({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // Handle hydration
-  useEffect(() => {
-    setIsHydrated(true);
-    // Refresh counts after hydration to ensure they're up to date
-    refreshCounts();
-  }, []);
-
   const refreshCounts = useCallback(async () => {
     if (isRefreshing) return; // Prevent multiple simultaneous refreshes
 
@@ -70,6 +63,13 @@ export function CountProvider({
       setIsRefreshing(false);
     }
   }, [isRefreshing]);
+
+  // Handle hydration
+  useEffect(() => {
+    setIsHydrated(true);
+    // Refresh counts after hydration to ensure they're up to date
+    refreshCounts();
+  }, [refreshCounts]);
 
   // Listen for custom events to update counts with debouncing
   useEffect(() => {
