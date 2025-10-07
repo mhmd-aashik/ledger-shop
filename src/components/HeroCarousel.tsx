@@ -142,21 +142,13 @@ export default function HeroCarousel() {
                       </div>
                     )}
 
-                    {/* CTA Buttons */}
+                    {/* CTA Button */}
                     <div className="flex flex-col sm:flex-row gap-4">
                       <Link href={slide.ctaLink || "/products"}>
                         <button className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-4 rounded-lg font-medium text-lg transition-all duration-300 hover:scale-105 shadow-lg">
                           {slide.cta}
                         </button>
                       </Link>
-                      {slide.video && (
-                        <button
-                          onClick={() => setShowVideo(!showVideo)}
-                          className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 rounded-lg font-medium text-lg transition-all duration-300 hover:scale-105"
-                        >
-                          {showVideo ? "Show Image" : "Watch Video"}
-                        </button>
-                      )}
                     </div>
                   </div>
 
