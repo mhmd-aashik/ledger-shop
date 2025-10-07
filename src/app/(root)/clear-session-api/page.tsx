@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function ClearSessionApiPage() {
   const [status, setStatus] = useState<"clearing" | "success" | "error">(
@@ -68,12 +69,12 @@ export default function ClearSessionApiPage() {
             <p className="text-gray-600 mb-4">
               There was an error clearing your session.
             </p>
-            <a
+            <Link
               href="/"
               className="inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition-colors"
             >
               Go to Home Page
-            </a>
+            </Link>
           </>
         )}
       </div>

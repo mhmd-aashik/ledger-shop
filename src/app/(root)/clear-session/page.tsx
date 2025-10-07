@@ -1,10 +1,9 @@
 "use client";
 
 import { signOut } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 export default function ClearSessionPage() {
-  const [isClearing, setIsClearing] = useState(true);
 
   useEffect(() => {
     const clearSession = async () => {

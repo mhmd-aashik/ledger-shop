@@ -12,41 +12,20 @@ type UserData = {
   email: string;
   imageUrl: string;
   phone: string;
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
-  dateOfBirth: string | null;
-  gender: string | null;
-  preferences: Record<string, any>;
-  isEmailVerified: boolean;
-  isPhoneVerified: boolean;
-  lastLoginAt: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-type FavoriteProduct = {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  price: number;
-  originalPrice: number | null;
-  discount: number | null;
-  imageUrl: string;
-  category: string;
-  tags: string[];
-  inStock: boolean;
-  stockQuantity: number;
-  isFeatured: boolean;
-  isNew: boolean;
-  rating: number;
-  reviewCount: number;
-  createdAt: Date;
-  updatedAt: Date;
-  publishedAt: Date | null;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
+  dateOfBirth: string;
+  bio: string;
+  preferences: {
+    newsletter: boolean;
+    marketing: boolean;
+    sms: boolean;
+  };
 };
 
 export default function ProfileSafePage() {
@@ -66,19 +45,20 @@ export default function ProfileSafePage() {
     email: session?.user?.email || "",
     imageUrl: session?.user?.image || "",
     phone: "",
-    address: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    country: "",
-    dateOfBirth: null,
-    gender: null,
-    preferences: {},
-    isEmailVerified: false,
-    isPhoneVerified: false,
-    lastLoginAt: null,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    address: {
+      street: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      country: "",
+    },
+    dateOfBirth: "",
+    bio: "",
+    preferences: {
+      newsletter: false,
+      marketing: false,
+      sms: false,
+    },
   };
 
   if (status === "loading") {
@@ -100,7 +80,7 @@ export default function ProfileSafePage() {
     <div className="min-h-screen bg-background">
       <main className="pt-16 lg:pt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <ProfileClient initialUserData={userData} initialFavorites={[]} />
+          <ProfileClient initialUserData={userData} favorites={[]} />
         </div>
       </main>
     </div>

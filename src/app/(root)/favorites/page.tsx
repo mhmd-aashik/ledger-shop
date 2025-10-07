@@ -1,55 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import FavoritesClient from "@/components/favorites/FavoritesClient";
-// Type for the product returned from getFavoriteProducts (with numbers instead of Decimals)
-interface FavoriteProduct {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  shortDescription: string | null;
-  price: number;
-  compareAtPrice: number | null;
-  costPrice: number | null;
-  sku: string | null;
-  barcode: string | null;
-  trackQuantity: boolean;
-  quantity: number;
-  lowStockThreshold: number;
-  images: string[];
-  video: string | null;
-  thumbnail: string | null;
-  categoryId: string;
-  category: {
-    id: string;
-    name: string;
-    slug: string;
-    description: string | null;
-    image: string | null;
-    parentId: string | null;
-    sortOrder: number;
-    isActive: boolean;
-    metaTitle: string | null;
-    metaDescription: string | null;
-    createdAt: Date;
-    updatedAt: Date;
-  };
-  tags: string[];
-  features: string[];
-  materials: string[];
-  dimensions: string | null;
-  weight: number | null;
-  metaTitle: string | null;
-  metaDescription: string | null;
-  status: string;
-  isActive: boolean;
-  isFeatured: boolean;
-  rating: number | null;
-  reviewCount: number;
-  createdAt: Date;
-  updatedAt: Date;
-  publishedAt: Date | null;
-}
 
 export default function FavoritesPage() {
   // Temporarily disable server-side auth to fix React Context errors

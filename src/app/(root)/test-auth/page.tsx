@@ -2,6 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useState } from "react";
+import Link from "next/link";
 
 export default function TestAuthPage() {
   const { data: session, status } = useSession();
@@ -73,19 +74,19 @@ export default function TestAuthPage() {
                 {isClearing ? "Clearing..." : "Clear Session"}
               </button>
 
-              <a
+              <Link
                 href="/sign-in"
                 className="block w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-center"
               >
                 Sign In
-              </a>
+              </Link>
 
-              <a
+              <Link
                 href="/"
                 className="block w-full bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 text-center"
               >
                 Go to Home
-              </a>
+              </Link>
             </div>
           </div>
         </div>

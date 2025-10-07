@@ -40,7 +40,7 @@ export function SignInForm() {
         router.push("/");
         router.refresh();
       }
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong");
     } finally {
       setIsLoading(false);
@@ -51,7 +51,7 @@ export function SignInForm() {
     setIsLoading(true);
     try {
       await signIn("google", { callbackUrl: "/" });
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong");
     } finally {
       setIsLoading(false);

@@ -2,6 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useState } from "react";
+import Link from "next/link";
 
 export default function DebugSessionPage() {
   const { data: session, status } = useSession();
@@ -56,18 +57,18 @@ export default function DebugSessionPage() {
             {isClearing ? "Clearing..." : "Clear Session"}
           </button>
 
-          <a
+          <Link
             href="/"
             className="inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
           >
             Go to Home
-          </a>
+          </Link>
         </div>
 
         <div className="mt-8 bg-yellow-100 p-4 rounded-lg">
           <h3 className="font-semibold mb-2">Instructions:</h3>
           <ol className="list-decimal list-inside space-y-1">
-            <li>Click "Clear Session" to remove all session data</li>
+            <li>Click &quot;Clear Session&quot; to remove all session data</li>
             <li>Check if the session status changes</li>
             <li>Go to home page to test if the JWT error is resolved</li>
           </ol>
