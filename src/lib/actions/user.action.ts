@@ -51,6 +51,15 @@ export async function createUser(data: CreateUserData) {
  */
 export async function updateUser(clerkId: string, data: UpdateUserData) {
   try {
+    // First check if user exists
+    const existingUser = await prisma.user.findUnique({
+      where: { clerkId },
+    });
+
+    if (!existingUser) {
+      return { success: false, error: "User not found" };
+    }
+
     const user = await prisma.user.update({
       where: { clerkId },
       data: {
@@ -95,15 +104,25 @@ export async function updateUserProfile(
   }
 ) {
   try {
-    // Update basic user info
-    const user = await prisma.user.update({
-      where: { clerkId },
-      data: {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        imageUrl: data.imageUrl,
-      },
-    });
+    // Ensure user exists in database
+    const userResult = await ensureUserExists(clerkId);
+    if (!userResult.success || !userResult.user) {
+      return { success: false, error: userResult.error || "User not found" };
+    }
+
+    let user = userResult.user;
+
+    // Update user with new data if any changes
+    if (data.firstName || data.lastName || data.imageUrl) {
+      user = await prisma.user.update({
+        where: { clerkId },
+        data: {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          imageUrl: data.imageUrl,
+        },
+      });
+    }
 
     // Update or create profile
     await prisma.profile.upsert({
@@ -284,6 +303,45 @@ export async function syncUserFromClerk(clerkUser: {
   } catch (error) {
     console.error("Error syncing user from Clerk:", error);
     return { success: false, error: "Failed to sync user" };
+  }
+}
+
+/**
+ * Ensure user exists in database, create if not
+ * This is a helper function to prevent P2025 errors
+ */
+export async function ensureUserExists(clerkId: string) {
+  try {
+    const existingUser = await prisma.user.findUnique({
+      where: { clerkId },
+    });
+
+    if (existingUser) {
+      return { success: true, user: existingUser };
+    }
+
+    // User doesn't exist, create them
+    const clerkUser = await currentUser();
+    if (!clerkUser) {
+      return { success: false, error: "No authenticated user" };
+    }
+
+    const createResult = await createUser({
+      clerkId,
+      email: clerkUser.emailAddresses?.[0]?.emailAddress || "",
+      firstName: clerkUser.firstName || "",
+      lastName: clerkUser.lastName || "",
+      imageUrl: clerkUser.imageUrl || "",
+    });
+
+    if (!createResult.success || !createResult.user) {
+      return { success: false, error: "Failed to create user" };
+    }
+
+    return { success: true, user: createResult.user };
+  } catch (error) {
+    console.error("Error ensuring user exists:", error);
+    return { success: false, error: "Failed to ensure user exists" };
   }
 }
 
