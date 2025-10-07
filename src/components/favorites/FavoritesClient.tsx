@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Heart, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { removeFromFavorites } from "@/lib/actions/favorite.action";
 import { toast } from "sonner";
 import FavoritesGrid from "./FavoritesGrid";

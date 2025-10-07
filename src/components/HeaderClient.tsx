@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   ShoppingBag,
   Menu,
@@ -18,10 +19,11 @@ import {
 import Image from "next/image";
 import logo from "../../public/assets/logos/logo.png";
 import { Button } from "@/components/ui/button";
-import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { SignedOut } from "@clerk/nextjs";
 import { useCounts } from "./CountProvider";
 
 export default function HeaderClient() {
+  const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -102,17 +104,29 @@ export default function HeaderClient() {
 
             {/* Enhanced Desktop Navigation */}
             <nav className="hidden lg:flex items-center space-x-1">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="flex items-center space-x-2 px-4 py-2 rounded-xl text-gray-700 hover:text-amber-700 hover:bg-amber-50/50 transition-all duration-300 font-medium relative group"
-                >
-                  <item.icon className="w-4 h-4" />
-                  <span>{item.name}</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-orange-500/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </Link>
-              ))}
+              {navigation.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-300 font-medium relative group ${
+                      isActive
+                        ? "text-amber-700 bg-amber-100/80 shadow-md"
+                        : "text-gray-700 hover:text-amber-700 hover:bg-amber-50/50"
+                    }`}
+                  >
+                    <item.icon className="w-4 h-4" />
+                    <span>{item.name}</span>
+                    {isActive && (
+                      <div className="absolute inset-0 bg-gradient-to-r from-amber-500/30 to-orange-500/30 rounded-xl" />
+                    )}
+                    {!isActive && (
+                      <div className="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-orange-500/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    )}
+                  </Link>
+                );
+              })}
             </nav>
 
             {/* Enhanced Action Buttons */}
@@ -201,17 +215,27 @@ export default function HeaderClient() {
         {isMobileMenuOpen && (
           <div className="lg:hidden border-t border-amber-200/50 bg-white/95 backdrop-blur-xl shadow-lg">
             <nav className="px-4 pt-4 pb-6 space-y-2">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="flex items-center space-x-3 px-4 py-3 text-base font-medium text-gray-700 hover:text-amber-700 hover:bg-amber-50/50 rounded-xl transition-all duration-300 group"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <item.icon className="w-5 h-5" />
-                  <span>{item.name}</span>
-                </Link>
-              ))}
+              {navigation.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`flex items-center space-x-3 px-4 py-3 text-base font-medium rounded-xl transition-all duration-300 group ${
+                      isActive
+                        ? "text-amber-700 bg-amber-100/80 shadow-md"
+                        : "text-gray-700 hover:text-amber-700 hover:bg-amber-50/50"
+                    }`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <item.icon className="w-5 h-5" />
+                    <span>{item.name}</span>
+                    {isActive && (
+                      <div className="ml-auto w-2 h-2 bg-amber-600 rounded-full" />
+                    )}
+                  </Link>
+                );
+              })}
 
               {/* Mobile Quick Stats */}
               <div className="border-t border-amber-200/50 pt-4 mt-4">

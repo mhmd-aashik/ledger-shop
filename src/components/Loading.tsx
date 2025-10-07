@@ -6,11 +6,7 @@ interface LoadingProps {
   size?: "sm" | "md" | "lg";
 }
 
-export default function Loading({
-  type = "default",
-  message,
-  size = "md",
-}: LoadingProps) {
+export default function Loading({ type = "default", message }: LoadingProps) {
   const getIcon = () => {
     switch (type) {
       case "cart":
@@ -21,17 +17,6 @@ export default function Loading({
         return <User className="w-8 h-8 text-amber-600" />;
       default:
         return <Sparkles className="w-8 h-8 text-amber-600" />;
-    }
-  };
-
-  const getSizeClasses = () => {
-    switch (size) {
-      case "sm":
-        return "w-6 h-6";
-      case "lg":
-        return "w-12 h-12";
-      default:
-        return "w-8 h-8";
     }
   };
 

@@ -21,7 +21,7 @@ interface StorySlide {
   image: string;
   video?: string;
   stats?: {
-    icon: any;
+    icon: React.ComponentType<{ className?: string }>;
     value: string;
     label: string;
   }[];

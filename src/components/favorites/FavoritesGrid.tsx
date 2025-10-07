@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, ShoppingBag, Star, Trash2 } from "lucide-react";
+import { ShoppingBag, Star, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FavoriteButton from "@/components/FavoriteButton";
 import { addToCart } from "@/lib/actions/cart.action";

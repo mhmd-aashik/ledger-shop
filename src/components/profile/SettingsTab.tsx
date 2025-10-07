@@ -47,7 +47,7 @@ export default function SettingsTab({
   const { user } = useUser();
   const [userData, setUserData] = useState<UserData>(initialUserData);
   const [editData, setEditData] = useState<UserData>(initialUserData);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   // Helper function to safely get current data

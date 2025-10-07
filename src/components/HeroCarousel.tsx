@@ -19,7 +19,6 @@ export default function HeroCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
-  const [showVideo, setShowVideo] = useState(false);
 
   useEffect(() => {
     if (!isAutoPlaying || isHovered) return;
@@ -55,8 +54,6 @@ export default function HeroCarousel() {
     setIsAutoPlaying(!isAutoPlaying);
   };
 
-  const currentSlideData = heroSlides[currentSlide];
-
   return (
     <section
       className="relative h-screen overflow-hidden"
@@ -74,26 +71,15 @@ export default function HeroCarousel() {
                 : "opacity-0 scale-105"
             }`}
           >
-            {/* Background Image/Video */}
+            {/* Background Image */}
             <div className="absolute inset-0">
-              {showVideo && slide.video ? (
-                <video
-                  src={slide.video}
-                  className="w-full h-full object-cover"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                />
-              ) : (
-                <Image
-                  src={slide.image}
-                  alt={slide.title}
-                  fill
-                  className="object-cover"
-                  priority={index === 0}
-                />
-              )}
+              <Image
+                src={slide.image}
+                alt={slide.title}
+                fill
+                className="object-cover"
+                priority={index === 0}
+              />
               {/* Enhanced Overlay */}
               <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
             </div>

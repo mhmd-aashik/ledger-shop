@@ -1,24 +1,10 @@
-"use client";
-
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Home,
-  Search,
-  ShoppingBag,
-  ArrowLeft,
-  Heart,
-  Menu,
-  X,
-} from "lucide-react";
-import { useState } from "react";
-import '@/app/(root)/globals.css'
+import { Home, Search, ShoppingBag, ArrowLeft, Heart } from "lucide-react";
 
 export default function NotFound() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
   return (
     <div className="min-h-screen bg-background">
       {/* Simplified Header */}
@@ -85,72 +71,7 @@ export default function NotFound() {
                 </Button>
               </Link>
             </div>
-
-            {/* Mobile Menu Button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="lg:hidden"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? (
-                <X className="w-5 h-5" />
-              ) : (
-                <Menu className="w-5 h-5" />
-              )}
-            </Button>
           </div>
-
-          {/* Mobile Menu */}
-          {isMobileMenuOpen && (
-            <div className="lg:hidden border-t border-border py-4">
-              <nav className="flex flex-col space-y-4">
-                <Link
-                  href="/"
-                  className="text-foreground hover:text-primary transition-colors"
-                >
-                  Home
-                </Link>
-                <Link
-                  href="/products"
-                  className="text-foreground hover:text-primary transition-colors"
-                >
-                  Products
-                </Link>
-                <Link
-                  href="/about"
-                  className="text-foreground hover:text-primary transition-colors"
-                >
-                  About
-                </Link>
-                <Link
-                  href="/contact"
-                  className="text-foreground hover:text-primary transition-colors"
-                >
-                  Contact
-                </Link>
-                <div className="flex items-center space-x-4 pt-4">
-                  <Link href="/cart">
-                    <Button variant="ghost" size="sm">
-                      <ShoppingBag className="w-4 h-4 mr-2" />
-                      Cart
-                    </Button>
-                  </Link>
-                  <Link href="/favorites">
-                    <Button variant="ghost" size="sm">
-                      <Heart className="w-4 h-4 mr-2" />
-                      Favorites
-                    </Button>
-                  </Link>
-                  <Link href="/sign-in">
-                    <Button variant="outline" size="sm">
-                      Sign In
-                    </Button>
-                  </Link>
-                </div>
-              </nav>
-            </div>
-          )}
         </div>
       </header>
 
@@ -309,15 +230,12 @@ export default function NotFound() {
 
           {/* Back Button */}
           <div className="text-center mt-12">
-            <Button
-              onClick={() => window.history.back()}
-              variant="ghost"
-              size="lg"
-              className="group"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-              Go Back
-            </Button>
+            <Link href="/">
+              <Button variant="ghost" size="lg" className="group">
+                <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+                Go Home
+              </Button>
+            </Link>
           </div>
         </div>
       </main>

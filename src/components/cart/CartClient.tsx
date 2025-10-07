@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { Minus, Plus, Trash2, ArrowLeft, ShoppingBag } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import {
   updateCartItemQuantity,
   removeFromCart,
@@ -12,7 +11,6 @@ import {
 import { toast } from "sonner";
 import CartItems from "./CartItems";
 import OrderSummary from "./OrderSummary";
-import { InlineLoading } from "@/components/Loading";
 
 interface CartClientProps {
   initialItems: CartItem[];
