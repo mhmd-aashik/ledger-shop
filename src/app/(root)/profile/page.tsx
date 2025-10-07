@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getFavoriteProducts } from "@/lib/actions/favorite.action";
 import ProfileServer from "@/components/profile/ProfileServer";
 
 // Type for user data
@@ -53,6 +54,12 @@ export default async function ProfilePage() {
     // Get user's default address
     const defaultAddress = user.addresses[0];
 
+    // Get user's favorite products
+    const favoritesResult = await getFavoriteProducts();
+    const favorites = favoritesResult.success
+      ? favoritesResult.favorites || []
+      : [];
+
     // Transform database data to component format
     const userData: UserData = {
       firstName: user.firstName || "",
@@ -79,7 +86,7 @@ export default async function ProfilePage() {
     return (
       <div className="min-h-screen bg-background">
         <main className="pt-16 lg:pt-20">
-          <ProfileServer userData={userData} favorites={[]} />
+          <ProfileServer userData={userData} favorites={favorites} />
         </main>
       </div>
     );
