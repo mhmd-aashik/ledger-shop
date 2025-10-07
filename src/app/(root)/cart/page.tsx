@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { getCartItems, CartItem } from "@/lib/actions/cart.action";
 import CartClient from "@/components/cart/CartClient";
 
+export const dynamic = "force-dynamic";
+
 export default async function Cart() {
   // Get current user from Clerk
   const clerkUser = await currentUser();

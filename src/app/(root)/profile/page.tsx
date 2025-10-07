@@ -4,6 +4,8 @@ import { getFavoriteProducts } from "@/lib/actions/favorite.action";
 import { getCurrentUser } from "@/lib/actions/user.action";
 import ProfileTabs from "@/components/profile/ProfileTabs";
 
+export const dynamic = "force-dynamic";
+
 // Type for user data
 type UserData = {
   firstName: string;

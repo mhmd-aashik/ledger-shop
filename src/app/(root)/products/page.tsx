@@ -2,6 +2,8 @@ import { Suspense } from "react";
 import ProductFilters from "@/components/ProductFilters";
 import MoreProductsGrid from "@/components/MoreProductsGrid";
 
+export const dynamic = "force-dynamic";
+
 export default function Products() {
   return (
     <main className="pt-16 lg:pt-20">

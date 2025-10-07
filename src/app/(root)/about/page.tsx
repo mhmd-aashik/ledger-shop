@@ -1,5 +1,7 @@
 import Image from "next/image";
 
+export const dynamic = "force-dynamic";
+
 export default function About() {
   return (
     <main className="pt-16 lg:pt-20">

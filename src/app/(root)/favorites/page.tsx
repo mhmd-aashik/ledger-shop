@@ -5,6 +5,9 @@ import { redirect } from "next/navigation";
 import { getFavoriteProducts } from "@/lib/actions/favorite.action";
 import FavoritesClient from "@/components/favorites/FavoritesClient";
 // Type for the product returned from getFavoriteProducts (with numbers instead of Decimals)
+
+export const dynamic = "force-dynamic";
+
 interface FavoriteProduct {
   id: string;
   name: string;
