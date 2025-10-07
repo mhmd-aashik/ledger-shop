@@ -8,6 +8,7 @@ import FavoriteButton from "@/components/FavoriteButton";
 import toast from "react-hot-toast";
 import { products } from "@/data/products";
 import { addToCart } from "@/lib/actions/cart.action";
+import { Button } from "./ui/button";
 
 export default function ProductGrid() {
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
@@ -123,11 +124,14 @@ export default function ProductGrid() {
         </div>
 
         {/* Call to Action */}
-        <div className="text-center mt-8">
-          <button className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground px-8 py-4 rounded-lg font-medium text-lg transition-all duration-300 hover:scale-105 shadow-lg">
+        <Link
+          href="/products"
+          className="text-center mt-8 w-fit flex justify-center mx-auto"
+        >
+          <Button className="bg-gradient-to-r from-primary hover:cursor-pointer to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground px-8 py-7 rounded-lg font-medium text-lg transition-all duration-300 hover:scale-105 shadow-lg">
             Shop the Collection
-          </button>
-        </div>
+          </Button>
+        </Link>
       </div>
     </section>
   );

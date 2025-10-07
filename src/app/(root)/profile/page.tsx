@@ -96,6 +96,9 @@ type FavoriteProduct = {
   publishedAt: Date | null;
 };
 
+// i want to cache this page but im using useEffect so i cant use revalidate
+
+
 export default function ProfilePage() {
   const { user, isLoaded } = useUser();
   const [favorites, setFavorites] = useState<FavoriteProduct[]>([]);
