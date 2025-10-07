@@ -29,7 +29,12 @@ export default function HeaderClient() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const { cartCount, favoritesCount } = useCounts();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
@@ -37,16 +42,23 @@ export default function HeaderClient() {
     const handleScroll = () => {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
-        const scrolled = window.scrollY > 10;
-        if (scrolled !== isScrolled) {
-          setIsScrolled(scrolled);
+        if (typeof window !== "undefined") {
+          const scrolled = window.scrollY > 10;
+          if (scrolled !== isScrolled) {
+            setIsScrolled(scrolled);
+          }
         }
       }, 10); // Debounce scroll events
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    if (typeof window !== "undefined") {
+      window.addEventListener("scroll", handleScroll, { passive: true });
+    }
+
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      if (typeof window !== "undefined") {
+        window.removeEventListener("scroll", handleScroll);
+      }
       clearTimeout(timeoutId);
     };
   }, [isScrolled]);
@@ -154,7 +166,7 @@ export default function HeaderClient() {
                 className="relative p-2 rounded-xl text-gray-600 hover:text-amber-700 hover:bg-amber-50/50 transition-all duration-300 hover:scale-110 group"
               >
                 <Heart className="w-5 h-5 group-hover:fill-current" />
-                {favoritesCount > 0 && (
+                {isMounted && favoritesCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg">
                     {favoritesCount}
                   </span>
@@ -167,7 +179,7 @@ export default function HeaderClient() {
                 className="relative p-2 rounded-xl text-gray-600 hover:text-amber-700 hover:bg-amber-50/50 transition-all duration-300 hover:scale-110 group"
               >
                 <ShoppingBag className="w-5 h-5" />
-                {cartCount > 0 && (
+                {isMounted && cartCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-gradient-to-r from-amber-600 to-amber-700 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg">
                     {cartCount}
                   </span>
