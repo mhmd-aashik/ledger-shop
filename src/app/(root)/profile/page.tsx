@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import ProfileClient from "@/components/profile/ProfileClient";
+import ProfileServer from "@/components/profile/ProfileServer";
 
 // Type for user data
 type UserData = {
@@ -79,9 +79,7 @@ export default async function ProfilePage() {
     return (
       <div className="min-h-screen bg-background">
         <main className="pt-16 lg:pt-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <ProfileClient initialUserData={userData} favorites={[]} />
-          </div>
+          <ProfileServer userData={userData} favorites={[]} />
         </main>
       </div>
     );
