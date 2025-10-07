@@ -1,4 +1,4 @@
-import { Loader2, ShoppingBag, Heart, User } from "lucide-react";
+import { ShoppingBag, Heart, User, Sparkles, Loader2 } from "lucide-react";
 
 interface LoadingProps {
   type?: "default" | "cart" | "favorites" | "profile" | "page";
@@ -14,13 +14,13 @@ export default function Loading({
   const getIcon = () => {
     switch (type) {
       case "cart":
-        return <ShoppingBag className="w-8 h-8 text-primary" />;
+        return <ShoppingBag className="w-8 h-8 text-amber-600" />;
       case "favorites":
         return <Heart className="w-8 h-8 text-red-500" />;
       case "profile":
-        return <User className="w-8 h-8 text-primary" />;
+        return <User className="w-8 h-8 text-amber-600" />;
       default:
-        return <Loader2 className="w-8 h-8 text-primary animate-spin" />;
+        return <Sparkles className="w-8 h-8 text-amber-600" />;
     }
   };
 
@@ -51,30 +51,37 @@ export default function Loading({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center py-16">
-      <div className="relative">
-        {/* Spinner */}
-        <div className="animate-spin rounded-full border-4 border-muted border-t-primary w-12 h-12"></div>
+    <div className="flex flex-col items-center justify-center min-h-[400px] py-16">
+      {/* Modern Loading Animation */}
+      <div className="relative mb-8">
+        {/* Outer rotating ring */}
+        <div className="w-20 h-20 border-4 border-amber-200 rounded-full animate-spin border-t-amber-600"></div>
 
-        {/* Icon overlay */}
+        {/* Inner pulsing circle */}
+        <div className="absolute inset-2 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full animate-pulse"></div>
+
+        {/* Icon in center */}
         <div className="absolute inset-0 flex items-center justify-center">
-          {type === "default" || type === "page" ? (
-            <Loader2
-              className={`${getSizeClasses()} text-primary animate-spin`}
-            />
-          ) : (
-            <div className="animate-pulse">{getIcon()}</div>
-          )}
+          <div className="animate-bounce">{getIcon()}</div>
         </div>
+
+        {/* Floating dots */}
+        <div className="absolute -top-2 -right-2 w-3 h-3 bg-amber-500 rounded-full animate-ping"></div>
+        <div className="absolute -bottom-2 -left-2 w-2 h-2 bg-amber-400 rounded-full animate-ping animation-delay-200"></div>
       </div>
 
-      {/* Message */}
-      <div className="mt-4 text-center">
-        <h3 className="text-lg font-semibold text-foreground mb-2">
+      {/* Modern Message */}
+      <div className="text-center space-y-3">
+        <h3 className="text-xl font-semibold text-gray-900 mb-2 animate-pulse">
           {message || getDefaultMessage()}
         </h3>
-        <p className="text-sm text-muted-foreground">
-          Please wait while we load your data
+        <div className="flex items-center justify-center space-x-1">
+          <div className="w-2 h-2 bg-amber-500 rounded-full animate-bounce"></div>
+          <div className="w-2 h-2 bg-amber-500 rounded-full animate-bounce animation-delay-100"></div>
+          <div className="w-2 h-2 bg-amber-500 rounded-full animate-bounce animation-delay-200"></div>
+        </div>
+        <p className="text-sm text-gray-600 max-w-md">
+          Crafting your perfect experience with premium leather goods
         </p>
       </div>
     </div>
@@ -109,16 +116,16 @@ export function InlineLoading({ size = "sm" }: { size?: "sm" | "md" }) {
   );
 }
 
-// Skeleton loading components
+// Modern Skeleton loading components
 export function SkeletonCard() {
   return (
-    <div className="leather-card rounded-xl p-6 animate-pulse">
+    <div className="bg-white/80 backdrop-blur-sm border border-amber-200/50 rounded-2xl p-6 shadow-lg animate-pulse">
       <div className="flex items-center space-x-4">
-        <div className="w-24 h-24 bg-muted rounded-lg"></div>
-        <div className="flex-1 space-y-2">
-          <div className="h-4 bg-muted rounded w-3/4"></div>
-          <div className="h-3 bg-muted rounded w-1/2"></div>
-          <div className="h-4 bg-muted rounded w-1/4"></div>
+        <div className="w-24 h-24 bg-gradient-to-br from-amber-100 to-amber-200 rounded-xl"></div>
+        <div className="flex-1 space-y-3">
+          <div className="h-4 bg-gradient-to-r from-amber-200 to-amber-300 rounded-lg w-3/4"></div>
+          <div className="h-3 bg-gradient-to-r from-amber-200 to-amber-300 rounded-lg w-1/2"></div>
+          <div className="h-4 bg-gradient-to-r from-amber-200 to-amber-300 rounded-lg w-1/4"></div>
         </div>
       </div>
     </div>
@@ -131,16 +138,33 @@ export function SkeletonGrid({ count = 3 }: { count?: number }) {
       {Array.from({ length: count }).map((_, index) => (
         <div
           key={index}
-          className="leather-card rounded-xl overflow-hidden animate-pulse"
+          className="bg-white/80 backdrop-blur-sm border border-amber-200/50 rounded-2xl overflow-hidden shadow-lg animate-pulse"
         >
-          <div className="aspect-square bg-muted"></div>
+          <div className="aspect-square bg-gradient-to-br from-amber-100 to-amber-200"></div>
           <div className="p-6 space-y-3">
-            <div className="h-4 bg-muted rounded w-3/4"></div>
-            <div className="h-3 bg-muted rounded w-1/2"></div>
-            <div className="h-4 bg-muted rounded w-1/4"></div>
+            <div className="h-4 bg-gradient-to-r from-amber-200 to-amber-300 rounded-lg w-3/4"></div>
+            <div className="h-3 bg-gradient-to-r from-amber-200 to-amber-300 rounded-lg w-1/2"></div>
+            <div className="h-4 bg-gradient-to-r from-amber-200 to-amber-300 rounded-lg w-1/4"></div>
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+// Modern shimmer effect
+export function ShimmerCard() {
+  return (
+    <div className="bg-white/90 backdrop-blur-sm border border-amber-200/50 rounded-2xl p-6 shadow-lg overflow-hidden relative">
+      <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-amber-200/50 to-transparent"></div>
+      <div className="flex items-center space-x-4 relative z-10">
+        <div className="w-24 h-24 bg-amber-100 rounded-xl"></div>
+        <div className="flex-1 space-y-3">
+          <div className="h-4 bg-amber-200 rounded-lg w-3/4"></div>
+          <div className="h-3 bg-amber-200 rounded-lg w-1/2"></div>
+          <div className="h-4 bg-amber-200 rounded-lg w-1/4"></div>
+        </div>
+      </div>
     </div>
   );
 }
