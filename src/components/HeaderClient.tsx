@@ -30,7 +30,7 @@ export default function HeaderClient() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const { cartCount, favoritesCount } = useCounts();
+  const { cartCount, favoritesCount, isRefreshing } = useCounts();
   const { data: session } = useSession();
 
   useEffect(() => {
@@ -167,9 +167,11 @@ export default function HeaderClient() {
                 className="relative p-2 rounded-xl text-gray-600 hover:text-amber-700 hover:bg-amber-50/50 transition-all duration-300 hover:scale-110 group"
               >
                 <Heart className="w-5 h-5 group-hover:fill-current" />
-                {isMounted && favoritesCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg">
-                    {favoritesCount}
+                {isMounted && (
+                  <span
+                    className={`absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg ${favoritesCount === 0 ? "opacity-50" : ""}`}
+                  >
+                    {isRefreshing ? "..." : favoritesCount}
                   </span>
                 )}
               </Link>
@@ -180,9 +182,11 @@ export default function HeaderClient() {
                 className="relative p-2 rounded-xl text-gray-600 hover:text-amber-700 hover:bg-amber-50/50 transition-all duration-300 hover:scale-110 group"
               >
                 <ShoppingBag className="w-5 h-5" />
-                {isMounted && cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-amber-600 to-amber-700 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg">
-                    {cartCount}
+                {isMounted && (
+                  <span
+                    className={`absolute -top-1 -right-1 bg-gradient-to-r from-amber-600 to-amber-700 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg ${cartCount === 0 ? "opacity-50" : ""}`}
+                  >
+                    {isRefreshing ? "..." : cartCount}
                   </span>
                 )}
               </Link>
