@@ -485,11 +485,11 @@ export default function ProfileClient({
             <CardHeader>
               <CardTitle>My Favorites</CardTitle>
               <CardDescription>
-                {favorites.length} items in your favorites
+                {favorites?.length || 0} items in your favorites
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {favorites.length === 0 ? (
+              {(favorites?.length || 0) === 0 ? (
                 <div className="text-center py-8">
                   <Heart className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                   <p className="text-muted-foreground">No favorites yet</p>
@@ -499,7 +499,7 @@ export default function ProfileClient({
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {favorites.slice(0, 6).map((product) => (
+                  {(favorites || []).slice(0, 6).map((product) => (
                     <div key={product.id} className="border rounded-lg p-4">
                       <div className="flex items-center space-x-3">
                         <Image
@@ -520,7 +520,7 @@ export default function ProfileClient({
                   ))}
                 </div>
               )}
-              {favorites.length > 6 && (
+              {(favorites?.length || 0) > 6 && (
                 <div className="text-center mt-4">
                   <Link href="/favorites">
                     <Button variant="outline">View All Favorites</Button>
