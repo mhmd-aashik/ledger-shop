@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
+import "@/styles/header.css";
 import { Toaster } from "react-hot-toast";
 import { ClerkProvider } from "@clerk/nextjs";
 import { UserSyncProvider } from "@/components/UserSyncProvider";
+import HeaderServer from "@/components/HeaderServer";
+import Footer from "@/components/Footer";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -54,7 +57,11 @@ export default function RootLayout({
     >
       <html lang="en" suppressHydrationWarning>
         <body className={`${playfair.variable} ${inter.variable} antialiased`}>
-          <UserSyncProvider>{children}</UserSyncProvider>
+          <UserSyncProvider>
+            <HeaderServer />
+            {children}
+            <Footer />
+          </UserSyncProvider>
           <Toaster
             position="bottom-right"
             toastOptions={{

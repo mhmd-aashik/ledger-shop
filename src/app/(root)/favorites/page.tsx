@@ -2,8 +2,6 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { getFavoriteProducts } from "@/lib/actions/favorite.action";
 import FavoritesClient from "@/components/favorites/FavoritesClient";
 // Type for the product returned from getFavoriteProducts (with numbers instead of Decimals)
@@ -78,7 +76,6 @@ export default async function FavoritesPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
       <main className="pt-16 lg:pt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
@@ -95,7 +92,6 @@ export default async function FavoritesPage() {
           <FavoritesClient initialFavorites={favorites} />
         </div>
       </main>
-      <Footer />
     </div>
   );
 }

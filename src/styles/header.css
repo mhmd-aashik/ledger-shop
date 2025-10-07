@@ -1,0 +1,21 @@
+/* Header scroll optimizations */
+.header-scroll-optimized {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Count badge optimizations */
+.count-badge {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
+  contain: layout style paint;
+}
+
+/* Prevent flickering during scroll */
+.header-container {
+  contain: layout style paint;
+  transform: translateZ(0);
+}
+

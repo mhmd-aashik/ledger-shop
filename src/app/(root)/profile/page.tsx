@@ -1,7 +1,5 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { getFavoriteProducts } from "@/lib/actions/favorite.action";
 import { getCurrentUser } from "@/lib/actions/user.action";
 import ProfileTabs from "@/components/profile/ProfileTabs";
@@ -188,7 +186,6 @@ export default async function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
       <main className="pt-16 lg:pt-20">
         {/* Header */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -204,7 +201,6 @@ export default async function ProfilePage() {
           <ProfileTabs userData={userData} favorites={favorites} />
         </div>
       </main>
-      <Footer />
     </div>
   );
 }
