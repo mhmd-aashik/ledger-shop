@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import ProfileClient from "@/components/profile/ProfileClient";
+import { getFavoriteProducts } from "@/lib/actions/favorite.action";
+import ProfileServer from "@/components/profile/ProfileServer";
 
 // Type for user data
 type UserData = {
@@ -53,6 +54,12 @@ export default async function ProfilePage() {
     // Get user's default address
     const defaultAddress = user.addresses[0];
 
+    // Get user's favorite products
+    const favoritesResult = await getFavoriteProducts();
+    const favorites = favoritesResult.success
+      ? favoritesResult.favorites || []
+      : [];
+
     // Transform database data to component format
     const userData: UserData = {
       firstName: user.firstName || "",
@@ -79,9 +86,7 @@ export default async function ProfilePage() {
     return (
       <div className="min-h-screen bg-background">
         <main className="pt-16 lg:pt-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <ProfileClient initialUserData={userData} favorites={[]} />
-          </div>
+          <ProfileServer userData={userData} favorites={favorites} />
         </main>
       </div>
     );
