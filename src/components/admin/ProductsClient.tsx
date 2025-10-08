@@ -558,6 +558,109 @@ function ProductForm({
     trackQuantity: product?.trackQuantity ?? true,
   });
 
+  const [uploading, setUploading] = useState(false);
+
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+    try {
+      const uploadPromises = Array.from(files).map(async (file) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("type", "image");
+
+        const response = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || "Upload failed");
+        }
+
+        return response.json();
+      });
+
+      const results = await Promise.all(uploadPromises);
+      const newImageUrls = results.map((result) => result.url);
+
+      setFormData((prev) => ({
+        ...prev,
+        images: [...prev.images, ...newImageUrls],
+      }));
+
+      toast.success(`${results.length} image(s) uploaded successfully`);
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to upload images"
+      );
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleVideoUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("type", "video");
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Upload failed");
+      }
+
+      const result = await response.json();
+
+      setFormData((prev) => ({
+        ...prev,
+        video: result.url,
+      }));
+
+      toast.success("Video uploaded successfully");
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to upload video"
+      );
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
+    }));
+    toast.success("Image removed");
+  };
+
+  const removeVideo = () => {
+    setFormData((prev) => ({
+      ...prev,
+      video: "",
+    }));
+    toast.success("Video removed");
+  };
+
   const steps = [
     { id: 1, title: "Basic Info", description: "Product name and description" },
     { id: 2, title: "Pricing", description: "Price and inventory" },
@@ -601,40 +704,82 @@ function ProductForm({
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 max-w-full overflow-hidden">
       {/* Step Progress */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center space-x-4">
-          {steps.map((step) => (
-            <div key={step.id} className="flex items-center">
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                  currentStep >= step.id
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200 text-gray-600"
-                }`}
-              >
-                {step.id}
-              </div>
-              <div className="ml-2">
-                <div className="text-sm font-medium text-gray-900">
-                  {step.title}
+      <div className="mb-8 overflow-hidden">
+        {/* Desktop Progress */}
+        <div className="hidden lg:block">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-1 overflow-x-auto pb-2">
+              {steps.map((step) => (
+                <div key={step.id} className="flex items-center flex-shrink-0">
+                  <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${
+                      currentStep === step.id
+                        ? "bg-blue-600 text-white shadow-lg scale-110"
+                        : currentStep > step.id
+                          ? "bg-green-500 text-white shadow-md"
+                          : "bg-gray-200 text-gray-600"
+                    }`}
+                  >
+                    {currentStep > step.id ? "✓" : step.id}
+                  </div>
+                  <div className="ml-3 min-w-0">
+                    <div className="text-sm font-medium text-gray-900 truncate">
+                      {step.title}
+                    </div>
+                    <div className="text-xs text-gray-500 truncate">
+                      {step.description}
+                    </div>
+                  </div>
+                  {step.id < steps.length && (
+                    <div className="w-8 h-0.5 bg-gray-200 mx-2 flex-shrink-0" />
+                  )}
                 </div>
-                <div className="text-xs text-gray-500">{step.description}</div>
-              </div>
-              {step.id < steps.length && (
-                <div className="w-8 h-0.5 bg-gray-200 mx-4" />
-              )}
+              ))}
             </div>
-          ))}
+            <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full flex-shrink-0">
+              Step {currentStep} of {steps.length}
+            </div>
+          </div>
         </div>
-        <div className="text-sm text-gray-500">
-          Step {currentStep} of {steps.length}
+
+        {/* Mobile Progress */}
+        <div className="lg:hidden">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-1 overflow-x-auto">
+              {steps.map((step) => (
+                <div
+                  key={step.id}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-300 flex-shrink-0 ${
+                    currentStep === step.id
+                      ? "bg-blue-600 text-white shadow-lg scale-110"
+                      : currentStep > step.id
+                        ? "bg-green-500 text-white shadow-md"
+                        : "bg-gray-200 text-gray-600"
+                  }`}
+                >
+                  {currentStep > step.id ? "✓" : step.id}
+                </div>
+              ))}
+            </div>
+            <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full flex-shrink-0">
+              {currentStep}/{steps.length}
+            </div>
+          </div>
+          <div className="text-center">
+            <h3 className="text-lg font-semibold text-gray-900">
+              {steps[currentStep - 1]?.title}
+            </h3>
+            <p className="text-sm text-gray-500">
+              {steps[currentStep - 1]?.description}
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Step Content */}
-      <div className="min-h-[400px]">
+      <div className="min-h-[400px] max-w-full overflow-hidden">
         {currentStep === 1 && (
           <div className="space-y-6">
             <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
@@ -850,51 +995,218 @@ function ProductForm({
         )}
 
         {currentStep === 3 && (
-          <div className="space-y-6">
+          <div className="space-y-8">
             <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
               Media & Assets
             </h3>
 
-            <div>
-              <Label htmlFor="thumbnail">Thumbnail URL</Label>
-              <Input
-                id="thumbnail"
-                value={formData.thumbnail}
-                onChange={(e) =>
-                  setFormData({ ...formData, thumbnail: e.target.value })
-                }
-                placeholder="https://example.com/thumbnail.jpg"
-              />
+            {/* Video Section */}
+            <div className="space-y-4">
+              <div>
+                <Label
+                  htmlFor="video-upload"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Product Video
+                </Label>
+                <p className="text-xs text-gray-500 mb-2">
+                  Upload a video file (MP4, WebM, QuickTime) - Max 100MB
+                </p>
+                <div className="flex items-center space-x-4">
+                  <input
+                    type="file"
+                    id="video-upload"
+                    accept="video/mp4,video/webm,video/quicktime"
+                    onChange={handleVideoUpload}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() =>
+                      document.getElementById("video-upload")?.click()
+                    }
+                    disabled={uploading}
+                    className="flex items-center space-x-2"
+                  >
+                    {uploading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Package className="h-4 w-4" />
+                    )}
+                    <span>{uploading ? "Uploading..." : "Upload Video"}</span>
+                  </Button>
+                  {formData.video && (
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                      <span className="text-sm text-green-600">
+                        Video uploaded
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Video Preview */}
+              {formData.video && (
+                <div className="mt-4">
+                  <div className="bg-gray-50 rounded-lg p-4 border-2 border-dashed border-gray-200">
+                    <div className="aspect-video bg-black rounded-lg overflow-hidden relative">
+                      <video
+                        src={formData.video}
+                        controls
+                        className="w-full h-full object-cover"
+                        onError={() => console.log("Video failed to load")}
+                      >
+                        Your browser does not support the video tag.
+                      </video>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={removeVideo}
+                        className="absolute top-2 right-2 opacity-80 hover:opacity-100"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2 text-center">
+                      Video Preview
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div>
-              <Label htmlFor="video">Video URL</Label>
-              <Input
-                id="video"
-                value={formData.video}
-                onChange={(e) =>
-                  setFormData({ ...formData, video: e.target.value })
-                }
-                placeholder="https://example.com/video.mp4"
-              />
-            </div>
+            {/* Images Section */}
+            <div className="space-y-4">
+              <div>
+                <Label
+                  htmlFor="image-upload"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Product Images
+                </Label>
+                <p className="text-xs text-gray-500 mb-2">
+                  Upload image files (JPEG, PNG, WebP) - Max 10MB each
+                </p>
+                <div className="flex items-center space-x-4">
+                  <input
+                    type="file"
+                    id="image-upload"
+                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                    multiple
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() =>
+                      document.getElementById("image-upload")?.click()
+                    }
+                    disabled={uploading}
+                    className="flex items-center space-x-2"
+                  >
+                    {uploading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Package className="h-4 w-4" />
+                    )}
+                    <span>{uploading ? "Uploading..." : "Upload Images"}</span>
+                  </Button>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-gray-500">
+                      {formData.images.length} image(s) uploaded
+                    </span>
+                    {formData.images.length > 0 && (
+                      <span className="text-xs text-green-600 font-medium">
+                        ✓ Images ready
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
 
-            <div>
-              <Label htmlFor="images">Image URLs (one per line)</Label>
-              <Textarea
-                id="images"
-                value={formData.images.join("\n")}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    images: e.target.value
-                      .split("\n")
-                      .filter((url) => url.trim()),
-                  })
-                }
-                rows={3}
-                placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
-              />
+              {/* Image Previews */}
+              {formData.images.length > 0 && (
+                <div className="mt-6">
+                  <h4 className="text-sm font-medium text-gray-700 mb-3">
+                    Image Previews
+                  </h4>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 max-w-full">
+                    {formData.images.map((imageUrl, index) => (
+                      <div
+                        key={index}
+                        className="relative group bg-gray-50 rounded-lg overflow-hidden border-2 border-dashed border-gray-200 hover:border-blue-300 transition-colors"
+                      >
+                        <div className="aspect-square relative">
+                          <Image
+                            src={imageUrl}
+                            alt={`Product image ${index + 1}`}
+                            fill
+                            className="object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src =
+                                "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f3f4f6'/%3E%3Ctext x='50' y='50' text-anchor='middle' dy='.3em' fill='%236b7280' font-size='12'%3EImage Error%3C/text%3E%3C/svg%3E";
+                            }}
+                            onLoad={() =>
+                              console.log(
+                                `Image ${index + 1} loaded successfully`
+                              )
+                            }
+                            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                          />
+                        </div>
+                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => removeImage(index)}
+                              className="bg-red-500 hover:bg-red-600"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="absolute top-1 left-1">
+                          <div className="bg-blue-600 text-white text-xs px-2 py-1 rounded">
+                            {index === 0 ? "Main" : index + 1}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {formData.images.length > 8 && (
+                    <p className="text-xs text-amber-600 mt-2 text-center">
+                      ⚠️ Consider using fewer images for better performance
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Image Upload Tips */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start space-x-2">
+                  <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-white text-xs">💡</span>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-blue-900 mb-1">
+                      Image Tips
+                    </h4>
+                    <ul className="text-xs text-blue-700 space-y-1">
+                      <li>• Use high-quality images (at least 800x800px)</li>
+                      <li>• Supported formats: JPG, PNG, WebP</li>
+                      <li>• First image will be the main product image</li>
+                      <li>• Recommended: 3-5 images per product</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -1078,45 +1390,114 @@ function ProductForm({
       </div>
 
       {/* Navigation Buttons */}
-      <div className="flex justify-between pt-6 border-t">
-        <div className="flex space-x-2">
-          {currentStep > 1 && (
-            <Button type="button" variant="outline" onClick={prevStep}>
-              Previous
+      <div className="pt-6 border-t border-gray-200">
+        <div className="flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0 sm:space-x-4 max-w-full overflow-hidden">
+          {/* Left Side - Previous & Cancel */}
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+            {currentStep > 1 && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={prevStep}
+                className="w-full sm:w-auto flex items-center justify-center space-x-2 hover:bg-gray-50 transition-colors"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+                <span>Previous</span>
+              </Button>
+            )}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+              className="w-full sm:w-auto hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-colors"
+            >
+              Cancel
             </Button>
-          )}
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
+          </div>
+
+          {/* Right Side - Next/Submit */}
+          <div className="w-full sm:w-auto">
+            {currentStep < steps.length ? (
+              <Button
+                type="button"
+                onClick={nextStep}
+                disabled={!isStepValid(currentStep)}
+                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+              >
+                <span>Next</span>
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                onClick={() => onSave(formData)}
+                disabled={saving}
+                className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>{product ? "Updating..." : "Creating..."}</span>
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span>{product ? "Update Product" : "Create Product"}</span>
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
         </div>
 
-        <div className="flex space-x-2">
-          {currentStep < steps.length ? (
-            <Button
-              type="button"
-              onClick={nextStep}
-              disabled={!isStepValid(currentStep)}
-            >
-              Next
-            </Button>
-          ) : (
-            <Button
-              type="button"
-              onClick={() => onSave(formData)}
-              disabled={saving}
-            >
-              {saving ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  {product ? "Updating..." : "Creating..."}
-                </>
-              ) : product ? (
-                "Update Product"
-              ) : (
-                "Create Product"
-              )}
-            </Button>
-          )}
+        {/* Progress Bar */}
+        <div className="mt-4">
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div
+              className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${(currentStep / steps.length) * 100}%` }}
+            ></div>
+          </div>
+          <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <span>Progress</span>
+            <span>{Math.round((currentStep / steps.length) * 100)}%</span>
+          </div>
         </div>
       </div>
     </div>

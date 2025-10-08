@@ -83,6 +83,7 @@ model Category {
   slug            String     @unique
   description     String?
   image           String?
+  video           String?
   parentId        String?
   sortOrder       Int        @default(0)
   isActive        Boolean    @default(true)
