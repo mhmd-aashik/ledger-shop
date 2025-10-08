@@ -20,6 +20,9 @@ export function SignInForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
+  const [isSendingReset, setIsSendingReset] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,6 +61,65 @@ export function SignInForm() {
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSendingReset(true);
+
+    try {
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: forgotPasswordEmail }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success("Password reset link sent to your email");
+        setShowForgotPassword(false);
+        setForgotPasswordEmail("");
+      } else {
+        toast.error(result.error || "Failed to send reset link");
+      }
+    } catch {
+      toast.error("Something went wrong");
+    } finally {
+      setIsSendingReset(false);
+    }
+  };
+
+  const handleMagicLink = async () => {
+    if (!email) {
+      toast.error("Please enter your email first");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/auth/magic-link", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success("Magic link sent to your email");
+      } else {
+        toast.error(result.error || "Failed to send magic link");
+      }
+    } catch {
+      toast.error("Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Card className="w-full border-0 shadow-none bg-transparent">
       <CardHeader className="space-y-1">
@@ -85,9 +147,21 @@ export function SignInForm() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-amber-800 font-semibold">
-              Password
-            </Label>
+            <div className="flex items-center justify-between">
+              <Label
+                htmlFor="password"
+                className="text-amber-800 font-semibold"
+              >
+                Password
+              </Label>
+              <button
+                type="button"
+                onClick={() => setShowForgotPassword(true)}
+                className="text-sm text-amber-600 hover:text-amber-700 underline"
+              >
+                Forgot password?
+              </button>
+            </div>
             <Input
               id="password"
               type="password"
@@ -106,6 +180,17 @@ export function SignInForm() {
             {isLoading ? "Signing in..." : "Sign In"}
           </Button>
         </form>
+
+        {/* Magic Link Button */}
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleMagicLink}
+          disabled={isLoading || !email}
+          className="w-full border-2 border-amber-300 hover:bg-amber-50 hover:border-amber-400 transition-all duration-300 font-medium text-amber-800"
+        >
+          {isLoading ? "Sending..." : "Send Magic Link"}
+        </Button>
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
@@ -146,6 +231,53 @@ export function SignInForm() {
           Continue with Google
         </Button>
       </CardContent>
+
+      {/* Forgot Password Modal */}
+      {showForgotPassword && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-semibold text-amber-900 mb-4">
+              Reset Password
+            </h3>
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <div>
+                <Label
+                  htmlFor="forgotEmail"
+                  className="text-amber-800 font-semibold"
+                >
+                  Email
+                </Label>
+                <Input
+                  id="forgotEmail"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={forgotPasswordEmail}
+                  onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                  required
+                  className="border-2 border-amber-200 focus:border-amber-500 focus:ring-amber-500/20 transition-all duration-300 bg-amber-50/50 text-amber-900 placeholder-amber-600"
+                />
+              </div>
+              <div className="flex space-x-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowForgotPassword(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isSendingReset}
+                  className="flex-1 bg-amber-600 hover:bg-amber-700 text-white"
+                >
+                  {isSendingReset ? "Sending..." : "Send Reset Link"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </Card>
   );
 }

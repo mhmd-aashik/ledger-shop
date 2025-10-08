@@ -8,28 +8,32 @@ datasource db {
 }
 
 model User {
-  id             String           @id @default(cuid())
-  email          String           @unique
-  emailVerified  DateTime?        // Required for NextAuth compatibility
-  password       String?
-  firstName      String?
-  lastName       String?
-  imageUrl       String?
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  image          String?
-  name           String?
-  accounts       Account[]
-  addresses      Address[]
-  cart           Cart[]
-  favorites      Favorite[]
-  orders         Order[]
-  profile        Profile?
-  recentlyViewed RecentlyViewed[]
-  reviews        Review[]
-  sessions       Session[]
-  wishlists      Wishlist[]
-  analyticsEvents AnalyticsEvent[]
+  id                String           @id @default(cuid())
+  email             String           @unique
+  emailVerified     DateTime?        // Required for NextAuth compatibility
+  password          String?
+  firstName         String?
+  lastName          String?
+  imageUrl          String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  image             String?
+  name              String?
+  resetToken        String?
+  resetTokenExpiry  DateTime?
+  magicToken        String?
+  magicTokenExpiry  DateTime?
+  accounts          Account[]
+  addresses         Address[]
+  cart              Cart[]
+  favorites         Favorite[]
+  orders            Order[]
+  profile           Profile?
+  recentlyViewed    RecentlyViewed[]
+  reviews           Review[]
+  sessions          Session[]
+  wishlists         Wishlist[]
+  analyticsEvents   AnalyticsEvent[]
 
   @@map("users")
 }
