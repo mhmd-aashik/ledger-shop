@@ -6,7 +6,7 @@ import { Prisma } from "@prisma/client";
 // GET /api/products/[id] - Get a single product
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -14,8 +14,9 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
     const product = await prisma.product.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         category: true,
         reviews: {
@@ -64,7 +65,7 @@ export async function GET(
 // PUT /api/products/[id] - Update a product
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -72,6 +73,7 @@ export async function PUT(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
     const body = await request.json();
     const {
       name,
@@ -104,7 +106,7 @@ export async function PUT(
 
     // Check if product exists
     const existingProduct = await prisma.product.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!existingProduct) {
@@ -126,7 +128,7 @@ export async function PUT(
     }
 
     // Check if SKU already exists (excluding current product)
-    
+
     if (sku && sku !== existingProduct.sku) {
       const skuExists = await prisma.product.findUnique({
         where: { sku },
@@ -191,7 +193,7 @@ export async function PUT(
     if (isFeatured !== undefined) updateData.isFeatured = isFeatured;
 
     const product = await prisma.product.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       include: {
         category: true,
@@ -211,7 +213,7 @@ export async function PUT(
 // DELETE /api/products/[id] - Delete a product
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -219,9 +221,10 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
     // Check if product exists
     const existingProduct = await prisma.product.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!existingProduct) {
@@ -230,7 +233,7 @@ export async function DELETE(
 
     // Check if product is in any orders
     const orderItems = await prisma.orderItem.findFirst({
-      where: { productId: params.id },
+      where: { productId: id },
     });
 
     if (orderItems) {
@@ -241,7 +244,7 @@ export async function DELETE(
     }
 
     await prisma.product.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ message: "Product deleted successfully" });

@@ -124,7 +124,6 @@ export function CountProvider({
       );
       clearTimeout(cartTimeoutId);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isHydrated, isRefreshing]); // Remove refreshCounts dependency
 
   const contextValue = useMemo(

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { Prisma, ProductStatus } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 // GET /api/public/products - Get all published products (public endpoint)
 export async function GET(request: NextRequest) {

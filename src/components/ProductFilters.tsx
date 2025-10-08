@@ -129,6 +129,10 @@ export default function ProductFilters() {
     priceRange[0] > 0 || priceRange[1] < 2000,
   ].filter(Boolean).length;
 
+  if (!mounted) {
+    return null;
+  }
+
   return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm mb-8 overflow-hidden">
       {/* Search Bar */}

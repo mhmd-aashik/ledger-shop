@@ -184,7 +184,7 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {recentOrders.map((order, index) => (
+              {recentOrders.map((order) => (
                 <div
                   key={order.id}
                   className="flex items-center justify-between p-4 bg-white/50 rounded-xl border border-white/30 hover:bg-white/70 transition-all duration-200 hover:shadow-md"

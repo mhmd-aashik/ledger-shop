@@ -61,6 +61,7 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
   // Load favorites on mount
   useEffect(() => {
     refreshFavorites();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Listen for favorites updates
@@ -74,6 +75,7 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
     window.addEventListener("favoritesUpdated", handleFavoritesUpdate);
     return () =>
       window.removeEventListener("favoritesUpdated", handleFavoritesUpdate);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const contextValue: FavoritesContextType = {

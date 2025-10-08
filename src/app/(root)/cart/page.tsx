@@ -4,9 +4,7 @@ import { getCartItems } from "@/lib/actions/cart.action";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import CartClient from "@/components/cart/CartClient";
-import { Suspense } from "react";
 import { CartSuspense } from "@/components/SuspenseWrapper";
-import { Loading } from "@/components/Loading";
 
 export default async function Cart() {
   const session = await auth();

@@ -15,7 +15,6 @@ import {
   Clock,
   Search,
   Bell,
-  AlertCircle,
   Shield,
 } from "lucide-react";
 import Image from "next/image";
@@ -23,14 +22,12 @@ import logo from "../../public/assets/logos/logo.png";
 import { Button } from "@/components/ui/button";
 import { useSession, signOut } from "next-auth/react";
 import { useCounts } from "./CountProvider";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 
 interface HeaderClientProps {
   className?: string;
 }
 
-function HeaderClient({ className = "" }: HeaderClientProps) {
+function HeaderClient({}: HeaderClientProps) {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -38,7 +35,6 @@ function HeaderClient({ className = "" }: HeaderClientProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const { cartCount, favoritesCount, isRefreshing } = useCounts();
   const { data: session, status } = useSession();
 

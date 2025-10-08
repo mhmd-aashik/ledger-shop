@@ -37,7 +37,7 @@ export default function FavoriteButton({
   showText = false,
 }: FavoriteButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const { isProductFavorited, refreshFavorites } = useFavorites();
+  const { isProductFavorited } = useFavorites();
   const { trackFavorite } = useAnalytics();
 
   // Get favorite status from context

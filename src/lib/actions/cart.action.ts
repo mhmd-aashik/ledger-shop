@@ -1,7 +1,6 @@
 "use server";
 
 import { auth } from "@/lib/auth";
-import { revalidatePath } from "next/cache";
 import { prisma } from "../prisma";
 
 export interface CartItem {
