@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -12,7 +12,12 @@ import {
   Award,
   Clock,
   Users,
+  RefreshCw,
+  ImageIcon,
 } from "lucide-react";
+import { Skeleton } from "./ui/skeleton";
+import { Button } from "./ui/button";
+import EmptyState from "./EmptyState";
 
 interface CarouselSlide {
   id: string;
@@ -27,35 +32,51 @@ interface CarouselSlide {
   updatedAt: string;
 }
 
-export default function HeroCarousel() {
+function HeroCarousel() {
   const [slides, setSlides] = useState<CarouselSlide[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Memoized fetch function to prevent unnecessary re-renders
+  const fetchCarousels = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch("/api/carousel");
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch carousel: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (!data.success && data.error) {
+        throw new Error(data.error);
+      }
+
+      // Filter only active slides
+      const activeSlides = data.filter(
+        (slide: CarouselSlide) => slide.isActive
+      );
+      setSlides(activeSlides);
+    } catch (err) {
+      console.error("Error fetching carousels:", err);
+      // Show user-friendly message instead of technical error
+      setError("Unable to load carousel content");
+      setSlides([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   // Fetch carousel data from database
   useEffect(() => {
-    const fetchCarousels = async () => {
-      try {
-        const response = await fetch("/api/carousel");
-        if (response.ok) {
-          const data = await response.json();
-          // Filter only active slides
-          const activeSlides = data.filter(
-            (slide: CarouselSlide) => slide.isActive
-          );
-          setSlides(activeSlides);
-        }
-      } catch (error) {
-        console.error("Error fetching carousels:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchCarousels();
-  }, []);
+  }, [fetchCarousels]);
 
   // Auto-play logic
   useEffect(() => {
@@ -90,14 +111,66 @@ export default function HeroCarousel() {
     setIsAutoPlaying(!isAutoPlaying);
   };
 
-  // Show loading state
+  // Enhanced loading state with skeleton
   if (loading) {
     return (
       <section className="relative h-screen overflow-hidden bg-gray-100">
         <div className="flex items-center justify-center h-full">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              {/* Left Content Skeleton */}
+              <div className="max-w-2xl">
+                <Skeleton className="h-8 w-32 mb-4" />
+                <Skeleton className="h-16 w-full mb-6" />
+                <Skeleton className="h-8 w-3/4 mb-4" />
+                <Skeleton className="h-6 w-full mb-8" />
+                <Skeleton className="h-12 w-40" />
+              </div>
+              {/* Right Content Skeleton */}
+              <div className="hidden lg:block">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
+                  <Skeleton className="h-8 w-48 mb-6" />
+                  <div className="space-y-4">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <div key={i} className="flex items-center space-x-3">
+                        <Skeleton className="w-6 h-6 rounded-full" />
+                        <Skeleton className="h-4 w-32" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Enhanced error state - show friendly message instead of technical error
+  if (error) {
+    return (
+      <section className="relative h-screen overflow-hidden bg-gray-100">
+        <div className="flex items-center justify-center h-full">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading carousel...</p>
+            <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-6">
+              <ImageIcon className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-2xl font-serif font-bold text-foreground mb-4">
+              Unable to load carousel
+            </h3>
+            <p className="text-muted-foreground mb-6">
+              We&apos;re having trouble loading the carousel content. Please try
+              again or check back later.
+            </p>
+            <Button
+              variant="outline"
+              onClick={fetchCarousels}
+              className="flex items-center gap-2 mx-auto"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Try Again
+            </Button>
           </div>
         </div>
       </section>
@@ -105,18 +178,17 @@ export default function HeroCarousel() {
   }
 
   // Show empty state if no slides
-  if (slides.length === 0) {
+  if (!loading && slides.length === 0) {
     return (
       <section className="relative h-screen overflow-hidden bg-gray-100">
         <div className="flex items-center justify-center h-full">
-          <div className="text-center">
-            <p className="text-gray-600 text-lg">
-              No carousel slides available
-            </p>
-            <p className="text-gray-500 text-sm mt-2">
-              Please add slides from the admin dashboard
-            </p>
-          </div>
+          <EmptyState
+            title="No carousel slides available"
+            description="Please add slides from the admin dashboard to display content here."
+            onRetry={fetchCarousels}
+            showSearchButton={false}
+            showHomeButton={true}
+          />
         </div>
       </section>
     );
@@ -227,7 +299,7 @@ export default function HeroCarousel() {
         <div className="absolute top-4 right-4 flex space-x-2">
           <button
             onClick={togglePlayPause}
-            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white p-3 rounded-full transition-all duration-300 hover:scale-110"
+            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white p-3 rounded-full transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50"
             aria-label={isAutoPlaying ? "Pause slideshow" : "Play slideshow"}
           >
             {isAutoPlaying ? (
@@ -238,32 +310,32 @@ export default function HeroCarousel() {
           </button>
         </div>
 
-        {/* Navigation Arrows */}
+        {/* Navigation Arrows with enhanced hover effects */}
         <button
           onClick={goToPrevious}
-          className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white p-4 rounded-full transition-all duration-300 hover:scale-110"
+          className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white p-4 rounded-full transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50 group"
           aria-label="Previous slide"
         >
-          <ChevronLeft className="w-6 h-6" />
+          <ChevronLeft className="w-6 h-6 group-hover:scale-110 transition-transform duration-200" />
         </button>
         <button
           onClick={goToNext}
-          className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white p-4 rounded-full transition-all duration-300 hover:scale-110"
+          className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white p-4 rounded-full transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50 group"
           aria-label="Next slide"
         >
-          <ChevronRight className="w-6 h-6" />
+          <ChevronRight className="w-6 h-6 group-hover:scale-110 transition-transform duration-200" />
         </button>
 
-        {/* Enhanced Dots Indicator */}
+        {/* Enhanced Dots Indicator with better hover effects */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex space-x-3">
           {slides.map((slide, index) => (
             <button
               key={slide.id}
               onClick={() => goToSlide(index)}
-              className={`w-4 h-4 rounded-full transition-all duration-300 ${
+              className={`w-4 h-4 rounded-full transition-all duration-300 hover:scale-125 focus:outline-none focus:ring-2 focus:ring-white/50 ${
                 index === currentSlide
-                  ? "bg-amber-500 scale-125"
-                  : "bg-white/50 hover:bg-white/70"
+                  ? "bg-amber-500 scale-125 shadow-lg"
+                  : "bg-white/50 hover:bg-white/70 hover:shadow-md"
               }`}
               aria-label={`Go to slide ${index + 1}: ${slide.title}`}
             />
@@ -283,3 +355,6 @@ export default function HeroCarousel() {
     </section>
   );
 }
+
+// Memoized component for better performance
+export default memo(HeroCarousel);
