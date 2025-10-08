@@ -74,6 +74,15 @@ export async function addToCart(productId: string, quantity: number = 1) {
       return { success: false, error: "No authenticated user" };
     }
 
+    // Check if product exists first
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      return { success: false, error: "Product not found" };
+    }
+
     // Use upsert to handle both insert and update in one operation
     await prisma.cart.upsert({
       where: {

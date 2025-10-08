@@ -8,6 +8,8 @@ import { addToCart } from "@/lib/actions/cart.action";
 import { toast } from "sonner";
 import { ProductItem } from "../../types/products.types";
 import { useAnalytics } from "@/hooks/use-analytics";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 interface ProductDetailClientProps {
   product: ProductItem;
@@ -22,6 +24,7 @@ export default function ProductDetailClient({
   const [videoEnded, setVideoEnded] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const { trackProductView, trackAddToCart } = useAnalytics();
+  const { data: session, status } = useSession();
 
   // Track product view when component mounts
   useEffect(() => {
@@ -176,40 +179,60 @@ export default function ProductDetailClient({
         </div>
 
         <div className="flex space-x-4">
-          <button
-            onClick={async () => {
-              if (isAddingToCart) return;
+          {status === "loading" ? (
+            <button
+              disabled
+              className="flex-1 bg-gray-300 text-gray-500 py-4 px-6 rounded-lg font-medium flex items-center justify-center space-x-2"
+            >
+              <ShoppingBag className="w-5 h-5" />
+              <span>Loading...</span>
+            </button>
+          ) : status === "unauthenticated" || !session ? (
+            <Link
+              href="/sign-in"
+              className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground py-4 px-6 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
+            >
+              <ShoppingBag className="w-5 h-5" />
+              <span>Sign In to Add to Cart</span>
+            </Link>
+          ) : (
+            <button
+              onClick={async () => {
+                if (isAddingToCart) return;
 
-              setIsAddingToCart(true);
-              try {
-                const result = await addToCart(product.id, quantity);
-                if (result.success) {
-                  // Track add to cart event
-                  trackAddToCart(
-                    product.id,
-                    product.name,
-                    Number(product.price),
-                    quantity
-                  );
-                  toast.success(`${quantity} x ${product.name} added to cart!`);
-                  // Dispatch event to update header count
-                  window.dispatchEvent(new CustomEvent("cartUpdated"));
-                } else {
-                  toast.error(result.error || "Failed to add to cart");
+                setIsAddingToCart(true);
+                try {
+                  const result = await addToCart(product.id, quantity);
+                  if (result.success) {
+                    // Track add to cart event
+                    trackAddToCart(
+                      product.id,
+                      product.name,
+                      Number(product.price),
+                      quantity
+                    );
+                    toast.success(
+                      `${quantity} x ${product.name} added to cart!`
+                    );
+                    // Dispatch event to update header count
+                    window.dispatchEvent(new CustomEvent("cartUpdated"));
+                  } else {
+                    toast.error(result.error || "Failed to add to cart");
+                  }
+                } catch (error) {
+                  console.error("Error adding to cart:", error);
+                  toast.error("Something went wrong");
+                } finally {
+                  setIsAddingToCart(false);
                 }
-              } catch (error) {
-                console.error("Error adding to cart:", error);
-                toast.error("Something went wrong");
-              } finally {
-                setIsAddingToCart(false);
-              }
-            }}
-            disabled={isAddingToCart}
-            className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground py-4 px-6 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
-          >
-            <ShoppingBag className="w-5 h-5" />
-            <span>Add to Cart</span>
-          </button>
+              }}
+              disabled={isAddingToCart}
+              className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground py-4 px-6 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
+            >
+              <ShoppingBag className="w-5 h-5" />
+              <span>Add to Cart</span>
+            </button>
+          )}
           <FavoriteButton
             product={{
               id: product.id,

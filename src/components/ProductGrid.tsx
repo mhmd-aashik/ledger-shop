@@ -8,6 +8,7 @@ import FavoriteButton from "@/components/FavoriteButton";
 import { toast } from "sonner";
 import { addToCart } from "@/lib/actions/cart.action";
 import { Button } from "./ui/button";
+import { useSession } from "next-auth/react";
 
 interface Product {
   id: string;
@@ -35,6 +36,7 @@ interface Product {
 export default function ProductGrid() {
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<string | null>(null);
+  const { data: session, status } = useSession();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -119,32 +121,46 @@ export default function ProductGrid() {
                     hoveredProduct === product.id ? "opacity-100" : "opacity-0"
                   }`}
                 >
-                  <button
-                    onClick={async () => {
-                      if (isLoading === product.id) return;
+                  {status === "unauthenticated" || !session ? (
+                    <Link
+                      href="/sign-in"
+                      className="bg-white text-foreground p-3 rounded-full hover:bg-accent hover:text-accent-foreground transition-colors duration-200"
+                      title="Sign in to add to cart"
+                    >
+                      <ShoppingBag className="w-5 h-5" />
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        if (isLoading === product.id) return;
 
-                      setIsLoading(product.id);
-                      try {
-                        const result = await addToCart(product.id, 1);
-                        if (result.success) {
-                          toast.success(`${product.name} added to cart!`);
-                          // Dispatch custom event to update header count
-                          window.dispatchEvent(new CustomEvent("cartUpdated"));
-                        } else {
-                          toast.error(result.error || "Failed to add to cart");
+                        setIsLoading(product.id);
+                        try {
+                          const result = await addToCart(product.id, 1);
+                          if (result.success) {
+                            toast.success(`${product.name} added to cart!`);
+                            // Dispatch custom event to update header count
+                            window.dispatchEvent(
+                              new CustomEvent("cartUpdated")
+                            );
+                          } else {
+                            toast.error(
+                              result.error || "Failed to add to cart"
+                            );
+                          }
+                        } catch (error) {
+                          console.error("Error adding to cart:", error);
+                          toast.error("Something went wrong");
+                        } finally {
+                          setIsLoading(null);
                         }
-                      } catch (error) {
-                        console.error("Error adding to cart:", error);
-                        toast.error("Something went wrong");
-                      } finally {
-                        setIsLoading(null);
-                      }
-                    }}
-                    disabled={isLoading === product.id}
-                    className="bg-white text-foreground p-3 rounded-full hover:bg-accent hover:text-accent-foreground transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <ShoppingBag className="w-5 h-5" />
-                  </button>
+                      }}
+                      disabled={isLoading === product.id}
+                      className="bg-white text-foreground p-3 rounded-full hover:bg-accent hover:text-accent-foreground transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <ShoppingBag className="w-5 h-5" />
+                    </button>
+                  )}
                   <FavoriteButton
                     product={{
                       id: product.id,
