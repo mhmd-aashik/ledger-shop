@@ -589,10 +589,17 @@ function ProductForm({
       const results = await Promise.all(uploadPromises);
       const newImageUrls = results.map((result) => result.url);
 
-      setFormData((prev) => ({
-        ...prev,
-        images: [...prev.images, ...newImageUrls],
-      }));
+      console.log("Upload results:", results);
+      console.log("New image URLs:", newImageUrls);
+
+      setFormData((prev) => {
+        const updatedImages = [...prev.images, ...newImageUrls];
+        console.log("Updated images array:", updatedImages);
+        return {
+          ...prev,
+          images: updatedImages,
+        };
+      });
 
       toast.success(`${results.length} image(s) uploaded successfully`);
     } catch (error) {
@@ -1132,53 +1139,51 @@ function ProductForm({
               {formData.images.length > 0 && (
                 <div className="mt-6">
                   <h4 className="text-sm font-medium text-gray-700 mb-3">
-                    Image Previews
+                    Image Previews ({formData.images.length} images)
                   </h4>
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 max-w-full">
-                    {formData.images.map((imageUrl, index) => (
-                      <div
-                        key={index}
-                        className="relative group bg-gray-50 rounded-lg overflow-hidden border-2 border-dashed border-gray-200 hover:border-blue-300 transition-colors"
-                      >
-                        <div className="aspect-square relative">
-                          <Image
-                            src={imageUrl}
-                            alt={`Product image ${index + 1}`}
-                            fill
-                            className="object-cover"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src =
-                                "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f3f4f6'/%3E%3Ctext x='50' y='50' text-anchor='middle' dy='.3em' fill='%236b7280' font-size='12'%3EImage Error%3C/text%3E%3C/svg%3E";
-                            }}
-                            onLoad={() =>
-                              console.log(
-                                `Image ${index + 1} loaded successfully`
-                              )
-                            }
-                            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                          />
-                        </div>
-                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
-                          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => removeImage(index)}
-                              className="bg-red-500 hover:bg-red-600"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
+                    {formData.images.map((imageUrl, index) => {
+                      console.log(`Rendering image ${index}:`, imageUrl);
+                      return (
+                        <div
+                          key={index}
+                          className="relative group bg-gray-50 rounded-lg border-2 border-dashed border-gray-200 hover:border-blue-300 transition-colors"
+                        >
+                          {/* Copy the exact same approach as Simple Image Test */}
+                          <div className="aspect-square flex items-center justify-center bg-gray-200">
+                            <Image
+                              src={imageUrl}
+                              width={100}
+                              height={100}
+                              alt={`Product image ${index + 1}`}
+                              className="w-20 h-20 object-cover border rounded"
+                              unoptimized={true}
+                            />
+                          </div>
+                          {/* Position label */}
+                          <div className="absolute top-1 left-1">
+                            <div className="bg-blue-600 text-white text-xs px-2 py-1 rounded">
+                              {index === 0 ? "Main" : index + 1}
+                            </div>
+                          </div>
+
+                          {/* Remove button */}
+                          <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => removeImage(index)}
+                                className="bg-red-500 hover:bg-red-600"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                        <div className="absolute top-1 left-1">
-                          <div className="bg-blue-600 text-white text-xs px-2 py-1 rounded">
-                            {index === 0 ? "Main" : index + 1}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                   {formData.images.length > 8 && (
                     <p className="text-xs text-amber-600 mt-2 text-center">
