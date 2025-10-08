@@ -10,6 +10,7 @@ import {
 } from "@/lib/actions/favorite.action";
 import { useState } from "react";
 import { useFavorites } from "./FavoritesContext";
+import { useAnalytics } from "@/hooks/use-analytics";
 
 interface FavoriteButtonProps {
   product: {
@@ -37,6 +38,7 @@ export default function FavoriteButton({
 }: FavoriteButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { isProductFavorited, refreshFavorites } = useFavorites();
+  const { trackFavorite } = useAnalytics();
 
   // Get favorite status from context
   const isFavorited = isProductFavorited(product.id);
@@ -53,6 +55,8 @@ export default function FavoriteButton({
       if (isFavorited) {
         const result = await removeFromFavorites(product.id);
         if (result.success) {
+          // Track favorite removal
+          trackFavorite(product.id, product.name, "remove");
           toast.success("Removed from favorites");
           // Refresh favorites context
           await refreshFavorites();
@@ -64,6 +68,8 @@ export default function FavoriteButton({
       } else {
         const result = await addToFavorites(product.id);
         if (result.success) {
+          // Track favorite addition
+          trackFavorite(product.id, product.name, "add");
           toast.success("Added to favorites");
           // Refresh favorites context
           await refreshFavorites();

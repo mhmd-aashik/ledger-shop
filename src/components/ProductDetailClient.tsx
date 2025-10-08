@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { ShoppingBag, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import FavoriteButton from "@/components/FavoriteButton";
 import { addToCart } from "@/lib/actions/cart.action";
 import { toast } from "sonner";
 import { ProductItem } from "../../types/products.types";
+import { useAnalytics } from "@/hooks/use-analytics";
 
 interface ProductDetailClientProps {
   product: ProductItem;
@@ -20,6 +21,12 @@ export default function ProductDetailClient({
   const [showVideo, setShowVideo] = useState(true); // Start with video
   const [videoEnded, setVideoEnded] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const { trackProductView, trackAddToCart } = useAnalytics();
+
+  // Track product view when component mounts
+  useEffect(() => {
+    trackProductView(product.id, product.name);
+  }, [product.id, product.name, trackProductView]);
 
   const nextImage = () => {
     setSelectedImage((prev) => (prev + 1) % product.images.length);
@@ -177,6 +184,13 @@ export default function ProductDetailClient({
               try {
                 const result = await addToCart(product.id, quantity);
                 if (result.success) {
+                  // Track add to cart event
+                  trackAddToCart(
+                    product.id,
+                    product.name,
+                    Number(product.price),
+                    quantity
+                  );
                   toast.success(`${quantity} x ${product.name} added to cart!`);
                   // Dispatch event to update header count
                   window.dispatchEvent(new CustomEvent("cartUpdated"));

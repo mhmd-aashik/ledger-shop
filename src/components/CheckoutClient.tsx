@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { useAnalytics } from "@/hooks/use-analytics";
 
 export default function CheckoutClient() {
   const router = useRouter();
@@ -20,6 +21,7 @@ export default function CheckoutClient() {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
+  const { trackPurchase } = useAnalytics();
   const [userProfile, setUserProfile] = useState<{
     firstName: string;
     lastName: string;
@@ -237,6 +239,18 @@ export default function CheckoutClient() {
       const result = await response.json();
 
       if (result.success) {
+        // Track purchase event
+        trackPurchase(
+          result.orderId,
+          total,
+          items.map((item) => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+          }))
+        );
+
         const clearResult = await clearCart();
         if (clearResult.success) {
           setItems([]);

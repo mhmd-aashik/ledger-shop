@@ -29,6 +29,7 @@ model User {
   reviews        Review[]
   sessions       Session[]
   wishlists      Wishlist[]
+  analyticsEvents AnalyticsEvent[]
 
   @@map("users")
 }
@@ -393,4 +394,19 @@ enum Priority {
   MEDIUM
   HIGH
   URGENT
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  event     String
+  properties Json
+  userId    String?
+  sessionId String?
+  timestamp DateTime @default(now())
+  userAgent String?
+  referer   String?
+  url       String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("analytics_events")
 }

@@ -14,6 +14,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Search, X } from "lucide-react";
+import { useAnalytics } from "@/hooks/use-analytics";
 
 const categories = ["All", "Wallets", "Cardholders", "Accessories"];
 const genders = ["All", "Men", "Women", "Unisex"];
@@ -29,6 +30,7 @@ const sortOptions = [
 export default function ProductFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { trackSearch, trackFilter } = useAnalytics();
 
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [category, setCategory] = useState(
@@ -63,8 +65,39 @@ export default function ProductFilters() {
     if (priceRange[0] > 0) params.set("minPrice", priceRange[0].toString());
     if (priceRange[1] < 2000) params.set("maxPrice", priceRange[1].toString());
 
+    // Track search and filter events
+    if (debouncedSearch) {
+      // We'll track search results when the API is called
+      trackSearch(debouncedSearch, 0); // Results count will be updated when data loads
+    }
+
+    if (
+      category !== "All" ||
+      gender !== "All" ||
+      sortBy !== "default" ||
+      priceRange[0] > 0 ||
+      priceRange[1] < 2000
+    ) {
+      trackFilter({
+        category: category !== "All" ? category : undefined,
+        gender: gender !== "All" ? gender : undefined,
+        sort: sortBy !== "default" ? sortBy : undefined,
+        priceRange:
+          priceRange[0] > 0 || priceRange[1] < 2000 ? priceRange : undefined,
+      });
+    }
+
     router.push(`/products?${params.toString()}`, { scroll: false });
-  }, [debouncedSearch, category, gender, sortBy, priceRange, router]);
+  }, [
+    debouncedSearch,
+    category,
+    gender,
+    sortBy,
+    priceRange,
+    router,
+    trackSearch,
+    trackFilter,
+  ]);
 
   useEffect(() => {
     updateFilters();
