@@ -55,6 +55,29 @@ export const authConfig: NextAuthConfig = {
     strategy: "jwt" as const,
   },
   callbacks: {
+    async signIn({ user, account }) {
+      // Handle Google OAuth user data
+      if (account?.provider === "google" && user.name) {
+        const nameParts = user.name.split(" ");
+        const firstName = nameParts[0] || "";
+        const lastName = nameParts.slice(1).join(" ") || "";
+
+        // Update user record with firstName and lastName
+        try {
+          await prisma.user.update({
+            where: { email: user.email! },
+            data: {
+              firstName,
+              lastName,
+              imageUrl: user.image, // Also populate imageUrl for backward compatibility
+            },
+          });
+        } catch (error) {
+          console.error("Error updating user profile:", error);
+        }
+      }
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;

@@ -70,7 +70,8 @@ export default function HeaderClient() {
       }
       clearTimeout(timeoutId);
     };
-  }, [isScrolled]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Remove isScrolled dependency to prevent infinite loop
 
   const navigation = [
     { name: "Home", href: "/", icon: Sparkles },

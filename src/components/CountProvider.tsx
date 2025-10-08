@@ -62,14 +62,16 @@ export function CountProvider({
     } finally {
       setIsRefreshing(false);
     }
-  }, [isRefreshing]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Remove isRefreshing dependency to prevent infinite loop
 
   // Handle hydration
   useEffect(() => {
     setIsHydrated(true);
     // Refresh counts after hydration to ensure they're up to date
     refreshCounts();
-  }, [refreshCounts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Remove refreshCounts dependency to prevent infinite loop
 
   // Listen for custom events to update counts with debouncing
   useEffect(() => {
@@ -91,11 +93,11 @@ export function CountProvider({
       debouncedRefresh();
     };
 
-    // Set up periodic refresh every 30 seconds to keep counts in sync
+    // Set up periodic refresh every 5 minutes to keep counts in sync (reduced frequency)
     if (isHydrated) {
       intervalId = setInterval(() => {
         refreshCounts();
-      }, 30000); // Refresh every 30 seconds
+      }, 300000); // Refresh every 5 minutes instead of 30 seconds
     }
 
     window.addEventListener("favoritesUpdated", handleFavoritesUpdate);
@@ -109,7 +111,8 @@ export function CountProvider({
         clearInterval(intervalId);
       }
     };
-  }, [refreshCounts, isHydrated]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isHydrated]); // Remove refreshCounts dependency to prevent infinite loop
 
   const contextValue = useMemo(
     () => ({
