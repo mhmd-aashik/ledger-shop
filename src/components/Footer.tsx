@@ -1,33 +1,40 @@
-import Link from 'next/link';
-import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from 'lucide-react';
+import Link from "next/link";
+import {
+  Facebook,
+  Instagram,
+  Twitter,
+  Mail,
+  Phone,
+  MapPin,
+} from "lucide-react";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   const socialLinks = [
-    { name: 'Facebook', icon: Facebook, href: '#' },
-    { name: 'Instagram', icon: Instagram, href: '#' },
-    { name: 'Twitter', icon: Twitter, href: '#' },
+    { name: "Facebook", icon: Facebook, href: "#" },
+    { name: "Instagram", icon: Instagram, href: "#" },
+    { name: "Twitter", icon: Twitter, href: "#" },
   ];
 
   const quickLinks = [
-    { name: 'About Us', href: '/about' },
-    { name: 'Our Story', href: '/about#story' },
-    { name: 'Craftsmanship', href: '/about#craftsmanship' },
-    { name: 'Sustainability', href: '/about#sustainability' },
+    { name: "About Us", href: "/about" },
+    { name: "Our Story", href: "/about#story" },
+    { name: "Craftsmanship", href: "/about#craftsmanship" },
+    { name: "Sustainability", href: "/about#sustainability" },
   ];
 
   const customerService = [
-    { name: 'Contact Us', href: '/contact' },
-    { name: 'Shipping Info', href: '/shipping' },
-    { name: 'Returns', href: '/returns' },
-    { name: 'Size Guide', href: '/size-guide' },
+    { name: "Contact Us", href: "/contact" },
+    { name: "Shipping Info", href: "/shipping" },
+    { name: "Returns", href: "/returns" },
+    { name: "Size Guide", href: "/size-guide" },
   ];
 
   const legal = [
-    { name: 'Privacy Policy', href: '/privacy' },
-    { name: 'Terms of Service', href: '/terms' },
-    { name: 'Cookie Policy', href: '/cookies' },
+    { name: "Privacy Policy", href: "/privacy" },
+    { name: "Terms of Service", href: "/terms" },
+    { name: "Cookie Policy", href: "/cookies" },
   ];
 
   return (
@@ -38,15 +45,18 @@ export default function Footer() {
           <div className="lg:col-span-1">
             <div className="flex items-center space-x-2 mb-6">
               <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center">
-                <span className="text-accent-foreground font-serif text-xl font-bold">L</span>
+                <span className="text-accent-foreground font-serif text-xl font-bold">
+                  L
+                </span>
               </div>
-              <span className="font-serif text-2xl font-bold">LeadHer Shop</span>
+              <span className="font-serif text-2xl font-bold">Heritano</span>
             </div>
             <p className="text-primary-foreground/80 mb-6 leading-relaxed">
-              Crafting luxury leather goods with timeless elegance and uncompromising quality. 
-              Each piece tells a story of tradition, craftsmanship, and sophistication.
+              Crafting luxury leather goods with timeless elegance and
+              uncompromising quality. Each piece tells a story of tradition,
+              craftsmanship, and sophistication.
             </p>
-            
+
             {/* Contact Info */}
             <div className="space-y-3">
               <div className="flex items-center space-x-3 text-primary-foreground/80">
@@ -59,9 +69,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center space-x-3 text-primary-foreground/80">
                 <MapPin className="w-4 h-4" />
-                <span className="text-sm">
-                  Sri Lanka
-                </span>
+                <span className="text-sm">Sri Lanka</span>
               </div>
             </div>
           </div>
@@ -85,7 +93,9 @@ export default function Footer() {
 
           {/* Customer Service */}
           <div>
-            <h3 className="font-serif text-lg font-semibold mb-6">Customer Service</h3>
+            <h3 className="font-serif text-lg font-semibold mb-6">
+              Customer Service
+            </h3>
             <ul className="space-y-3">
               {customerService.map((link) => (
                 <li key={link.name}>
@@ -139,7 +149,7 @@ export default function Footer() {
         <div className="border-t border-primary-foreground/20 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-primary-foreground/60 text-sm">
-              © {currentYear} LeadHer Shop. All rights reserved.
+              © {currentYear} Heritano. All rights reserved.
             </p>
             <div className="flex items-center space-x-6 text-sm text-primary-foreground/60">
               <span>Made with ❤️ in Sri Lanka</span>

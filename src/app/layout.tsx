@@ -19,7 +19,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "LeadHer Shop - Premium Leather Goods",
+  title: "Heritano - Premium Leather Goods",
   description:
     "Discover our exquisite collection of handcrafted leather goods. From wallets to handbags, each piece is crafted with passion and precision.",
 };

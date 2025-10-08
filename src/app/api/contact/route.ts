@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
     const customerEmailResult = await resend.emails.send({
       from: "noreply@heritano.com",
       to: [email],
-      subject: "Thank you for contacting LeadHer Shop",
+      subject: "Thank you for contacting Heritano",
       html: generateContactConfirmationHTML(name, subject),
     });
 
@@ -143,7 +143,7 @@ function generateContactFormHTML(data: {
         </div>
 
         <div class="footer">
-          <p>This is an automated notification from LeadHer Shop contact form</p>
+          <p>This is an automated notification from Heritano contact form</p>
           <p>Please respond to the customer at: ${data.email}</p>
         </div>
       </div>
@@ -177,7 +177,7 @@ function generateContactConfirmationHTML(
       <div class="container">
         <div class="header">
           <h1>✅ Message Received!</h1>
-          <p>Thank you for contacting LeadHer Shop</p>
+          <p>Thank you for contacting Heritano</p>
         </div>
         
         <div class="content">
@@ -196,7 +196,7 @@ function generateContactConfirmationHTML(
         </div>
 
         <div class="footer">
-          <p>Thank you for choosing LeadHer Shop!</p>
+          <p>Thank you for choosing Heritano!</p>
           <p>We appreciate your interest in our premium leather products.</p>
         </div>
       </div>
