@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, ReactNode } from "react";
-import { Loading, SkeletonGrid, SkeletonCard } from "./Loading";
+import Loading, { SkeletonGrid, SkeletonCard } from "./Loading";
 import ErrorBoundary from "./ErrorBoundary";
 
 interface SuspenseWrapperProps {

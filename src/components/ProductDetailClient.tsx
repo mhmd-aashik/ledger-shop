@@ -197,7 +197,11 @@ export default function ProductDetailClient({
             </Link>
           ) : (
             <button
-              onClick={async () => {
+              type="button"
+              onClick={async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
                 if (isAddingToCart) return;
 
                 setIsAddingToCart(true);

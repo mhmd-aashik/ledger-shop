@@ -104,7 +104,8 @@ export async function addToCart(productId: string, quantity: number = 1) {
       },
     });
 
-    revalidatePath("/cart");
+    // Note: We don't need revalidatePath here since we're using client-side state management
+    // The cart count will be updated via the custom event dispatched in the component
     return { success: true };
   } catch (error) {
     console.error("Error adding to cart:", error);
@@ -133,7 +134,7 @@ export async function removeFromCart(productId: string) {
       },
     });
 
-    revalidatePath("/cart");
+    // Note: We don't need revalidatePath here since we're using client-side state management
     return { success: true };
   } catch (error) {
     console.error("Error removing from cart:", error);
@@ -181,7 +182,7 @@ export async function updateCartItemQuantity(
       });
     }
 
-    revalidatePath("/cart");
+    // Note: We don't need revalidatePath here since we're using client-side state management
     return { success: true };
   } catch (error) {
     console.error("Error updating cart quantity:", error);
@@ -205,7 +206,7 @@ export async function clearCart() {
       where: { userId: session.user.id },
     });
 
-    revalidatePath("/cart");
+    // Note: We don't need revalidatePath here since we're using client-side state management
     return { success: true };
   } catch (error) {
     console.error("Error clearing cart:", error);

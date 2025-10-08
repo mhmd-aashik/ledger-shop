@@ -81,6 +81,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json({
+      success: true,
       products: productsWithRating,
       pagination: {
         page,
@@ -92,7 +93,10 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Error fetching products:", error);
     return NextResponse.json(
-      { error: "Failed to fetch products" },
+      {
+        success: false,
+        error: "Failed to fetch products",
+      },
       { status: 500 }
     );
   }

@@ -4,12 +4,12 @@ import CraftsmanshipSection from "@/components/CraftsmanshipSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import { Suspense } from "react";
 import { ProductSuspense } from "@/components/SuspenseWrapper";
-import { Loading } from "@/components/Loading";
+import { PageLoading } from "@/components/Loading";
 
 export default async function Home() {
   return (
     <main>
-      <Suspense fallback={<Loading type="page" />}>
+      <Suspense fallback={<PageLoading />}>
         <HeroCarousel />
       </Suspense>
 
@@ -17,11 +17,11 @@ export default async function Home() {
         <ProductGrid limit={8} featured={true} />
       </ProductSuspense>
 
-      <Suspense fallback={<Loading type="page" />}>
+      <Suspense fallback={<PageLoading />}>
         <CraftsmanshipSection />
       </Suspense>
 
-      <Suspense fallback={<Loading type="page" />}>
+      <Suspense fallback={<PageLoading />}>
         <TestimonialsSection />
       </Suspense>
     </main>

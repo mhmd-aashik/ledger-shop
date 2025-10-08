@@ -201,7 +201,11 @@ function ProductGrid({
                     </Link>
                   ) : (
                     <button
-                      onClick={async () => {
+                      type="button"
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+
                         if (isLoading === product.id) return;
 
                         setIsLoading(product.id);
