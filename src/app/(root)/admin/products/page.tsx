@@ -45,6 +45,7 @@ import {
   Star,
   MoreHorizontal,
   Loader2,
+  Package,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -196,18 +197,23 @@ export default function ProductManagement() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Products</h1>
-          <p className="text-gray-600">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 bg-clip-text text-transparent">
+            Products
+          </h1>
+          <p className="text-slate-600 text-lg mt-2">
             Manage your product catalog ({filteredProducts.length} products)
           </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={handleAddProduct}>
+            <Button
+              onClick={handleAddProduct}
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5"
+            >
               <Plus className="h-4 w-4 mr-2" />
               Add Product
             </Button>
@@ -275,32 +281,54 @@ export default function ProductManagement() {
       </div>
 
       {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Filters</CardTitle>
+      <Card className="bg-white/70 backdrop-blur-sm border border-white/30 shadow-xl">
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-xl font-bold text-slate-900">
+                Filters
+              </CardTitle>
+              <p className="text-slate-600 text-sm">
+                Filter and search your products
+              </p>
+            </div>
+            <div className="p-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 shadow-lg">
+              <Search className="h-5 w-5 text-white" />
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <Label htmlFor="search">Search Products</Label>
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Label
+                htmlFor="search"
+                className="text-sm font-semibold text-slate-700"
+              >
+                Search Products
+              </Label>
+              <div className="relative mt-2">
+                <Search className="absolute left-4 top-3.5 h-4 w-4 text-slate-400" />
                 <Input
                   id="search"
                   placeholder="Search by name or SKU..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-12 pr-4 py-3 bg-white/70 border-white/30 focus:bg-white/90 transition-all duration-200 rounded-xl shadow-sm"
                 />
               </div>
             </div>
             <div>
-              <Label htmlFor="status">Status</Label>
+              <Label
+                htmlFor="status"
+                className="text-sm font-semibold text-slate-700"
+              >
+                Status
+              </Label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
+                <SelectTrigger className="mt-2 bg-white/70 border-white/30 focus:bg-white/90 transition-all duration-200 rounded-xl shadow-sm">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white/95 backdrop-blur-md border border-white/30 shadow-xl rounded-xl">
                   <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="draft">Draft</SelectItem>
                   <SelectItem value="published">Published</SelectItem>
@@ -314,49 +342,82 @@ export default function ProductManagement() {
       </Card>
 
       {/* Products Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Products</CardTitle>
-          <CardDescription>
-            A list of all products in your store.
-          </CardDescription>
+      <Card className="bg-white/70 backdrop-blur-sm border border-white/30 shadow-xl">
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-xl font-bold text-slate-900">
+                Products
+              </CardTitle>
+              <CardDescription className="text-slate-600">
+                A list of all products in your store.
+              </CardDescription>
+            </div>
+            <div className="p-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 shadow-lg">
+              <Package className="h-5 w-5 text-white" />
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Product</TableHead>
-                  <TableHead className="hidden sm:table-cell">
+                <TableRow className="border-white/30">
+                  <TableHead className="text-slate-700 font-semibold">
+                    Product
+                  </TableHead>
+                  <TableHead className="hidden sm:table-cell text-slate-700 font-semibold">
                     Category
                   </TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead className="hidden md:table-cell">Stock</TableHead>
-                  <TableHead className="hidden lg:table-cell">Status</TableHead>
-                  <TableHead className="hidden lg:table-cell">Rating</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="text-slate-700 font-semibold">
+                    Price
+                  </TableHead>
+                  <TableHead className="hidden md:table-cell text-slate-700 font-semibold">
+                    Stock
+                  </TableHead>
+                  <TableHead className="hidden lg:table-cell text-slate-700 font-semibold">
+                    Status
+                  </TableHead>
+                  <TableHead className="hidden lg:table-cell text-slate-700 font-semibold">
+                    Rating
+                  </TableHead>
+                  <TableHead className="text-right text-slate-700 font-semibold">
+                    Actions
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredProducts.map((product) => (
-                  <TableRow key={product.id}>
+                  <TableRow
+                    key={product.id}
+                    className="border-white/30 hover:bg-white/50 transition-colors duration-200"
+                  >
                     <TableCell>
-                      <div className="flex items-center space-x-3">
-                        <Image
-                          src={product.images[0] || "/placeholder-product.jpg"}
-                          alt={product.name}
-                          width={48}
-                          height={48}
-                          className="h-12 w-12 rounded-lg object-cover"
-                        />
+                      <div className="flex items-center space-x-4">
+                        <div className="relative">
+                          <Image
+                            src={
+                              product.images[0] || "/placeholder-product.jpg"
+                            }
+                            alt={product.name}
+                            width={56}
+                            height={56}
+                            className="h-14 w-14 rounded-xl object-cover shadow-md"
+                          />
+                          {product.isFeatured && (
+                            <div className="absolute -top-1 -right-1 h-5 w-5 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
+                              <Star className="h-3 w-3 text-white fill-white" />
+                            </div>
+                          )}
+                        </div>
                         <div className="min-w-0 flex-1">
-                          <div className="font-medium truncate">
+                          <div className="font-semibold text-slate-900 truncate">
                             {product.name}
                           </div>
-                          <div className="text-sm text-gray-500">
+                          <div className="text-sm text-slate-500">
                             {product.sku && `SKU: ${product.sku}`}
                           </div>
-                          <div className="sm:hidden text-xs text-gray-400 mt-1">
+                          <div className="sm:hidden text-xs text-slate-400 mt-1">
                             {product.category?.name &&
                               `Category: ${product.category.name}`}
                           </div>
@@ -364,13 +425,17 @@ export default function ProductManagement() {
                       </div>
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
-                      {product.category?.name || "-"}
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
+                        {product.category?.name || "-"}
+                      </span>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col">
-                        <span className="font-medium">${product.price}</span>
+                        <span className="font-bold text-slate-900 text-lg">
+                          ${product.price}
+                        </span>
                         {product.compareAtPrice && (
-                          <span className="text-sm text-gray-500 line-through">
+                          <span className="text-sm text-slate-500 line-through">
                             ${product.compareAtPrice}
                           </span>
                         )}
@@ -378,10 +443,15 @@ export default function ProductManagement() {
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
                       <div className="flex items-center space-x-2">
-                        <span>{product.quantity}</span>
+                        <span className="font-semibold text-slate-900">
+                          {product.quantity}
+                        </span>
                         {product.trackQuantity &&
                           product.quantity <= product.lowStockThreshold && (
-                            <Badge variant="destructive" className="text-xs">
+                            <Badge
+                              variant="destructive"
+                              className="text-xs bg-red-100 text-red-800"
+                            >
                               Low Stock
                             </Badge>
                           )}
@@ -396,6 +466,13 @@ export default function ProductManagement() {
                               ? "secondary"
                               : "outline"
                         }
+                        className={`${
+                          product.status === "PUBLISHED"
+                            ? "bg-green-100 text-green-800"
+                            : product.status === "DRAFT"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-slate-100 text-slate-800"
+                        }`}
                       >
                         {product.status}
                       </Badge>
@@ -403,10 +480,10 @@ export default function ProductManagement() {
                     <TableCell className="hidden lg:table-cell">
                       <div className="flex items-center space-x-1">
                         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm">
+                        <span className="text-sm font-semibold text-slate-900">
                           {product.rating?.toFixed(1) || "0.0"}
                         </span>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-slate-500">
                           ({product.reviewCount})
                         </span>
                       </div>
@@ -414,20 +491,27 @@ export default function ProductManagement() {
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
+                          <Button
+                            variant="ghost"
+                            className="h-9 w-9 p-0 rounded-xl hover:bg-white/60 transition-colors"
+                          >
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent
+                          align="end"
+                          className="bg-white/95 backdrop-blur-md border border-white/30 shadow-xl rounded-xl"
+                        >
                           <DropdownMenuItem
                             onClick={() => handleEditProduct(product)}
+                            className="hover:bg-slate-50 transition-colors"
                           >
                             <Edit className="h-4 w-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => handleDeleteProduct(product.id)}
-                            className="text-red-600"
+                            className="text-red-600 hover:bg-red-50 transition-colors"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
                             Delete

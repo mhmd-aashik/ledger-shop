@@ -102,71 +102,102 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600">
+    <div className="space-y-8">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 bg-clip-text text-transparent">
+          Dashboard
+        </h1>
+        <p className="text-slate-600 text-lg mt-2">
           Welcome back! Here&apos;s what&apos;s happening with your store.
         </p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => {
+        {stats.map((stat, index) => {
           const Icon = stat.icon;
+          const gradientColors = [
+            "from-blue-500 to-cyan-500",
+            "from-purple-500 to-pink-500",
+            "from-green-500 to-emerald-500",
+            "from-orange-500 to-red-500",
+          ];
           return (
-            <Card key={stat.title}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">
+            <Card
+              key={stat.title}
+              className="relative overflow-hidden bg-white/70 backdrop-blur-sm border border-white/30 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
+            >
+              <div
+                className={`absolute inset-0 bg-gradient-to-br ${gradientColors[index]} opacity-5`}
+              ></div>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                <CardTitle className="text-sm font-semibold text-slate-700">
                   {stat.title}
                 </CardTitle>
-                <Icon className="h-4 w-4 text-gray-400" />
+                <div
+                  className={`p-2 rounded-xl bg-gradient-to-r ${gradientColors[index]} shadow-lg`}
+                >
+                  <Icon className="h-5 w-5 text-white" />
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-gray-900">
+              <CardContent className="relative z-10">
+                <div className="text-3xl font-bold text-slate-900 mb-2">
                   {stat.value}
                 </div>
-                <p className="text-xs text-gray-500">
+                <div className="flex items-center space-x-2">
                   <span
-                    className={
+                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold ${
                       stat.changeType === "positive"
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
                   >
                     {stat.change}
-                  </span>{" "}
-                  from last month
-                </p>
+                  </span>
+                  <span className="text-xs text-slate-500">
+                    from last month
+                  </span>
+                </div>
               </CardContent>
             </Card>
           );
         })}
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         {/* Recent Orders */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Orders</CardTitle>
-            <CardDescription>Latest orders from your customers</CardDescription>
+        <Card className="bg-white/70 backdrop-blur-sm border border-white/30 shadow-xl">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-xl font-bold text-slate-900">
+                  Recent Orders
+                </CardTitle>
+                <CardDescription className="text-slate-600">
+                  Latest orders from your customers
+                </CardDescription>
+              </div>
+              <div className="p-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 shadow-lg">
+                <ShoppingCart className="h-5 w-5 text-white" />
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {recentOrders.map((order) => (
+              {recentOrders.map((order, index) => (
                 <div
                   key={order.id}
-                  className="flex items-center justify-between"
+                  className="flex items-center justify-between p-4 bg-white/50 rounded-xl border border-white/30 hover:bg-white/70 transition-all duration-200 hover:shadow-md"
                 >
                   <div className="space-y-1">
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-semibold text-slate-900">
                       {order.id}
                     </p>
-                    <p className="text-sm text-gray-500">{order.customer}</p>
-                    <p className="text-xs text-gray-400">{order.date}</p>
+                    <p className="text-sm text-slate-600">{order.customer}</p>
+                    <p className="text-xs text-slate-400">{order.date}</p>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium text-gray-900">
+                  <div className="flex items-center space-x-3">
+                    <span className="text-sm font-bold text-slate-900">
                       {order.amount}
                     </span>
                     {getStatusBadge(order.status)}
@@ -178,34 +209,53 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Quick Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Common administrative tasks</CardDescription>
+        <Card className="bg-white/70 backdrop-blur-sm border border-white/30 shadow-xl">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-xl font-bold text-slate-900">
+                  Quick Actions
+                </CardTitle>
+                <CardDescription className="text-slate-600">
+                  Common administrative tasks
+                </CardDescription>
+              </div>
+              <div className="p-2 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg">
+                <Star className="h-5 w-5 text-white" />
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
-              <button className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                <Package className="h-8 w-8 text-purple-600 mb-2" />
-                <span className="text-sm font-medium text-gray-900">
+              <button className="group flex flex-col items-center p-6 bg-white/50 rounded-xl border border-white/30 hover:bg-white/70 hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
+                <div className="p-3 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg group-hover:shadow-xl transition-shadow duration-200 mb-3">
+                  <Package className="h-6 w-6 text-white" />
+                </div>
+                <span className="text-sm font-semibold text-slate-900">
                   Add Product
                 </span>
               </button>
-              <button className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                <ShoppingCart className="h-8 w-8 text-blue-600 mb-2" />
-                <span className="text-sm font-medium text-gray-900">
+              <button className="group flex flex-col items-center p-6 bg-white/50 rounded-xl border border-white/30 hover:bg-white/70 hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
+                <div className="p-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 shadow-lg group-hover:shadow-xl transition-shadow duration-200 mb-3">
+                  <ShoppingCart className="h-6 w-6 text-white" />
+                </div>
+                <span className="text-sm font-semibold text-slate-900">
                   View Orders
                 </span>
               </button>
-              <button className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                <Star className="h-8 w-8 text-yellow-600 mb-2" />
-                <span className="text-sm font-medium text-gray-900">
+              <button className="group flex flex-col items-center p-6 bg-white/50 rounded-xl border border-white/30 hover:bg-white/70 hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
+                <div className="p-3 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 shadow-lg group-hover:shadow-xl transition-shadow duration-200 mb-3">
+                  <Star className="h-6 w-6 text-white" />
+                </div>
+                <span className="text-sm font-semibold text-slate-900">
                   Manage Reviews
                 </span>
               </button>
-              <button className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                <Users className="h-8 w-8 text-green-600 mb-2" />
-                <span className="text-sm font-medium text-gray-900">
+              <button className="group flex flex-col items-center p-6 bg-white/50 rounded-xl border border-white/30 hover:bg-white/70 hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
+                <div className="p-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 shadow-lg group-hover:shadow-xl transition-shadow duration-200 mb-3">
+                  <Users className="h-6 w-6 text-white" />
+                </div>
+                <span className="text-sm font-semibold text-slate-900">
                   View Customers
                 </span>
               </button>
