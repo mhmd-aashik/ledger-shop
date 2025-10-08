@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import EmptyCarouselState from "@/components/admin/EmptyCarouselState";
+import Image from "next/image";
 
 interface CarouselManagementProps {
   searchParams: Promise<{ action?: string }>;
@@ -12,9 +13,9 @@ export default async function CarouselManagement({
 
   try {
     // Fetch carousel items from the database
-    const carouselItems = await prisma.carouselItem.findMany({
+    const carouselItems = await prisma.carousel.findMany({
       orderBy: {
-        sortOrder: "asc",
+        createdAt: "desc",
       },
     });
 
@@ -45,14 +46,21 @@ export default async function CarouselManagement({
             >
               <div className="relative">
                 {item.image ? (
-                  <img
+                  <Image
                     src={item.image}
                     alt={item.title}
+                    width={400}
+                    height={192}
                     className="w-full h-48 object-cover"
                   />
                 ) : (
                   <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                    <div className="h-12 w-12 text-gray-400">🖼️</div>
+                    <div
+                      className="h-12 w-12 text-gray-400"
+                      aria-label="Image placeholder"
+                    >
+                      🖼️
+                    </div>
                   </div>
                 )}
                 <div className="absolute top-2 right-2">
@@ -66,21 +74,17 @@ export default async function CarouselManagement({
                     {item.isActive ? "Active" : "Inactive"}
                   </span>
                 </div>
-                <div className="absolute top-2 left-2">
-                  <span className="px-2 py-1 text-xs bg-white rounded-full border">
-                    #{item.sortOrder}
-                  </span>
-                </div>
               </div>
               <div className="p-4">
                 <h3 className="text-lg font-semibold text-gray-900">
                   {item.title}
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">{item.description}</p>
-                {item.buttonText && (
+                <p className="text-sm text-gray-600 mt-1">{item.subtitle}</p>
+                <p className="text-sm text-gray-500 mt-1">{item.description}</p>
+                {item.linkText && (
                   <div className="mt-2">
                     <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                      Button: {item.buttonText}
+                      Button: {item.linkText}
                     </span>
                   </div>
                 )}
@@ -89,7 +93,7 @@ export default async function CarouselManagement({
                     {new Date(item.createdAt).toLocaleDateString()}
                   </div>
                   <div className="text-xs text-gray-500">
-                    Link: {item.buttonLink || "None"}
+                    Link: {item.link || "None"}
                   </div>
                 </div>
               </div>

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import EmptyCustomersState from "@/components/admin/EmptyCustomersState";
+import Image from "next/image";
 
 interface CustomersManagementProps {
   searchParams: Promise<{ action?: string }>;
@@ -63,9 +64,11 @@ export default async function CustomersManagement({
               <div className="p-6">
                 <div className="flex items-center space-x-4">
                   {customer.image ? (
-                    <img
+                    <Image
                       src={customer.image}
                       alt={customer.name || "Customer"}
+                      width={48}
+                      height={48}
                       className="h-12 w-12 rounded-full object-cover"
                     />
                   ) : (

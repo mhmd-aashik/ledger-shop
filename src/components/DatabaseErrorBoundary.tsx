@@ -82,12 +82,12 @@ export default function DatabaseErrorBoundary({
             {isOnline ? (
               <>
                 <Wifi className="h-4 w-4 text-green-500" />
-                <span>You're online</span>
+                <span>You&apos;re online</span>
               </>
             ) : (
               <>
                 <WifiOff className="h-4 w-4 text-red-500" />
-                <span>You're offline</span>
+                <span>You&apos;re offline</span>
               </>
             )}
           </div>

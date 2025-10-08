@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { fallbackProducts } from "@/lib/fallback-data";
-import { withDatabaseConnection } from "@/lib/db-utils";
 
 // GET /api/public/products - Get all published products (public endpoint)
 export async function GET(request: NextRequest) {

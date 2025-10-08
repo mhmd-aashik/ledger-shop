@@ -9,6 +9,8 @@ interface EmptyReviewsStateProps {
 }
 
 export default function EmptyReviewsState({ action }: EmptyReviewsStateProps) {
+  // Suppress unused parameter warning
+  void action;
   const handleRetry = () => {
     if (typeof window !== "undefined") {
       window.location.reload();
@@ -25,9 +27,9 @@ export default function EmptyReviewsState({ action }: EmptyReviewsStateProps) {
           No reviews found
         </h3>
         <p className="text-muted-foreground mb-6">
-          We couldn't find any reviews in the database. This might be because
-          the database is temporarily unavailable or no reviews have been
-          submitted yet.
+          We couldn&apos;t find any reviews in the database. This might be
+          because the database is temporarily unavailable or no reviews have
+          been submitted yet.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button

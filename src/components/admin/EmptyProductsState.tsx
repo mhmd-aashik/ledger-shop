@@ -39,9 +39,9 @@ export default function EmptyProductsState({
           No products found
         </h3>
         <p className="text-muted-foreground mb-6">
-          We couldn't find any products in the database. This might be because
-          the database is temporarily unavailable or no products have been added
-          yet.
+          We couldn&apos;t find any products in the database. This might be
+          because the database is temporarily unavailable or no products have
+          been added yet.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link

@@ -11,6 +11,8 @@ interface EmptyCustomersStateProps {
 export default function EmptyCustomersState({
   action,
 }: EmptyCustomersStateProps) {
+  // Suppress unused parameter warning
+  void action;
   const handleRetry = () => {
     if (typeof window !== "undefined") {
       window.location.reload();
@@ -27,8 +29,8 @@ export default function EmptyCustomersState({
           No customers found
         </h3>
         <p className="text-muted-foreground mb-6">
-          We couldn't find any customers in the database. This might be because
-          the database is temporarily unavailable or no customers have
+          We couldn&apos;t find any customers in the database. This might be
+          because the database is temporarily unavailable or no customers have
           registered yet.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">

@@ -11,6 +11,8 @@ interface EmptyCategoriesStateProps {
 export default function EmptyCategoriesState({
   action,
 }: EmptyCategoriesStateProps) {
+  // Suppress unused parameter warning
+  void action;
   const handleRetry = () => {
     if (typeof window !== "undefined") {
       window.location.reload();
@@ -44,9 +46,9 @@ export default function EmptyCategoriesState({
               No categories found
             </h3>
             <p className="text-muted-foreground mb-6">
-              We couldn't find any categories in the database. This might be
-              because the database is temporarily unavailable or no categories
-              have been added yet.
+              We couldn&apos;t find any categories in the database. This might
+              be because the database is temporarily unavailable or no
+              categories have been added yet.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
@@ -80,9 +82,9 @@ export default function EmptyCategoriesState({
           No categories found
         </h3>
         <p className="text-muted-foreground mb-6">
-          We couldn't find any categories in the database. This might be because
-          the database is temporarily unavailable or no categories have been
-          added yet.
+          We couldn&apos;t find any categories in the database. This might be
+          because the database is temporarily unavailable or no categories have
+          been added yet.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link

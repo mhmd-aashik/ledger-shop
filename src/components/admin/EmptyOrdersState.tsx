@@ -9,6 +9,8 @@ interface EmptyOrdersStateProps {
 }
 
 export default function EmptyOrdersState({ action }: EmptyOrdersStateProps) {
+  // Suppress unused parameter warning
+  void action;
   const handleRetry = () => {
     if (typeof window !== "undefined") {
       window.location.reload();
@@ -25,8 +27,9 @@ export default function EmptyOrdersState({ action }: EmptyOrdersStateProps) {
           No orders found
         </h3>
         <p className="text-muted-foreground mb-6">
-          We couldn't find any orders in the database. This might be because the
-          database is temporarily unavailable or no orders have been placed yet.
+          We couldn&apos;t find any orders in the database. This might be
+          because the database is temporarily unavailable or no orders have been
+          placed yet.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button

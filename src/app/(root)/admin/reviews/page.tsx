@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import EmptyReviewsState from "@/components/admin/EmptyReviewsState";
+import Image from "next/image";
 
 interface ReviewsManagementProps {
   searchParams: Promise<{ action?: string }>;
@@ -24,7 +25,7 @@ export default async function ReviewsManagement({
         product: {
           select: {
             name: true,
-            image: true,
+            images: true,
           },
         },
       },
@@ -61,9 +62,11 @@ export default async function ReviewsManagement({
               <div className="p-6">
                 <div className="flex items-start space-x-4">
                   {review.user.image ? (
-                    <img
+                    <Image
                       src={review.user.image}
                       alt={review.user.name || "User"}
+                      width={40}
+                      height={40}
                       className="h-10 w-10 rounded-full object-cover"
                     />
                   ) : (

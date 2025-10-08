@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingBag, AlertCircle, RefreshCw, Package } from "lucide-react";
+import { ShoppingBag, RefreshCw, Package } from "lucide-react";
 import { useState, useEffect, useCallback, memo } from "react";
 import FavoriteButton from "@/components/FavoriteButton";
 import { toast } from "sonner";
@@ -10,7 +10,6 @@ import { addToCart } from "@/lib/actions/cart.action";
 import { Button } from "./ui/button";
 import { useSession } from "next-auth/react";
 import { Skeleton } from "./ui/skeleton";
-import { Alert, AlertDescription } from "./ui/alert";
 import EmptyState from "./EmptyState";
 
 interface Product {
@@ -139,8 +138,8 @@ function ProductGrid({
               No products available
             </h3>
             <p className="text-muted-foreground mb-6">
-              We're currently updating our collection. Please check back soon or
-              browse our other categories.
+              We&apos;re currently updating our collection. Please check back
+              soon or browse our other categories.
             </p>
             <Button
               variant="outline"

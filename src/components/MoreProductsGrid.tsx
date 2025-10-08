@@ -166,8 +166,8 @@ export default function MoreProductsGrid() {
               No products found
             </h3>
             <p className="text-muted-foreground mb-6">
-              We couldn't find any products matching your search. Try adjusting
-              your filters or browse our full collection.
+              We couldn&apos;t find any products matching your search. Try
+              adjusting your filters or browse our full collection.
             </p>
             <button
               onClick={() => window.location.reload()}
