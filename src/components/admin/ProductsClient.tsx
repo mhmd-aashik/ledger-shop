@@ -534,14 +534,14 @@ function ProductForm({
     slug: product?.slug || "",
     description: product?.description || "",
     shortDescription: product?.shortDescription || "",
-    price: product?.price || 0,
-    compareAtPrice: product?.compareAtPrice || 0,
-    costPrice: product?.costPrice || 0,
+    price: product?.price || "",
+    compareAtPrice: product?.compareAtPrice || "",
+    costPrice: product?.costPrice || "",
     categoryId: product?.categoryId || "",
     status: product?.status || "DRAFT",
     isActive: product?.isActive ?? true,
     isFeatured: product?.isFeatured ?? false,
-    quantity: product?.quantity || 0,
+    quantity: product?.quantity || "",
     lowStockThreshold: product?.lowStockThreshold || 5,
     sku: product?.sku || "",
     barcode: product?.barcode || "",
@@ -552,7 +552,7 @@ function ProductForm({
     features: product?.features || [],
     materials: product?.materials || [],
     dimensions: product?.dimensions || "",
-    weight: product?.weight || 0,
+    weight: product?.weight || "",
     metaTitle: product?.metaTitle || "",
     metaDescription: product?.metaDescription || "",
     trackQuantity: product?.trackQuantity ?? true,
@@ -699,7 +699,7 @@ function ProductForm({
           formData.description
         );
       case 2:
-        return formData.price > 0;
+        return formData.price && parseFloat(formData.price as string) > 0;
       case 3:
         return true; // Media is optional
       case 4:
@@ -888,7 +888,7 @@ function ProductForm({
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      price: parseFloat(e.target.value) || 0,
+                      price: e.target.value,
                     })
                   }
                   placeholder="0.00"
@@ -905,7 +905,7 @@ function ProductForm({
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      compareAtPrice: parseFloat(e.target.value) || 0,
+                      compareAtPrice: e.target.value,
                     })
                   }
                   placeholder="0.00"
@@ -921,7 +921,7 @@ function ProductForm({
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      costPrice: parseFloat(e.target.value) || 0,
+                      costPrice: e.target.value,
                     })
                   }
                   placeholder="0.00"
@@ -964,7 +964,7 @@ function ProductForm({
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      quantity: parseInt(e.target.value) || 0,
+                      quantity: e.target.value,
                     })
                   }
                   placeholder="0"
@@ -1062,7 +1062,11 @@ function ProductForm({
                     <div className="aspect-video bg-black rounded-lg overflow-hidden relative">
                       <video
                         src={formData.video}
-                        controls
+                        controls={false}
+                        autoPlay={true}
+                        muted={true}
+                        loop={true}
+                        playsInline={true}
                         className="w-full h-full object-cover"
                         onError={() => console.log("Video failed to load")}
                       >
@@ -1468,7 +1472,7 @@ function ProductForm({
             ) : (
               <Button
                 type="button"
-                onClick={() => onSave(formData)}
+                onClick={() => onSave(formData as Partial<Product>)}
                 disabled={saving}
                 className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
               >

@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import ProductFilters from "@/components/ProductFilters";
 import MoreProductsGrid from "@/components/MoreProductsGrid";
 import { ProductSuspense } from "@/components/SuspenseWrapper";
-import { Loading } from "@/components/Loading";
+import Loading from "@/components/Loading";
 
 export default function Products() {
   return (
