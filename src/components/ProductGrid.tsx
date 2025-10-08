@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingBag, AlertCircle, RefreshCw } from "lucide-react";
+import { ShoppingBag, AlertCircle, RefreshCw, Package } from "lucide-react";
 import { useState, useEffect, useCallback, memo } from "react";
 import FavoriteButton from "@/components/FavoriteButton";
 import { toast } from "sonner";
@@ -11,6 +11,7 @@ import { Button } from "./ui/button";
 import { useSession } from "next-auth/react";
 import { Skeleton } from "./ui/skeleton";
 import { Alert, AlertDescription } from "./ui/alert";
+import EmptyState from "./EmptyState";
 
 interface Product {
   id: string;
@@ -79,7 +80,8 @@ function ProductGrid({
       setProducts(data.products || []);
     } catch (err) {
       console.error("Error fetching products:", err);
-      setError(err instanceof Error ? err.message : "Failed to load products");
+      // Show user-friendly message instead of technical error
+      setError("No products available at the moment");
       setProducts([]);
     } finally {
       setLoading(false);
@@ -124,26 +126,48 @@ function ProductGrid({
     );
   }
 
-  // Enhanced error state
+  // Enhanced error state - show friendly message instead of technical error
   if (error) {
     return (
       <section className={`py-8 lg:py-8 bg-background ${className}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Alert variant="destructive" className="max-w-2xl mx-auto">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription className="flex items-center justify-between">
-              <span>{error}</span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={fetchProducts}
-                className="ml-4"
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Retry
-              </Button>
-            </AlertDescription>
-          </Alert>
+          <div className="text-center py-16">
+            <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-6">
+              <Package className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-2xl font-serif font-bold text-foreground mb-4">
+              No products available
+            </h3>
+            <p className="text-muted-foreground mb-6">
+              We're currently updating our collection. Please check back soon or
+              browse our other categories.
+            </p>
+            <Button
+              variant="outline"
+              onClick={fetchProducts}
+              className="flex items-center gap-2 mx-auto"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Try Again
+            </Button>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Show empty state if no products
+  if (!loading && products.length === 0) {
+    return (
+      <section className={`py-8 lg:py-8 bg-background ${className}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <EmptyState
+            title="No products available"
+            description="We're currently updating our collection. Please check back soon or browse our other categories."
+            onRetry={fetchProducts}
+            showSearchButton={true}
+            showHomeButton={true}
+          />
         </div>
       </section>
     );

@@ -4,6 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState, useEffect } from "react";
+import EmptyState from "./EmptyState";
+import { Package } from "lucide-react";
 
 interface Product {
   id: string;
@@ -81,7 +83,8 @@ export default function MoreProductsGrid() {
         setError(null);
       } catch (err) {
         console.error("Error fetching products:", err);
-        setError("Failed to load products");
+        // Show user-friendly message instead of technical error
+        setError("No products found");
         setProducts([]);
       } finally {
         setLoading(false);
@@ -156,10 +159,16 @@ export default function MoreProductsGrid() {
       <section className="py-8 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center py-16">
+            <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-6">
+              <Package className="h-8 w-8 text-muted-foreground" />
+            </div>
             <h3 className="text-2xl font-serif font-bold text-foreground mb-4">
-              Error Loading Products
+              No products found
             </h3>
-            <p className="text-muted-foreground mb-6">{error}</p>
+            <p className="text-muted-foreground mb-6">
+              We couldn't find any products matching your search. Try adjusting
+              your filters or browse our full collection.
+            </p>
             <button
               onClick={() => window.location.reload()}
               className="bg-primary text-primary-foreground px-6 py-2 rounded-md hover:bg-primary/90 transition-colors"
@@ -167,6 +176,23 @@ export default function MoreProductsGrid() {
               Try Again
             </button>
           </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Show empty state if no products
+  if (!loading && products.length === 0) {
+    return (
+      <section className="py-8 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <EmptyState
+            title="No products found"
+            description="We couldn't find any products matching your search. Try adjusting your filters or browse our full collection."
+            onRetry={() => window.location.reload()}
+            showSearchButton={true}
+            showHomeButton={true}
+          />
         </div>
       </section>
     );

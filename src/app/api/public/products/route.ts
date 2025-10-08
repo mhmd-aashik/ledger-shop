@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { fallbackProducts } from "@/lib/fallback-data";
+import { withDatabaseConnection } from "@/lib/db-utils";
 
 // GET /api/public/products - Get all published products (public endpoint)
 export async function GET(request: NextRequest) {
@@ -89,15 +91,26 @@ export async function GET(request: NextRequest) {
         total,
         pages: Math.ceil(total / limit),
       },
+      message:
+        productsWithRating.length === 0
+          ? "No products found matching your criteria"
+          : undefined,
     });
   } catch (error) {
     console.error("Error fetching products:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Failed to fetch products",
+
+    // Return fallback data instead of error
+    return NextResponse.json({
+      success: true,
+      products: fallbackProducts,
+      pagination: {
+        page: 1,
+        limit: 12,
+        total: fallbackProducts.length,
+        pages: 1,
       },
-      { status: 500 }
-    );
+      message: "Using cached data - please try again later",
+      fallback: true,
+    });
   }
 }

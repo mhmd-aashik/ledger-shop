@@ -8,9 +8,44 @@ export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
     log: ["query", "info", "warn", "error"],
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL,
+      },
+    },
+    // Add connection pooling and retry configuration
+    __internal: {
+      engine: {
+        connectTimeout: 60000, // 60 seconds
+        queryTimeout: 30000, // 30 seconds
+      },
+    },
   });
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
-// Lazy connection - only connect when actually used
-// This prevents Edge Runtime issues in middleware
+// Enhanced connection handling with retry logic
+export async function connectWithRetry(maxRetries = 3, delay = 1000) {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      await prisma.$connect();
+      return true;
+    } catch (error) {
+      console.error(`Connection attempt ${i + 1} failed:`, error);
+      if (i === maxRetries - 1) {
+        throw error;
+      }
+      await new Promise((resolve) => setTimeout(resolve, delay * (i + 1)));
+    }
+  }
+  return false;
+}
+
+// Graceful shutdown
+export async function disconnect() {
+  try {
+    await prisma.$disconnect();
+  } catch (error) {
+    console.error("Error disconnecting from database:", error);
+  }
+}

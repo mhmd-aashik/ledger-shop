@@ -1,7 +1,15 @@
 import { prisma } from "@/lib/prisma";
 import ProductsClient from "@/components/admin/ProductsClient";
+import EmptyProductsState from "@/components/admin/EmptyProductsState";
 
-export default async function ProductManagement() {
+interface ProductManagementProps {
+  searchParams: Promise<{ action?: string }>;
+}
+
+export default async function ProductManagement({
+  searchParams,
+}: ProductManagementProps) {
+  const { action } = await searchParams;
   try {
     // Fetch products and categories on the server
     const [products, categories] = await Promise.all([
@@ -68,21 +76,11 @@ export default async function ProductManagement() {
       <ProductsClient
         initialProducts={productsWithRating}
         initialCategories={categories}
+        action={action}
       />
     );
   } catch (error) {
     console.error("Error fetching products:", error);
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <h3 className="text-lg font-semibold text-red-600 mb-2">
-            Error Loading Products
-          </h3>
-          <p className="text-gray-600">
-            Failed to load products. Please try refreshing the page.
-          </p>
-        </div>
-      </div>
-    );
+    return <EmptyProductsState action={action} />;
   }
 }
