@@ -17,7 +17,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "LeadHer Shop - Authentication",
+  title: "Heritano - Authentication",
   description: "Sign in or sign up to access our premium leather collection.",
 };
 

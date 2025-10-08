@@ -221,6 +221,12 @@ export async function GET(request: NextRequest) {
           reviews: product._count.reviews,
           orders: 0,
         })),
+        // Dashboard data for empty state
+        totalRevenue: 0,
+        totalOrders: 0,
+        totalProducts,
+        totalCustomers,
+        recentOrders: [],
       });
     }
 
@@ -374,7 +380,28 @@ export async function GET(request: NextRequest) {
       })),
     };
 
-    return NextResponse.json(analytics);
+    // Also include dashboard-specific data
+    const dashboardData = {
+      totalRevenue: Number(totalRevenue._sum.totalAmount || 0),
+      totalOrders,
+      totalProducts,
+      totalCustomers,
+      recentOrders: recentOrders.map((order) => ({
+        id: order.orderNumber || order.id,
+        customerName: order.user
+          ? `${order.user.firstName || ""} ${order.user.lastName || ""}`.trim() ||
+            order.user.email
+          : "Unknown Customer",
+        totalAmount: Number(order.totalAmount),
+        status: order.status,
+        createdAt: order.createdAt.toISOString(),
+      })),
+    };
+
+    return NextResponse.json({
+      ...analytics,
+      ...dashboardData,
+    });
   } catch (error) {
     console.error("Analytics API error:", error);
     return NextResponse.json(

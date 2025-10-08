@@ -64,7 +64,7 @@ export async function sendOrderConfirmationEmail(orderData: OrderData) {
     const { data, error } = await resend.emails.send({
       from: "whatever@heritano.com",
       to: [recipientEmail],
-      subject: `Order Confirmation #${orderData.orderId} - LeadHer Shop`,
+      subject: `Order Confirmation #${orderData.orderId} - Heritano`,
       html: generateOrderConfirmationHTML(orderData),
     });
 
@@ -170,7 +170,7 @@ function generateOrderEmailHTML(orderData: OrderData): string {
         </div>
 
         <div class="footer">
-          <p>This is an automated notification from LeadHer Shop</p>
+          <p>This is an automated notification from Heritano</p>
           <p>Please process this order and contact the customer for payment confirmation.</p>
         </div>
       </div>
@@ -257,7 +257,7 @@ function generateOrderConfirmationHTML(orderData: OrderData): string {
         </div>
 
         <div class="footer">
-          <p>Thank you for choosing LeadHer Shop!</p>
+          <p>Thank you for choosing Heritano!</p>
           <p>We'll be in touch soon with payment and delivery details.</p>
         </div>
       </div>
@@ -278,7 +278,7 @@ export async function sendPasswordResetEmail(data: PasswordResetData) {
     const { data: emailData, error } = await resend.emails.send({
       from: "noreply@heritano.com",
       to: [data.email],
-      subject: "Reset Your Password - LeadHer Shop",
+      subject: "Reset Your Password - Heritano",
       html: generatePasswordResetHTML(data.name, resetUrl),
     });
 
@@ -314,7 +314,7 @@ export async function sendMagicLinkEmail(data: MagicLinkData) {
     const { data: emailData, error } = await resend.emails.send({
       from: "noreply@heritano.com",
       to: [data.email],
-      subject: "Your Magic Link - LeadHer Shop",
+      subject: "Your Magic Link - Heritano",
       html: generateMagicLinkHTML(data.name, magicUrl),
     });
 
@@ -360,19 +360,19 @@ function generatePasswordResetHTML(name: string, resetUrl: string): string {
     <body>
       <div class="container">
         <div class="header">
-          <h1>LeadHer Shop</h1>
+          <h1>Heritano</h1>
         </div>
         <div class="content">
           <h2>Reset Your Password</h2>
           <p>Hello ${name},</p>
-          <p>We received a request to reset your password for your LeadHer Shop account.</p>
+          <p>We received a request to reset your password for your Heritano account.</p>
           <p>Click the button below to reset your password:</p>
           <a href="${resetUrl}" class="button">Reset Password</a>
           <p>This link will expire in 1 hour for security reasons.</p>
           <p>If you didn't request this password reset, please ignore this email.</p>
         </div>
         <div class="footer">
-          <p>Thank you for choosing LeadHer Shop!</p>
+          <p>Thank you for choosing Heritano!</p>
         </div>
       </div>
     </body>
@@ -402,18 +402,18 @@ function generateMagicLinkHTML(name: string, magicUrl: string): string {
     <body>
       <div class="container">
         <div class="header">
-          <h1>LeadHer Shop</h1>
+          <h1>Heritano</h1>
         </div>
         <div class="content">
           <h2>Your Magic Link</h2>
           <p>Hello ${name},</p>
-          <p>Click the button below to sign in to your LeadHer Shop account:</p>
+          <p>Click the button below to sign in to your Heritano account:</p>
           <a href="${magicUrl}" class="button">Sign In</a>
           <p>This link will expire in 15 minutes for security reasons.</p>
           <p>If you didn't request this magic link, please ignore this email.</p>
         </div>
         <div class="footer">
-          <p>Thank you for choosing LeadHer Shop!</p>
+          <p>Thank you for choosing Heritano!</p>
         </div>
       </div>
     </body>

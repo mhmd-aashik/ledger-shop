@@ -34,7 +34,7 @@ import {
 export default function SettingsPage() {
   const [settings, setSettings] = useState({
     // Store Settings
-    storeName: "LeadHer Shop",
+    storeName: "Heritano",
     storeDescription:
       "Handcrafted luxury leather goods for the modern professional",
     storeEmail: "hello@leadhershop.com",
@@ -52,7 +52,7 @@ export default function SettingsPage() {
     smtpPort: "587",
     smtpUsername: "noreply@leadhershop.com",
     smtpPassword: "••••••••",
-    emailFrom: "LeadHer Shop <noreply@leadhershop.com>",
+    emailFrom: "Heritano <noreply@leadhershop.com>",
 
     // Payment Settings
     stripePublishableKey: "pk_test_••••••••",
@@ -73,7 +73,7 @@ export default function SettingsPage() {
     faviconUrl: "/favicon.ico",
 
     // SEO Settings
-    metaTitle: "LeadHer Shop - Luxury Leather Goods",
+    metaTitle: "Heritano - Luxury Leather Goods",
     metaDescription:
       "Handcrafted luxury leather wallets, cardholders, and accessories. Premium quality, timeless elegance.",
     googleAnalyticsId: "GA-••••••••",

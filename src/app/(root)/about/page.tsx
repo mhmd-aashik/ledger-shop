@@ -8,7 +8,7 @@ export default function About() {
         <div className="absolute inset-0">
           <Image
             src="/assets/images/leather1.jpg"
-            alt="About LeadHer Shop"
+            alt="About Heritano"
             fill
             className="object-cover"
           />
@@ -37,10 +37,10 @@ export default function About() {
                 Our Mission
               </h2>
               <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-                At LeadHer Shop, we believe that luxury is not just about the
-                final product, but about the journey of creation. Each piece in
-                our collection is handcrafted by master artisans who have
-                dedicated their lives to perfecting the art of leather work.
+                At Heritano, we believe that luxury is not just about the final
+                product, but about the journey of creation. Each piece in our
+                collection is handcrafted by master artisans who have dedicated
+                their lives to perfecting the art of leather work.
               </p>
               <p className="text-lg text-muted-foreground leading-relaxed">
                 We source only the finest Italian leather and use traditional

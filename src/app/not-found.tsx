@@ -15,13 +15,13 @@ export default function NotFound() {
             <Link href="/" className="flex items-center space-x-2">
               <Image
                 src="/assets/logos/logo.png"
-                alt="LeadHer Shop"
+                alt="Heritano"
                 width={40}
                 height={40}
                 className="w-8 h-8 lg:w-10 lg:h-10"
               />
               <span className="text-xl lg:text-2xl font-serif font-bold text-foreground">
-                LeadHer Shop
+                Heritano
               </span>
             </Link>
 
@@ -249,13 +249,13 @@ export default function NotFound() {
               <div className="flex items-center space-x-2">
                 <Image
                   src="/assets/logos/logo.png"
-                  alt="LeadHer Shop"
+                  alt="Heritano"
                   width={32}
                   height={32}
                   className="w-8 h-8"
                 />
                 <span className="text-lg font-serif font-bold text-foreground">
-                  LeadHer Shop
+                  Heritano
                 </span>
               </div>
               <p className="text-sm text-muted-foreground">
@@ -359,8 +359,8 @@ export default function NotFound() {
 
           <div className="border-t border-border mt-8 pt-8 text-center">
             <p className="text-sm text-muted-foreground">
-              © 2024 LeadHer Shop. All rights reserved. Crafted with ❤️ for
-              leather enthusiasts.
+              © 2024 Heritano. All rights reserved. Crafted with ❤️ for leather
+              enthusiasts.
             </p>
           </div>
         </div>

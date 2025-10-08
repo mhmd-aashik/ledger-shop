@@ -5,8 +5,8 @@ import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminHeader from "@/components/admin/AdminHeader";
 
 export const metadata: Metadata = {
-  title: "Admin Dashboard - LeadHer Shop",
-  description: "Admin panel for managing LeadHer Shop e-commerce platform",
+  title: "Admin Dashboard - Heritano",
+  description: "Admin panel for managing Heritano e-commerce platform",
 };
 
 export default function AdminLayout({

@@ -20,7 +20,12 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "10");
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: {
+      productId?: string;
+      userId?: string;
+      rating?: number;
+      isPublic?: boolean;
+    } = {};
 
     if (productId) {
       where.productId = productId;
@@ -105,7 +110,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { productId, rating, title, comment, isPublic } = validation.data;
+    const { productId, rating, title, comment, isPublic } =
+      validation.data || {};
+
+    // Ensure required fields are present
+    if (!productId || !rating) {
+      return NextResponse.json(
+        { error: "Product ID and rating are required" },
+        { status: 400 }
+      );
+    }
 
     // Check if user already reviewed this product
     const existingReview = await prisma.review.findUnique({

@@ -74,7 +74,7 @@ export async function PUT(
       );
     }
 
-    const { rating, title, comment, isPublic } = validation.data;
+    const { rating, title, comment, isPublic } = validation.data || {};
 
     // Check if review exists and user owns it
     const existingReview = await prisma.review.findUnique({

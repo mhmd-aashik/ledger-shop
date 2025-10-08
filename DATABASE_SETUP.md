@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide explains how to set up database integration with Clerk authentication for the LeadHer Shop application.
+This guide explains how to set up database integration with Clerk authentication for the Heritano application.
 
 ## What's Been Set Up
 

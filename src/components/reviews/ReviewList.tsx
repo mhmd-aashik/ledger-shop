@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Star, User, Calendar } from "lucide-react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
@@ -37,43 +37,46 @@ export default function ReviewList({
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
 
-  const fetchReviews = async (pageNum: number = 1, append: boolean = false) => {
-    try {
-      if (pageNum === 1) {
-        setLoading(true);
-      } else {
-        setLoadingMore(true);
+  const fetchReviews = useCallback(
+    async (pageNum: number = 1, append: boolean = false) => {
+      try {
+        if (pageNum === 1) {
+          setLoading(true);
+        } else {
+          setLoadingMore(true);
+        }
+
+        const response = await fetch(
+          `/api/public/reviews?productId=${productId}&page=${pageNum}&limit=${limit}`
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch reviews");
+        }
+
+        const data = await response.json();
+        const newReviews = data.reviews || [];
+
+        if (append) {
+          setReviews((prev) => [...prev, ...newReviews]);
+        } else {
+          setReviews(newReviews);
+        }
+
+        setHasMore(newReviews.length === limit);
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
       }
-
-      const response = await fetch(
-        `/api/public/reviews?productId=${productId}&page=${pageNum}&limit=${limit}`
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch reviews");
-      }
-
-      const data = await response.json();
-      const newReviews = data.reviews || [];
-
-      if (append) {
-        setReviews((prev) => [...prev, ...newReviews]);
-      } else {
-        setReviews(newReviews);
-      }
-
-      setHasMore(newReviews.length === limit);
-    } catch (error) {
-      console.error("Error fetching reviews:", error);
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  };
+    },
+    [productId, limit]
+  );
 
   useEffect(() => {
     fetchReviews();
-  }, [productId, limit]);
+  }, [productId, limit, fetchReviews]);
 
   const handleLoadMore = () => {
     const nextPage = page + 1;
