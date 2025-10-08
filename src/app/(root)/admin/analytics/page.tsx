@@ -254,6 +254,116 @@ export default function AnalyticsDashboard() {
     );
   }
 
+  // Handle case where analytics data exists but might be empty
+  if (
+    analytics.overview.totalOrders === 0 &&
+    analytics.overview.totalRevenue === 0
+  ) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Analytics Dashboard
+            </h1>
+            <p className="text-gray-600">
+              Track your store&apos;s performance and insights
+            </p>
+            <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
+              <p className="text-sm text-blue-800">
+                📊 No orders found yet. Analytics will populate once customers
+                start placing orders.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-4">
+            <select
+              value={period}
+              onChange={(e) => setPeriod(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="7">Last 7 days</option>
+              <option value="30">Last 30 days</option>
+              <option value="90">Last 90 days</option>
+              <option value="365">Last year</option>
+            </select>
+            <button
+              onClick={refreshAnalytics}
+              className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+              title="Refresh data"
+            >
+              <RefreshCw className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Show basic stats even with no orders */}
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">
+                Total Revenue
+              </CardTitle>
+              <DollarSign className="h-4 w-4 text-gray-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-gray-900">$0</div>
+              <div className="flex items-center text-xs text-gray-500">
+                <span className="text-gray-400">No data available</span>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">
+                Total Orders
+              </CardTitle>
+              <ShoppingCart className="h-4 w-4 text-gray-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-gray-900">0</div>
+              <div className="flex items-center text-xs text-gray-500">
+                <span className="text-gray-400">No data available</span>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">
+                Active Customers
+              </CardTitle>
+              <Users className="h-4 w-4 text-gray-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-gray-900">
+                {analytics.overview.totalCustomers}
+              </div>
+              <div className="flex items-center text-xs text-gray-500">
+                <span className="text-gray-400">Registered users</span>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">
+                Total Products
+              </CardTitle>
+              <Package className="h-4 w-4 text-gray-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-gray-900">
+                {analytics.overview.totalProducts}
+              </div>
+              <div className="flex items-center text-xs text-gray-500">
+                <span className="text-gray-400">Available products</span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   const stats = [
     {
       title: "Total Revenue",

@@ -307,7 +307,7 @@ export async function GET(request: NextRequest) {
       type: "order",
       message: `New order #${order.orderNumber} from ${order.customerName}`,
       time: formatTimeAgo(order.createdAt),
-      amount: order.totalAmount,
+      amount: Number(order.totalAmount),
       status: order.status,
     }));
 
@@ -340,11 +340,21 @@ export async function GET(request: NextRequest) {
       topProducts: formattedTopProducts,
       recentActivity,
       orderStatusDistribution: formattedOrderStatus,
-      revenueByMonth: revenueByMonth as Array<{ month: Date; revenue: number }>,
-      customerGrowth: customerGrowth as Array<{
-        month: Date;
-        new_customers: number;
-      }>,
+      revenueByMonth: (
+        revenueByMonth as Array<{ month: Date; revenue: number }>
+      ).map((item) => ({
+        month: item.month.toISOString(),
+        revenue: Number(item.revenue),
+      })),
+      customerGrowth: (
+        customerGrowth as Array<{
+          month: Date;
+          new_customers: number;
+        }>
+      ).map((item) => ({
+        month: item.month.toISOString(),
+        new_customers: Number(item.new_customers),
+      })),
       productPerformance: productPerformance.map((product) => ({
         id: product.id,
         name: product.name,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import {
   Card,
@@ -29,6 +29,7 @@ import {
   Star,
   Calendar,
   MoreHorizontal,
+  RefreshCw,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -59,75 +60,45 @@ interface Customer {
 }
 
 export default function CustomerManagement() {
-  const [customers] = useState<Customer[]>([
-    {
-      id: "1",
-      name: "Sarah Johnson",
-      email: "sarah.johnson@email.com",
-      phone: "+1 (555) 123-4567",
-      avatar: "/assets/images/leather1.jpg",
-      totalOrders: 5,
-      totalSpent: 1250.0,
-      averageRating: 4.8,
-      lastOrderDate: "2024-01-15",
-      joinDate: "2023-12-01",
-      status: "active",
-      address: {
-        street: "123 Main St",
-        city: "New York",
-        state: "NY",
-        zipCode: "10001",
-        country: "USA",
-      },
-    },
-    {
-      id: "2",
-      name: "Mike Chen",
-      email: "mike.chen@email.com",
-      phone: "+1 (555) 987-6543",
-      totalOrders: 3,
-      totalSpent: 450.5,
-      averageRating: 4.6,
-      lastOrderDate: "2024-01-14",
-      joinDate: "2024-01-01",
-      status: "active",
-    },
-    {
-      id: "3",
-      name: "Emily Davis",
-      email: "emily.davis@email.com",
-      totalOrders: 1,
-      totalSpent: 89.99,
-      averageRating: 3.0,
-      lastOrderDate: "2024-01-13",
-      joinDate: "2024-01-10",
-      status: "active",
-    },
-    {
-      id: "4",
-      name: "David Wilson",
-      email: "david.wilson@email.com",
-      phone: "+1 (555) 456-7890",
-      totalOrders: 8,
-      totalSpent: 2100.0,
-      averageRating: 4.9,
-      lastOrderDate: "2024-01-12",
-      joinDate: "2023-10-15",
-      status: "active",
-    },
-    {
-      id: "5",
-      name: "Lisa Anderson",
-      email: "lisa.anderson@email.com",
-      totalOrders: 0,
-      totalSpent: 0,
-      averageRating: 0,
-      joinDate: "2024-01-16",
-      status: "inactive",
-    },
-  ]);
-
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  // Handle hydration
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    fetchCustomers();
+  }, [mounted]);
+
+  const fetchCustomers = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch("/api/customers");
+
+      if (response.ok) {
+        const data = await response.json();
+        setCustomers(data);
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to fetch customers:", errorData);
+        setError("Failed to load customers data");
+        setCustomers([]);
+      }
+    } catch (error) {
+      console.error("Error fetching customers:", error);
+      setError("Network error. Please try again.");
+      setCustomers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredCustomers = customers.filter(
     (customer) =>
@@ -164,13 +135,81 @@ export default function CustomerManagement() {
     );
   };
 
+  // Show loading state until mounted to prevent hydration mismatch
+  if (!mounted || loading) {
+    return (
+      <div className="space-y-6" suppressHydrationWarning>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Customer Management
+            </h1>
+            <p className="text-gray-600">Loading customer data...</p>
+          </div>
+          <RefreshCw className="h-6 w-6 animate-spin text-gray-400" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-6">
+                <div className="h-8 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Customer Management
+            </h1>
+            <p className="text-gray-600">Failed to load customer data</p>
+          </div>
+          <button
+            onClick={fetchCustomers}
+            className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+            title="Refresh data"
+          >
+            <RefreshCw className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-sm text-red-800">{error}</p>
+          <button
+            onClick={fetchCustomers}
+            className="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">
-          Customer Management
-        </h1>
-        <p className="text-gray-600">View and manage your customers</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Customer Management
+          </h1>
+          <p className="text-gray-600">View and manage your customers</p>
+        </div>
+        <button
+          onClick={fetchCustomers}
+          className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+          title="Refresh data"
+        >
+          <RefreshCw className="h-5 w-5" />
+        </button>
       </div>
 
       {/* Customer Stats */}

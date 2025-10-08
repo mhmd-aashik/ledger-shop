@@ -1,12 +1,12 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 
-interface AnalyticsEvent {
-  event: string;
-  properties?: Record<string, string | number | boolean>;
-}
+type AnalyticsProperties = Record<
+  string,
+  string | number | boolean | object | Array<object>
+>;
 
 export function useAnalytics() {
   const { data: session } = useSession();
@@ -17,10 +17,7 @@ export function useAnalytics() {
   }, []);
 
   const track = useCallback(
-    async (
-      event: string,
-      properties?: Record<string, string | number | boolean>
-    ) => {
+    async (event: string, properties?: AnalyticsProperties) => {
       try {
         // Only track on client side
         if (!mounted || typeof window === "undefined") return;
@@ -51,7 +48,7 @@ export function useAnalytics() {
         console.error("Analytics tracking error:", error);
       }
     },
-    [session?.user?.id]
+    [mounted, session?.user?.id]
   );
 
   const trackPageView = useCallback(
