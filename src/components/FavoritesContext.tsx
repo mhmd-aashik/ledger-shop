@@ -39,6 +39,13 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
       if (result.success && result.favorites) {
         const favoriteIds = new Set(result.favorites.map((fav) => fav.id));
         setFavoritedProductIds(favoriteIds);
+
+        // Dispatch event to update favorites count in CountProvider
+        window.dispatchEvent(
+          new CustomEvent("favoritesCountUpdated", {
+            detail: { count: result.favorites.length },
+          })
+        );
       }
     } catch (error) {
       console.error("Error refreshing favorites:", error);

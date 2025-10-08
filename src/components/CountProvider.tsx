@@ -81,25 +81,7 @@ export function CountProvider({
   useEffect(() => {
     if (!isHydrated || typeof window === "undefined") return;
 
-    let favoritesTimeoutId: NodeJS.Timeout;
     let cartTimeoutId: NodeJS.Timeout;
-
-    const debouncedFavoritesRefresh = () => {
-      clearTimeout(favoritesTimeoutId);
-      favoritesTimeoutId = setTimeout(async () => {
-        if (!isRefreshing) {
-          try {
-            const result = await getFavoriteProducts();
-            if (result.success) {
-              const newFavoritesCount = result.favorites?.length || 0;
-              setFavoritesCount(newFavoritesCount);
-            }
-          } catch (error) {
-            console.error("Error refreshing favorites count:", error);
-          }
-        }
-      }, 500); // Faster response for favorites
-    };
 
     const debouncedCartRefresh = () => {
       clearTimeout(cartTimeoutId);
@@ -118,21 +100,28 @@ export function CountProvider({
       }, 500); // Faster response for cart
     };
 
-    const handleFavoritesUpdate = () => {
-      debouncedFavoritesRefresh();
-    };
-
     const handleCartUpdate = () => {
       debouncedCartRefresh();
     };
 
-    window.addEventListener("favoritesUpdated", handleFavoritesUpdate);
+    const handleFavoritesCountUpdate = (event: CustomEvent) => {
+      const count = event.detail?.count || 0;
+      setFavoritesCount(count);
+    };
+
+    // Listen to cart updates and favorites count updates
     window.addEventListener("cartUpdated", handleCartUpdate);
+    window.addEventListener(
+      "favoritesCountUpdated",
+      handleFavoritesCountUpdate as EventListener
+    );
 
     return () => {
-      window.removeEventListener("favoritesUpdated", handleFavoritesUpdate);
       window.removeEventListener("cartUpdated", handleCartUpdate);
-      clearTimeout(favoritesTimeoutId);
+      window.removeEventListener(
+        "favoritesCountUpdated",
+        handleFavoritesCountUpdate as EventListener
+      );
       clearTimeout(cartTimeoutId);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
