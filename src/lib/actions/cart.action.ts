@@ -29,18 +29,9 @@ export async function getCartItems() {
       return { success: false, error: "No authenticated user" };
     }
 
-    // Get user from database
-    const dbUser = await prisma.user.findUnique({
-      where: { id: session.user.id },
-    });
-
-    if (!dbUser) {
-      return { success: false, error: "User not found" };
-    }
-
-    // Get cart items with product details
+    // Get cart items with product details in a single query
     const cartItems = await prisma.cart.findMany({
-      where: { userId: dbUser.id },
+      where: { userId: session.user.id },
       include: {
         product: {
           include: {
@@ -83,58 +74,26 @@ export async function addToCart(productId: string, quantity: number = 1) {
       return { success: false, error: "No authenticated user" };
     }
 
-    // Get user from database
-    const dbUser = await prisma.user.findUnique({
-      where: { id: session.user.id },
-    });
-
-    if (!dbUser) {
-      return { success: false, error: "User not found" };
-    }
-
-    // Check if product exists
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
-    });
-
-    if (!product) {
-      return { success: false, error: "Product not found" };
-    }
-
-    // Check if item already exists in cart
-    const existingCartItem = await prisma.cart.findUnique({
+    // Use upsert to handle both insert and update in one operation
+    await prisma.cart.upsert({
       where: {
         userId_productId: {
-          userId: dbUser.id,
+          userId: session.user.id,
           productId: productId,
         },
       },
+      update: {
+        quantity: {
+          increment: quantity,
+        },
+        updatedAt: new Date(),
+      },
+      create: {
+        userId: session.user.id,
+        productId: productId,
+        quantity: quantity,
+      },
     });
-
-    if (existingCartItem) {
-      // Update quantity if item already exists
-      await prisma.cart.update({
-        where: {
-          userId_productId: {
-            userId: dbUser.id,
-            productId: productId,
-          },
-        },
-        data: {
-          quantity: existingCartItem.quantity + quantity,
-          updatedAt: new Date(),
-        },
-      });
-    } else {
-      // Add new item to cart
-      await prisma.cart.create({
-        data: {
-          userId: dbUser.id,
-          productId: productId,
-          quantity: quantity,
-        },
-      });
-    }
 
     revalidatePath("/cart");
     return { success: true };
@@ -155,20 +114,11 @@ export async function removeFromCart(productId: string) {
       return { success: false, error: "No authenticated user" };
     }
 
-    // Get user from database
-    const dbUser = await prisma.user.findUnique({
-      where: { id: session.user.id },
-    });
-
-    if (!dbUser) {
-      return { success: false, error: "User not found" };
-    }
-
     // Remove item from cart
     await prisma.cart.delete({
       where: {
         userId_productId: {
-          userId: dbUser.id,
+          userId: session.user.id,
           productId: productId,
         },
       },
@@ -196,21 +146,12 @@ export async function updateCartItemQuantity(
       return { success: false, error: "No authenticated user" };
     }
 
-    // Get user from database
-    const dbUser = await prisma.user.findUnique({
-      where: { id: session.user.id },
-    });
-
-    if (!dbUser) {
-      return { success: false, error: "User not found" };
-    }
-
     if (quantity <= 0) {
       // Remove item if quantity is 0 or negative
       await prisma.cart.delete({
         where: {
           userId_productId: {
-            userId: dbUser.id,
+            userId: session.user.id,
             productId: productId,
           },
         },
@@ -220,7 +161,7 @@ export async function updateCartItemQuantity(
       await prisma.cart.update({
         where: {
           userId_productId: {
-            userId: dbUser.id,
+            userId: session.user.id,
             productId: productId,
           },
         },
@@ -250,18 +191,9 @@ export async function clearCart() {
       return { success: false, error: "No authenticated user" };
     }
 
-    // Get user from database
-    const dbUser = await prisma.user.findUnique({
-      where: { id: session.user.id },
-    });
-
-    if (!dbUser) {
-      return { success: false, error: "User not found" };
-    }
-
     // Clear all cart items for user
     await prisma.cart.deleteMany({
-      where: { userId: dbUser.id },
+      where: { userId: session.user.id },
     });
 
     revalidatePath("/cart");

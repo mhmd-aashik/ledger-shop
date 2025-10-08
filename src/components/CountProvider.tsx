@@ -44,15 +44,17 @@ export function CountProvider({
 
     setIsRefreshing(true);
     try {
-      // Load cart items
-      const cartResult = await getCartItems();
+      // Load cart items and favorites in parallel
+      const [cartResult, favoritesResult] = await Promise.all([
+        getCartItems(),
+        getFavoriteProducts(),
+      ]);
+
       if (cartResult.success) {
         const newCartCount = cartResult.items?.length || 0;
         setCartCount(newCartCount);
       }
 
-      // Load favorites count using server action
-      const favoritesResult = await getFavoriteProducts();
       if (favoritesResult.success) {
         const newFavoritesCount = favoritesResult.favorites?.length || 0;
         setFavoritesCount(newFavoritesCount);
@@ -68,21 +70,26 @@ export function CountProvider({
   // Handle hydration
   useEffect(() => {
     setIsHydrated(true);
-    // Refresh counts after hydration to ensure they're up to date
-    refreshCounts();
+    // Only refresh counts once after hydration if no initial counts provided
+    if (initialCartCount === 0 && initialFavoritesCount === 0) {
+      refreshCounts();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Remove refreshCounts dependency to prevent infinite loop
+  }, [initialCartCount, initialFavoritesCount]); // Remove refreshCounts dependency
 
   // Listen for custom events to update counts with debouncing
   useEffect(() => {
+    if (!isHydrated) return;
+
     let timeoutId: NodeJS.Timeout;
-    let intervalId: NodeJS.Timeout;
 
     const debouncedRefresh = () => {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
-        refreshCounts();
-      }, 100); // Debounce by 100ms
+        if (!isRefreshing) {
+          refreshCounts();
+        }
+      }, 1000); // Increased debounce to 1 second to reduce calls
     };
 
     const handleFavoritesUpdate = () => {
@@ -93,13 +100,6 @@ export function CountProvider({
       debouncedRefresh();
     };
 
-    // Set up periodic refresh every 5 minutes to keep counts in sync (reduced frequency)
-    if (isHydrated) {
-      intervalId = setInterval(() => {
-        refreshCounts();
-      }, 300000); // Refresh every 5 minutes instead of 30 seconds
-    }
-
     window.addEventListener("favoritesUpdated", handleFavoritesUpdate);
     window.addEventListener("cartUpdated", handleCartUpdate);
 
@@ -107,12 +107,9 @@ export function CountProvider({
       window.removeEventListener("favoritesUpdated", handleFavoritesUpdate);
       window.removeEventListener("cartUpdated", handleCartUpdate);
       clearTimeout(timeoutId);
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isHydrated]); // Remove refreshCounts dependency to prevent infinite loop
+  }, [isHydrated, isRefreshing]); // Remove refreshCounts dependency
 
   const contextValue = useMemo(
     () => ({

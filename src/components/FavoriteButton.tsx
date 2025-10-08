@@ -7,9 +7,9 @@ import { toast } from "sonner";
 import {
   addToFavorites,
   removeFromFavorites,
-  isProductFavorited,
 } from "@/lib/actions/favorite.action";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useFavorites } from "./FavoritesContext";
 
 interface FavoriteButtonProps {
   product: {
@@ -35,19 +35,11 @@ export default function FavoriteButton({
   className,
   showText = false,
 }: FavoriteButtonProps) {
-  const [isFavorited, setIsFavorited] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { isProductFavorited, refreshFavorites } = useFavorites();
 
-  // Check if product is favorited on mount
-  useEffect(() => {
-    const checkFavoriteStatus = async () => {
-      const result = await isProductFavorited(product.id);
-      if (result.success) {
-        setIsFavorited(result.isFavorited);
-      }
-    };
-    checkFavoriteStatus();
-  }, [product.id]);
+  // Get favorite status from context
+  const isFavorited = isProductFavorited(product.id);
 
   const handleToggle = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -61,8 +53,9 @@ export default function FavoriteButton({
       if (isFavorited) {
         const result = await removeFromFavorites(product.id);
         if (result.success) {
-          setIsFavorited(false);
           toast.success("Removed from favorites");
+          // Refresh favorites context
+          await refreshFavorites();
           // Dispatch custom event to update header count
           window.dispatchEvent(new CustomEvent("favoritesUpdated"));
         } else {
@@ -71,8 +64,9 @@ export default function FavoriteButton({
       } else {
         const result = await addToFavorites(product.id);
         if (result.success) {
-          setIsFavorited(true);
           toast.success("Added to favorites");
+          // Refresh favorites context
+          await refreshFavorites();
           // Dispatch custom event to update header count
           window.dispatchEvent(new CustomEvent("favoritesUpdated"));
         } else {
