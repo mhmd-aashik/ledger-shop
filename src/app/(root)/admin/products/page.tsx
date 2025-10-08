@@ -322,112 +322,124 @@ export default function ProductManagement() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Product</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Stock</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredProducts.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell>
-                    <div className="flex items-center space-x-3">
-                      <Image
-                        src={product.images[0] || "/placeholder-product.jpg"}
-                        alt={product.name}
-                        width={48}
-                        height={48}
-                        className="h-12 w-12 rounded-lg object-cover"
-                      />
-                      <div>
-                        <div className="font-medium">{product.name}</div>
-                        <div className="text-sm text-gray-500">
-                          {product.sku && `SKU: ${product.sku}`}
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Product</TableHead>
+                  <TableHead className="hidden sm:table-cell">
+                    Category
+                  </TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead className="hidden md:table-cell">Stock</TableHead>
+                  <TableHead className="hidden lg:table-cell">Status</TableHead>
+                  <TableHead className="hidden lg:table-cell">Rating</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredProducts.map((product) => (
+                  <TableRow key={product.id}>
+                    <TableCell>
+                      <div className="flex items-center space-x-3">
+                        <Image
+                          src={product.images[0] || "/placeholder-product.jpg"}
+                          alt={product.name}
+                          width={48}
+                          height={48}
+                          className="h-12 w-12 rounded-lg object-cover"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="font-medium truncate">
+                            {product.name}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {product.sku && `SKU: ${product.sku}`}
+                          </div>
+                          <div className="sm:hidden text-xs text-gray-400 mt-1">
+                            {product.category?.name &&
+                              `Category: ${product.category.name}`}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>{product.category?.name || "-"}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-col">
-                      <span className="font-medium">${product.price}</span>
-                      {product.compareAtPrice && (
-                        <span className="text-sm text-gray-500 line-through">
-                          ${product.compareAtPrice}
-                        </span>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      <span>{product.quantity}</span>
-                      {product.trackQuantity &&
-                        product.quantity <= product.lowStockThreshold && (
-                          <Badge variant="destructive" className="text-xs">
-                            Low Stock
-                          </Badge>
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                      {product.category?.name || "-"}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span className="font-medium">${product.price}</span>
+                        {product.compareAtPrice && (
+                          <span className="text-sm text-gray-500 line-through">
+                            ${product.compareAtPrice}
+                          </span>
                         )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        product.status === "PUBLISHED"
-                          ? "default"
-                          : product.status === "DRAFT"
-                            ? "secondary"
-                            : "outline"
-                      }
-                    >
-                      {product.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-1">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm">
-                        {product.rating?.toFixed(1) || "0.0"}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        ({product.reviewCount})
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => handleEditProduct(product)}
-                        >
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleDeleteProduct(product.id)}
-                          className="text-red-600"
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <div className="flex items-center space-x-2">
+                        <span>{product.quantity}</span>
+                        {product.trackQuantity &&
+                          product.quantity <= product.lowStockThreshold && (
+                            <Badge variant="destructive" className="text-xs">
+                              Low Stock
+                            </Badge>
+                          )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden lg:table-cell">
+                      <Badge
+                        variant={
+                          product.status === "PUBLISHED"
+                            ? "default"
+                            : product.status === "DRAFT"
+                              ? "secondary"
+                              : "outline"
+                        }
+                      >
+                        {product.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="hidden lg:table-cell">
+                      <div className="flex items-center space-x-1">
+                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        <span className="text-sm">
+                          {product.rating?.toFixed(1) || "0.0"}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          ({product.reviewCount})
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => handleEditProduct(product)}
+                          >
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteProduct(product.id)}
+                            className="text-red-600"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>
@@ -684,12 +696,12 @@ function ProductForm({
   return (
     <div className="space-y-6">
       {/* Step Progress */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 space-y-4 sm:space-y-0">
+        <div className="flex items-center space-x-2 sm:space-x-4 overflow-x-auto w-full sm:w-auto">
           {Array.from({ length: totalSteps }, (_, i) => i + 1).map((step) => (
-            <div key={step} className="flex items-center">
+            <div key={step} className="flex items-center flex-shrink-0">
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium ${
                   step <= currentStep
                     ? "bg-blue-600 text-white"
                     : "bg-gray-200 text-gray-600"
@@ -699,7 +711,7 @@ function ProductForm({
               </div>
               {step < totalSteps && (
                 <div
-                  className={`w-12 h-1 mx-2 ${
+                  className={`w-6 sm:w-12 h-1 mx-1 sm:mx-2 ${
                     step < currentStep ? "bg-blue-600" : "bg-gray-200"
                   }`}
                 />
@@ -707,7 +719,7 @@ function ProductForm({
             </div>
           ))}
         </div>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-gray-500 flex-shrink-0">
           Step {currentStep} of {totalSteps}
         </div>
       </div>
@@ -726,7 +738,7 @@ function ProductForm({
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="name">Product Name *</Label>
                 <Input
@@ -818,7 +830,7 @@ function ProductForm({
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="price">Price *</Label>
                 <Input
@@ -870,7 +882,7 @@ function ProductForm({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="quantity">Initial Quantity</Label>
                 <Input
@@ -1006,7 +1018,7 @@ function ProductForm({
 
                 {/* Image Preview */}
                 {formData.images.length > 0 && (
-                  <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {formData.images.map((image, index) => (
                       <div key={index} className="relative group">
                         <Image
@@ -1101,7 +1113,7 @@ function ProductForm({
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="sku">SKU</Label>
                 <Input
@@ -1126,7 +1138,7 @@ function ProductForm({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="weight">Weight (kg)</Label>
                 <Input
@@ -1290,18 +1302,24 @@ function ProductForm({
         )}
 
         {/* Navigation Buttons */}
-        <div className="flex justify-between pt-6 border-t">
+        <div className="flex flex-col sm:flex-row justify-between pt-6 border-t space-y-3 sm:space-y-0">
           <Button
             type="button"
             variant="outline"
             onClick={prevStep}
             disabled={currentStep === 1}
+            className="w-full sm:w-auto"
           >
             Previous
           </Button>
 
-          <div className="flex space-x-2">
-            <Button type="button" variant="outline" onClick={onCancel}>
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+              className="w-full sm:w-auto"
+            >
               Cancel
             </Button>
 
@@ -1310,6 +1328,7 @@ function ProductForm({
                 type="button"
                 onClick={nextStep}
                 disabled={!isStepValid(currentStep)}
+                className="w-full sm:w-auto"
               >
                 Next
               </Button>
@@ -1317,6 +1336,7 @@ function ProductForm({
               <Button
                 type="submit"
                 disabled={saving || !isStepValid(currentStep)}
+                className="w-full sm:w-auto"
               >
                 {saving ? (
                   <>
