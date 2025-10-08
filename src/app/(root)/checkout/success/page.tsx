@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle, ArrowLeft, ShoppingBag, Mail } from "lucide-react";
-import Header from "@/components/Header";
+import HeaderServerSafe from "@/components/HeaderServerSafe";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Suspense } from "react";
@@ -14,7 +14,7 @@ function CheckoutSuccessContent() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <HeaderServerSafe />
 
       <main className="pt-16 lg:pt-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -121,7 +121,7 @@ export default function CheckoutSuccess() {
     <Suspense
       fallback={
         <div className="min-h-screen bg-background">
-          <Header />
+          <HeaderServerSafe />
           <main className="pt-16 lg:pt-20">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
               <div className="text-center">
