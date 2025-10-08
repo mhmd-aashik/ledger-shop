@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
   try {
+    console.log("Analytics API called");
     const session = await auth();
 
     if (!session?.user) {
@@ -15,6 +16,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const period = searchParams.get("period") || "30"; // days
+    console.log("Analytics API - Period:", period);
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - parseInt(period));
 
@@ -188,6 +190,39 @@ export async function GET(request: NextRequest) {
         take: 20,
       }),
     ]);
+
+    // Handle case where there's no data
+    if (totalOrders === 0) {
+      return NextResponse.json({
+        overview: {
+          totalRevenue: 0,
+          totalOrders: 0,
+          totalCustomers,
+          totalProducts,
+          averageOrderValue: 0,
+          conversionRate: 0,
+          revenueChange: 0,
+          ordersChange: 0,
+          customersChange: 0,
+        },
+        topProducts: [],
+        recentActivity: [],
+        orderStatusDistribution: [],
+        revenueByMonth: [],
+        customerGrowth: [],
+        productPerformance: productPerformance.map((product) => ({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          thumbnail: product.thumbnail,
+          totalSales: 0,
+          totalRevenue: 0,
+          favorites: product._count.favorites,
+          reviews: product._count.reviews,
+          orders: 0,
+        })),
+      });
+    }
 
     // Get product details for top products
     const topProductIds = topProducts.map((p) => p.productId);

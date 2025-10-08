@@ -46,32 +46,28 @@ export default function HeaderClient() {
   }, []);
 
   useEffect(() => {
+    if (!isMounted) return;
+
     let timeoutId: NodeJS.Timeout;
 
     const handleScroll = () => {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
-        if (typeof window !== "undefined") {
-          const scrolled = window.scrollY > 10;
-          if (scrolled !== isScrolled) {
-            setIsScrolled(scrolled);
-          }
+        const scrolled = window.scrollY > 10;
+        if (scrolled !== isScrolled) {
+          setIsScrolled(scrolled);
         }
       }, 10); // Debounce scroll events
     };
 
-    if (typeof window !== "undefined") {
-      window.addEventListener("scroll", handleScroll, { passive: true });
-    }
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
-      if (typeof window !== "undefined") {
-        window.removeEventListener("scroll", handleScroll);
-      }
+      window.removeEventListener("scroll", handleScroll);
       clearTimeout(timeoutId);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Remove isScrolled dependency to prevent infinite loop
+  }, [isMounted]); // Only run after mounted
 
   const navigation = [
     { name: "Home", href: "/", icon: Sparkles },

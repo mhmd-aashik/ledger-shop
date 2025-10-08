@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import {
   Card,
   CardContent,
@@ -14,7 +15,6 @@ import {
   ShoppingCart,
   Users,
   Star,
-  Eye,
   Package,
   ArrowUpRight,
   ArrowDownRight,
@@ -95,25 +95,79 @@ export default function AnalyticsDashboard() {
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState("30");
   const [exporting, setExporting] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const isFetchingRef = useRef(false);
 
-  const fetchAnalytics = async () => {
+  // Handle hydration
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
+    if (isFetchingRef.current) {
+      console.log("Already fetching analytics, skipping...");
+      return;
+    }
+
+    const fetchAnalytics = async () => {
+      try {
+        isFetchingRef.current = true;
+        setLoading(true);
+        console.log("Fetching analytics for period:", period);
+        const response = await fetch(`/api/analytics?period=${period}`);
+
+        if (response.ok) {
+          const data = await response.json();
+          setAnalytics(data);
+          console.log("Analytics data loaded successfully");
+        } else {
+          const errorData = await response.json();
+          console.error("Analytics API error:", errorData);
+          setAnalytics(null);
+        }
+      } catch (error) {
+        console.error("Failed to fetch analytics:", error);
+        setAnalytics(null);
+      } finally {
+        setLoading(false);
+        isFetchingRef.current = false;
+      }
+    };
+
+    fetchAnalytics();
+  }, [period, mounted]);
+
+  const refreshAnalytics = async () => {
+    if (isFetchingRef.current) {
+      console.log("Already fetching analytics, skipping...");
+      return;
+    }
+
     try {
+      isFetchingRef.current = true;
       setLoading(true);
+      console.log("Refreshing analytics for period:", period);
       const response = await fetch(`/api/analytics?period=${period}`);
+
       if (response.ok) {
         const data = await response.json();
         setAnalytics(data);
+        console.log("Analytics data refreshed successfully");
+      } else {
+        const errorData = await response.json();
+        console.error("Analytics API error:", errorData);
+        setAnalytics(null);
       }
     } catch (error) {
-      console.error("Failed to fetch analytics:", error);
+      console.error("Failed to refresh analytics:", error);
+      setAnalytics(null);
     } finally {
       setLoading(false);
+      isFetchingRef.current = false;
     }
   };
-
-  useEffect(() => {
-    fetchAnalytics();
-  }, [period]);
 
   const handleExport = async (format: "csv" | "json") => {
     try {
@@ -142,9 +196,10 @@ export default function AnalyticsDashboard() {
     }
   };
 
-  if (loading) {
+  // Show loading state until mounted to prevent hydration mismatch
+  if (!mounted || loading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6" suppressHydrationWarning>
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
@@ -179,6 +234,21 @@ export default function AnalyticsDashboard() {
             Analytics Dashboard
           </h1>
           <p className="text-gray-600">Failed to load analytics data</p>
+          <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+            <p className="text-sm text-yellow-800">This could be due to:</p>
+            <ul className="mt-2 text-sm text-yellow-700 list-disc list-inside">
+              <li>No orders found in the database</li>
+              <li>No products or customers data</li>
+              <li>Authentication issues</li>
+              <li>Database connection problems</li>
+            </ul>
+            <button
+              onClick={refreshAnalytics}
+              className="mt-3 px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -217,7 +287,7 @@ export default function AnalyticsDashboard() {
     },
     {
       title: "Average Order Value",
-      value: `$${analytics.overview.averageOrderValue.toFixed(2)}`,
+      value: `$${Number(analytics.overview.averageOrderValue).toFixed(2)}`,
       change: "+5.4%", // This would need to be calculated from historical data
       changeType: "positive" as const,
       icon: TrendingUp,
@@ -259,6 +329,14 @@ export default function AnalyticsDashboard() {
           <p className="text-gray-600">
             Track your store&apos;s performance and insights
           </p>
+          {analytics.overview.totalOrders === 0 && (
+            <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
+              <p className="text-sm text-blue-800">
+                📊 No orders found yet. Analytics will populate once customers
+                start placing orders.
+              </p>
+            </div>
+          )}
         </div>
         <div className="flex items-center space-x-4">
           <select
@@ -272,7 +350,7 @@ export default function AnalyticsDashboard() {
             <option value="365">Last year</option>
           </select>
           <button
-            onClick={fetchAnalytics}
+            onClick={refreshAnalytics}
             className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
             title="Refresh data"
           >
@@ -497,7 +575,7 @@ export default function AnalyticsDashboard() {
                     <p className="text-xs text-gray-500">{activity.time}</p>
                     {activity.amount && (
                       <p className="text-xs text-green-600 font-medium">
-                        ${activity.amount.toFixed(2)}
+                        ${Number(activity.amount).toFixed(2)}
                       </p>
                     )}
                   </div>
@@ -536,9 +614,11 @@ export default function AnalyticsDashboard() {
                     <td className="py-2">
                       <div className="flex items-center space-x-3">
                         {product.thumbnail && (
-                          <img
+                          <Image
                             src={product.thumbnail}
                             alt={product.name}
+                            width={32}
+                            height={32}
                             className="w-8 h-8 rounded object-cover"
                           />
                         )}
@@ -546,11 +626,11 @@ export default function AnalyticsDashboard() {
                       </div>
                     </td>
                     <td className="text-right py-2">
-                      ${product.price.toFixed(2)}
+                      ${Number(product.price).toFixed(2)}
                     </td>
                     <td className="text-right py-2">{product.totalSales}</td>
                     <td className="text-right py-2">
-                      ${product.totalRevenue.toFixed(2)}
+                      ${Number(product.totalRevenue).toFixed(2)}
                     </td>
                     <td className="text-right py-2">{product.orders}</td>
                     <td className="text-right py-2">{product.favorites}</td>

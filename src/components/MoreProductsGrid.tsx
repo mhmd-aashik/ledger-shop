@@ -43,9 +43,16 @@ export default function MoreProductsGrid() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Fetch products from database
   useEffect(() => {
+    if (!mounted) return;
+
     const fetchProducts = async () => {
       try {
         setLoading(true);
@@ -82,7 +89,7 @@ export default function MoreProductsGrid() {
     };
 
     fetchProducts();
-  }, [searchParams]);
+  }, [searchParams, mounted]);
 
   // Filter and sort products based on search params
   const filteredProducts = useMemo(() => {
@@ -131,7 +138,7 @@ export default function MoreProductsGrid() {
     return filtered;
   }, [searchParams, products]);
 
-  if (loading) {
+  if (!mounted || loading) {
     return (
       <section className="py-8 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

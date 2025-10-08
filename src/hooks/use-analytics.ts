@@ -10,6 +10,11 @@ interface AnalyticsEvent {
 
 export function useAnalytics() {
   const { data: session } = useSession();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const track = useCallback(
     async (
@@ -17,6 +22,9 @@ export function useAnalytics() {
       properties?: Record<string, string | number | boolean>
     ) => {
       try {
+        // Only track on client side
+        if (!mounted || typeof window === "undefined") return;
+
         const sessionId =
           sessionStorage.getItem("sessionId") || generateSessionId();
         if (!sessionStorage.getItem("sessionId")) {
@@ -32,7 +40,7 @@ export function useAnalytics() {
             event,
             properties: {
               ...properties,
-              url: window.location.href,
+              url: typeof window !== "undefined" ? window.location.href : "",
               timestamp: new Date().toISOString(),
             },
             userId: session?.user?.id,
@@ -48,16 +56,20 @@ export function useAnalytics() {
 
   const trackPageView = useCallback(
     (page: string) => {
-      track("page_view", { page });
+      if (mounted) {
+        track("page_view", { page });
+      }
     },
-    [track]
+    [track, mounted]
   );
 
   const trackProductView = useCallback(
     (productId: string, productName: string) => {
-      track("product_view", { productId, productName });
+      if (mounted) {
+        track("product_view", { productId, productName });
+      }
     },
-    [track]
+    [track, mounted]
   );
 
   const trackAddToCart = useCallback(
@@ -67,16 +79,20 @@ export function useAnalytics() {
       price: number,
       quantity: number = 1
     ) => {
-      track("add_to_cart", { productId, productName, price, quantity });
+      if (mounted) {
+        track("add_to_cart", { productId, productName, price, quantity });
+      }
     },
-    [track]
+    [track, mounted]
   );
 
   const trackRemoveFromCart = useCallback(
     (productId: string, productName: string) => {
-      track("remove_from_cart", { productId, productName });
+      if (mounted) {
+        track("remove_from_cart", { productId, productName });
+      }
     },
-    [track]
+    [track, mounted]
   );
 
   const trackPurchase = useCallback(
@@ -85,53 +101,67 @@ export function useAnalytics() {
       total: number,
       items: { id: string; name: string; price: number; quantity: number }[]
     ) => {
-      track("purchase", { orderId, total, items });
+      if (mounted) {
+        track("purchase", { orderId, total, items });
+      }
     },
-    [track]
+    [track, mounted]
   );
 
   const trackSearch = useCallback(
     (query: string, results: number) => {
-      track("search", { query, results });
+      if (mounted) {
+        track("search", { query, results });
+      }
     },
-    [track]
+    [track, mounted]
   );
 
   const trackFilter = useCallback(
     (
       filters: Record<string, string | number | string[] | number[] | undefined>
     ) => {
-      track("filter", { filters });
+      if (mounted) {
+        track("filter", { filters });
+      }
     },
-    [track]
+    [track, mounted]
   );
 
   const trackFavorite = useCallback(
     (productId: string, productName: string, action: "add" | "remove") => {
-      track("favorite", { productId, productName, action });
+      if (mounted) {
+        track("favorite", { productId, productName, action });
+      }
     },
-    [track]
+    [track, mounted]
   );
 
   const trackReview = useCallback(
     (productId: string, rating: number) => {
-      track("review", { productId, rating });
+      if (mounted) {
+        track("review", { productId, rating });
+      }
     },
-    [track]
+    [track, mounted]
   );
 
   const trackContact = useCallback(
     (formType: string) => {
-      track("contact", { formType });
+      if (mounted) {
+        track("contact", { formType });
+      }
     },
-    [track]
+    [track, mounted]
   );
 
   const trackNewsletter = useCallback(
     (action: "subscribe" | "unsubscribe") => {
-      track("newsletter", { action });
+      if (mounted) {
+        track("newsletter", { action });
+      }
     },
-    [track]
+    [track, mounted]
   );
 
   return {
@@ -151,6 +181,10 @@ export function useAnalytics() {
 }
 
 function generateSessionId(): string {
+  // Only generate on client side to prevent hydration mismatch
+  if (typeof window === "undefined") {
+    return "temp_session_id";
+  }
   return (
     "session_" + Math.random().toString(36).substr(2, 9) + "_" + Date.now()
   );

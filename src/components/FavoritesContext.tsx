@@ -58,6 +58,8 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
 
   // Listen for favorites updates
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const handleFavoritesUpdate = () => {
       refreshFavorites();
     };

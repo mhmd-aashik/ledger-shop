@@ -79,7 +79,7 @@ export function CountProvider({
 
   // Listen for custom events to update counts with debouncing
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!isHydrated || typeof window === "undefined") return;
 
     let timeoutId: NodeJS.Timeout;
 

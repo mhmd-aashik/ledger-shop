@@ -31,17 +31,26 @@ export default function ProductFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { trackSearch, trackFilter } = useAnalytics();
+  const [mounted, setMounted] = useState(false);
 
-  const [search, setSearch] = useState(searchParams.get("search") || "");
-  const [category, setCategory] = useState(
-    searchParams.get("category") || "All"
-  );
-  const [gender, setGender] = useState(searchParams.get("gender") || "All");
-  const [sortBy, setSortBy] = useState(searchParams.get("sort") || "default");
-  const [priceRange, setPriceRange] = useState([
-    parseInt(searchParams.get("minPrice") || "0") || 0,
-    parseInt(searchParams.get("maxPrice") || "2000") || 2000,
-  ]);
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("All");
+  const [gender, setGender] = useState("All");
+  const [sortBy, setSortBy] = useState("default");
+  const [priceRange, setPriceRange] = useState([0, 2000]);
+
+  // Initialize state from search params after mounting
+  useEffect(() => {
+    setMounted(true);
+    setSearch(searchParams.get("search") || "");
+    setCategory(searchParams.get("category") || "All");
+    setGender(searchParams.get("gender") || "All");
+    setSortBy(searchParams.get("sort") || "default");
+    setPriceRange([
+      parseInt(searchParams.get("minPrice") || "0") || 0,
+      parseInt(searchParams.get("maxPrice") || "2000") || 2000,
+    ]);
+  }, [searchParams]);
 
   // Debounced search
   const [debouncedSearch, setDebouncedSearch] = useState(search);
