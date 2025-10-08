@@ -88,6 +88,10 @@ export async function GET(request: NextRequest) {
         total,
         pages: Math.ceil(total / limit),
       },
+      message:
+        productsWithRating.length === 0
+          ? "No products found matching your criteria"
+          : undefined,
     });
   } catch (error) {
     console.error("Error fetching products:", error);

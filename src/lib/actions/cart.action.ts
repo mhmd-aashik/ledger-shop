@@ -2,6 +2,7 @@
 
 import { auth } from "@/lib/auth";
 import { prisma } from "../prisma";
+import { withDatabaseConnection, getDatabaseErrorMessage } from "../db-utils";
 
 export interface CartItem {
   id: string;
@@ -28,37 +29,56 @@ export async function getCartItems() {
       return { success: false, error: "No authenticated user" };
     }
 
-    // Get cart items with product details in a single query
-    const cartItems = await prisma.cart.findMany({
-      where: { userId: session.user.id },
-      include: {
-        product: {
+    const result = await withDatabaseConnection(
+      async () => {
+        // Get cart items with product details in a single query
+        const cartItems = await prisma.cart.findMany({
+          where: { userId: session.user.id },
           include: {
-            category: true,
+            product: {
+              include: {
+                category: true,
+              },
+            },
           },
-        },
+        });
+
+        // Transform to CartItem format
+        const items: CartItem[] = cartItems.map((item) => ({
+          id: item.productId,
+          productId: item.productId,
+          quantity: item.quantity,
+          name: item.product.name,
+          price: Number(item.product.price),
+          image: item.product.images[0] || "/placeholder.jpg",
+          slug: item.product.slug,
+          category: item.product.category.name,
+          color: "Default", // You might want to add color to your product model
+          rating: Number(item.product.rating) || 0,
+          reviewCount: item.product.reviewCount,
+        }));
+
+        return items;
       },
-    });
+      [] // Fallback to empty array
+    );
 
-    // Transform to CartItem format
-    const items: CartItem[] = cartItems.map((item) => ({
-      id: item.productId,
-      productId: item.productId,
-      quantity: item.quantity,
-      name: item.product.name,
-      price: Number(item.product.price),
-      image: item.product.images[0] || "/placeholder.jpg",
-      slug: item.product.slug,
-      category: item.product.category.name,
-      color: "Default", // You might want to add color to your product model
-      rating: Number(item.product.rating) || 0,
-      reviewCount: item.product.reviewCount,
-    }));
+    if (!result.success) {
+      return {
+        success: false,
+        error: result.error || "Failed to get cart items",
+        items: result.data || [],
+      };
+    }
 
-    return { success: true, items };
+    return { success: true, items: result.data || [] };
   } catch (error) {
     console.error("Error getting cart items:", error);
-    return { success: false, error: "Failed to get cart items" };
+    return {
+      success: false,
+      error: getDatabaseErrorMessage(error),
+      items: [],
+    };
   }
 }
 
@@ -73,42 +93,54 @@ export async function addToCart(productId: string, quantity: number = 1) {
       return { success: false, error: "No authenticated user" };
     }
 
-    // Check if product exists first
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
-    });
+    const result = await withDatabaseConnection(async () => {
+      // Check if product exists first
+      const product = await prisma.product.findUnique({
+        where: { id: productId },
+      });
 
-    if (!product) {
-      return { success: false, error: "Product not found" };
-    }
+      if (!product) {
+        throw new Error("Product not found");
+      }
 
-    // Use upsert to handle both insert and update in one operation
-    await prisma.cart.upsert({
-      where: {
-        userId_productId: {
+      // Use upsert to handle both insert and update in one operation
+      await prisma.cart.upsert({
+        where: {
+          userId_productId: {
+            userId: session.user.id,
+            productId: productId,
+          },
+        },
+        update: {
+          quantity: {
+            increment: quantity,
+          },
+          updatedAt: new Date(),
+        },
+        create: {
           userId: session.user.id,
           productId: productId,
+          quantity: quantity,
         },
-      },
-      update: {
-        quantity: {
-          increment: quantity,
-        },
-        updatedAt: new Date(),
-      },
-      create: {
-        userId: session.user.id,
-        productId: productId,
-        quantity: quantity,
-      },
+      });
+
+      return true;
     });
 
-    // Note: We don't need revalidatePath here since we're using client-side state management
-    // The cart count will be updated via the custom event dispatched in the component
+    if (!result.success) {
+      return {
+        success: false,
+        error: result.error || "Failed to add to cart",
+      };
+    }
+
     return { success: true };
   } catch (error) {
     console.error("Error adding to cart:", error);
-    return { success: false, error: "Failed to add to cart" };
+    return {
+      success: false,
+      error: getDatabaseErrorMessage(error),
+    };
   }
 }
 

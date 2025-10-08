@@ -104,11 +104,13 @@ interface Category {
 interface ProductsClientProps {
   initialProducts: Product[];
   initialCategories: Category[];
+  action?: string;
 }
 
 export default function ProductsClient({
   initialProducts,
   initialCategories,
+  action,
 }: ProductsClientProps) {
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [categories, setCategories] = useState<Category[]>(initialCategories);
@@ -128,6 +130,13 @@ export default function ProductsClient({
   useEffect(() => {
     setCategories(initialCategories);
   }, [initialCategories]);
+
+  // Check for action=create prop and open modal
+  useEffect(() => {
+    if (action === "create") {
+      setIsDialogOpen(true);
+    }
+  }, [action]);
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
@@ -369,140 +378,171 @@ export default function ProductsClient({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredProducts.map((product) => (
-                  <TableRow
-                    key={product.id}
-                    className="border-white/30 hover:bg-white/50 transition-colors duration-200"
-                  >
-                    <TableCell>
-                      <div className="flex items-center space-x-4">
-                        <div className="relative">
-                          <Image
-                            src={
-                              product.images[0] || "/placeholder-product.jpg"
-                            }
-                            alt={product.name}
-                            width={56}
-                            height={56}
-                            className="h-14 w-14 rounded-xl object-cover shadow-md"
-                          />
-                          {product.isFeatured && (
-                            <div className="absolute -top-1 -right-1 h-5 w-5 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
-                              <Star className="h-3 w-3 text-white fill-white" />
-                            </div>
-                          )}
+                {filteredProducts.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-12">
+                      <div className="flex flex-col items-center justify-center space-y-4">
+                        <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center">
+                          <Package className="h-8 w-8 text-muted-foreground" />
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="font-semibold text-slate-900 truncate">
-                            {product.name}
-                          </div>
-                          <div className="text-sm text-slate-500">
-                            {product.sku && `SKU: ${product.sku}`}
-                          </div>
-                          <div className="sm:hidden text-xs text-slate-400 mt-1">
-                            {product.category?.name &&
-                              `Category: ${product.category.name}`}
-                          </div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
-                        {product.category?.name || "-"}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col">
-                        <span className="font-bold text-slate-900 text-lg">
-                          ${product.price}
-                        </span>
-                        {product.compareAtPrice && (
-                          <span className="text-sm text-slate-500 line-through">
-                            ${product.compareAtPrice}
-                          </span>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <div className="flex items-center space-x-2">
-                        <span className="font-semibold text-slate-900">
-                          {product.quantity}
-                        </span>
-                        {product.trackQuantity &&
-                          product.quantity <= product.lowStockThreshold && (
-                            <Badge
-                              variant="destructive"
-                              className="text-xs bg-red-100 text-red-800"
+                        <div>
+                          <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                            No products found
+                          </h3>
+                          <p className="text-slate-600 mb-4">
+                            {products.length === 0
+                              ? "Get started by adding your first product to your store."
+                              : "No products match your current filters. Try adjusting your search or status filter."}
+                          </p>
+                          {products.length === 0 && (
+                            <Button
+                              onClick={handleAddProduct}
+                              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-2 rounded-md hover:bg-primary/90 transition-colors"
                             >
-                              Low Stock
-                            </Badge>
+                              <Plus className="h-4 w-4" />
+                              Add Your First Product
+                            </Button>
                           )}
+                        </div>
                       </div>
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell">
-                      <Badge
-                        variant={
-                          product.status === "PUBLISHED"
-                            ? "default"
-                            : product.status === "DRAFT"
-                              ? "secondary"
-                              : "outline"
-                        }
-                        className={`${
-                          product.status === "PUBLISHED"
-                            ? "bg-green-100 text-green-800"
-                            : product.status === "DRAFT"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-slate-100 text-slate-800"
-                        }`}
-                      >
-                        {product.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell">
-                      <div className="flex items-center space-x-1">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm font-semibold text-slate-900">
-                          {product.rating?.toFixed(1) || "0.0"}
-                        </span>
-                        <span className="text-xs text-slate-500">
-                          ({product.reviewCount})
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="h-9 w-9 p-0 rounded-xl hover:bg-white/60 transition-colors"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                          align="end"
-                          className="bg-white/95 backdrop-blur-md border border-white/30 shadow-xl rounded-xl"
-                        >
-                          <DropdownMenuItem
-                            onClick={() => handleEditProduct(product)}
-                            className="hover:bg-slate-50 transition-colors"
-                          >
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleDeleteProduct(product.id)}
-                            className="text-red-600 hover:bg-red-50 transition-colors"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  filteredProducts.map((product) => (
+                    <TableRow
+                      key={product.id}
+                      className="border-white/30 hover:bg-white/50 transition-colors duration-200"
+                    >
+                      <TableCell>
+                        <div className="flex items-center space-x-4">
+                          <div className="relative">
+                            <Image
+                              src={
+                                product.images[0] || "/placeholder-product.jpg"
+                              }
+                              alt={product.name}
+                              width={56}
+                              height={56}
+                              className="h-14 w-14 rounded-xl object-cover shadow-md"
+                            />
+                            {product.isFeatured && (
+                              <div className="absolute -top-1 -right-1 h-5 w-5 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
+                                <Star className="h-3 w-3 text-white fill-white" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="font-semibold text-slate-900 truncate">
+                              {product.name}
+                            </div>
+                            <div className="text-sm text-slate-500">
+                              {product.sku && `SKU: ${product.sku}`}
+                            </div>
+                            <div className="sm:hidden text-xs text-slate-400 mt-1">
+                              {product.category?.name &&
+                                `Category: ${product.category.name}`}
+                            </div>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
+                          {product.category?.name || "-"}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="font-bold text-slate-900 text-lg">
+                            ${product.price}
+                          </span>
+                          {product.compareAtPrice && (
+                            <span className="text-sm text-slate-500 line-through">
+                              ${product.compareAtPrice}
+                            </span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <div className="flex items-center space-x-2">
+                          <span className="font-semibold text-slate-900">
+                            {product.quantity}
+                          </span>
+                          {product.trackQuantity &&
+                            product.quantity <= product.lowStockThreshold && (
+                              <Badge
+                                variant="destructive"
+                                className="text-xs bg-red-100 text-red-800"
+                              >
+                                Low Stock
+                              </Badge>
+                            )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        <Badge
+                          variant={
+                            product.status === "PUBLISHED"
+                              ? "default"
+                              : product.status === "DRAFT"
+                                ? "secondary"
+                                : "outline"
+                          }
+                          className={`${
+                            product.status === "PUBLISHED"
+                              ? "bg-green-100 text-green-800"
+                              : product.status === "DRAFT"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-slate-100 text-slate-800"
+                          }`}
+                        >
+                          {product.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        <div className="flex items-center space-x-1">
+                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                          <span className="text-sm font-semibold text-slate-900">
+                            {product.rating?.toFixed(1) || "0.0"}
+                          </span>
+                          <span className="text-xs text-slate-500">
+                            ({product.reviewCount})
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className="h-9 w-9 p-0 rounded-xl hover:bg-white/60 transition-colors"
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent
+                            align="end"
+                            className="bg-white/95 backdrop-blur-md border border-white/30 shadow-xl rounded-xl"
+                          >
+                            <DropdownMenuItem
+                              onClick={() => handleEditProduct(product)}
+                              className="hover:bg-slate-50 transition-colors"
+                            >
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleDeleteProduct(product.id)}
+                              className="text-red-600 hover:bg-red-50 transition-colors"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>
