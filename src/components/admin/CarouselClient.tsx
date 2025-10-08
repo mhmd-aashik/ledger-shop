@@ -83,6 +83,7 @@ export default function CarouselClient({
     null
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     subtitle: "",
@@ -115,6 +116,46 @@ export default function CarouselClient({
       linkText: "",
       isActive: true,
     });
+  };
+
+  // Handle image upload
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/carousel/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Upload failed");
+      }
+
+      const result = await response.json();
+
+      setFormData((prev) => ({
+        ...prev,
+        image: result.url,
+      }));
+
+      toast.success("Image uploaded successfully");
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to upload image"
+      );
+    } finally {
+      setUploading(false);
+    }
   };
 
   // Handle create slide
@@ -453,15 +494,54 @@ export default function CarouselClient({
               />
             </div>
             <div>
-              <Label htmlFor="image">Image URL *</Label>
-              <Input
-                id="image"
-                value={formData.image}
-                onChange={(e) =>
-                  setFormData({ ...formData, image: e.target.value })
-                }
-                placeholder="Enter image URL"
-              />
+              <Label htmlFor="image">Image *</Label>
+              <div className="mt-2">
+                <input
+                  type="file"
+                  id="image"
+                  accept="image/jpeg,image/jpg,image/png,image/webp"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => document.getElementById("image")?.click()}
+                  disabled={uploading}
+                  className="flex items-center space-x-2"
+                >
+                  {uploading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <ImageIcon className="h-4 w-4" />
+                  )}
+                  <span>{uploading ? "Uploading..." : "Upload Image"}</span>
+                </Button>
+              </div>
+
+              {formData.image && (
+                <div className="mt-4">
+                  <div className="relative w-32 h-32">
+                    <Image
+                      src={formData.image}
+                      alt="Carousel preview"
+                      fill
+                      className="object-cover rounded-lg border"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() =>
+                        setFormData((prev) => ({ ...prev, image: "" }))
+                      }
+                      className="absolute top-1 right-1"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
             <div>
               <Label htmlFor="link">Link (optional)</Label>
@@ -559,15 +639,54 @@ export default function CarouselClient({
               />
             </div>
             <div>
-              <Label htmlFor="edit-image">Image URL *</Label>
-              <Input
-                id="edit-image"
-                value={formData.image}
-                onChange={(e) =>
-                  setFormData({ ...formData, image: e.target.value })
-                }
-                placeholder="Enter image URL"
-              />
+              <Label htmlFor="edit-image">Image *</Label>
+              <div className="mt-2">
+                <input
+                  type="file"
+                  id="edit-image"
+                  accept="image/jpeg,image/jpg,image/png,image/webp"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => document.getElementById("edit-image")?.click()}
+                  disabled={uploading}
+                  className="flex items-center space-x-2"
+                >
+                  {uploading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <ImageIcon className="h-4 w-4" />
+                  )}
+                  <span>{uploading ? "Uploading..." : "Upload Image"}</span>
+                </Button>
+              </div>
+
+              {formData.image && (
+                <div className="mt-4">
+                  <div className="relative w-32 h-32">
+                    <Image
+                      src={formData.image}
+                      alt="Carousel preview"
+                      fill
+                      className="object-cover rounded-lg border"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() =>
+                        setFormData((prev) => ({ ...prev, image: "" }))
+                      }
+                      className="absolute top-1 right-1"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
             <div>
               <Label htmlFor="edit-link">Link (optional)</Label>

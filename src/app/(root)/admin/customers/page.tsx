@@ -14,7 +14,14 @@ export default async function CustomersManagement({
   try {
     // Fetch customers from the database
     const customers = await prisma.user.findMany({
-      include: {
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        firstName: true,
+        lastName: true,
+        image: true,
+        createdAt: true,
         _count: {
           select: {
             orders: true,
@@ -34,7 +41,11 @@ export default async function CustomersManagement({
     // Transform customers for display
     const customersWithCount = customers.map((customer) => ({
       id: customer.id,
-      name: customer.name,
+      name:
+        customer.name ||
+        (customer.firstName && customer.lastName
+          ? `${customer.firstName} ${customer.lastName}`
+          : customer.firstName || customer.lastName || "No Name"),
       email: customer.email,
       image: customer.image,
       orderCount: customer._count.orders,
