@@ -3,16 +3,79 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import FavoriteButton from "@/components/FavoriteButton";
 import { toast } from "sonner";
-import { products } from "@/data/products";
 import { addToCart } from "@/lib/actions/cart.action";
 import { Button } from "./ui/button";
+
+interface Product {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  compareAtPrice?: number | null;
+  thumbnail?: string | null;
+  images: string[];
+  category: {
+    name: string;
+  };
+  description: string;
+  shortDescription?: string | null;
+  rating: number;
+  reviewCount: number;
+  favoriteCount: number;
+  status: string;
+  isActive: boolean;
+  isFeatured: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export default function ProductGrid() {
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<string | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch featured products from database
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          "/api/public/products?limit=8&featured=true"
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch products");
+        }
+
+        const data = await response.json();
+        setProducts(data.products);
+      } catch (err) {
+        console.error("Error fetching products:", err);
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="py-8 lg:py-8 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center py-16">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading products...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-8 lg:py-8 bg-background">
@@ -40,7 +103,11 @@ export default function ProductGrid() {
               {/* Product Image */}
               <div className="relative aspect-square overflow-hidden">
                 <Image
-                  src={product.image}
+                  src={
+                    product.thumbnail ||
+                    product.images[0] ||
+                    "/assets/images/leather1.jpg"
+                  }
                   alt={product.name}
                   fill
                   className="object-cover transition-transform duration-500 group-hover:scale-110"
@@ -83,11 +150,14 @@ export default function ProductGrid() {
                       id: product.id,
                       name: product.name,
                       price: product.price,
-                      image: product.image,
-                      slug: product.id, // Using id as slug for now
-                      category: product.category,
-                      rating: 4.5, // Default rating
-                      reviewCount: 0, // Default review count
+                      image:
+                        product.thumbnail ||
+                        product.images[0] ||
+                        "/assets/images/leather1.jpg",
+                      slug: product.slug || product.id,
+                      category: product.category.name,
+                      rating: product.rating,
+                      reviewCount: product.reviewCount,
                     }}
                     className="bg-white text-foreground p-3 rounded-full hover:bg-accent hover:text-accent-foreground transition-colors duration-200"
                   />
@@ -98,21 +168,31 @@ export default function ProductGrid() {
               <div className="p-6">
                 <div className="mb-2">
                   <span className="text-sm text-muted-foreground uppercase tracking-wide">
-                    {product.category}
+                    {product.category.name}
                   </span>
                 </div>
                 <h3 className="text-xl font-serif font-semibold text-foreground mb-2 group-hover:text-accent transition-colors duration-200">
-                  <Link href={`/products/${product.id}`}>{product.name}</Link>
+                  <Link href={`/products/${product.slug || product.id}`}>
+                    {product.name}
+                  </Link>
                 </h3>
                 <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
-                  {product.description}
+                  {product.shortDescription || product.description}
                 </p>
                 <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold text-foreground">
-                    {product.price} LKR
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl font-bold text-foreground">
+                      LKR {product.price.toLocaleString()}
+                    </span>
+                    {product.compareAtPrice &&
+                      product.compareAtPrice > product.price && (
+                        <span className="text-sm text-muted-foreground line-through">
+                          LKR {product.compareAtPrice.toLocaleString()}
+                        </span>
+                      )}
+                  </div>
                   <Link
-                    href={`/products/${product.id}`}
+                    href={`/products/${product.slug || product.id}`}
                     className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 inline-block"
                   >
                     View Details
