@@ -671,9 +671,10 @@ function ProductForm({
   const steps = [
     { id: 1, title: "Basic Info", description: "Product name and description" },
     { id: 2, title: "Pricing", description: "Price and inventory" },
-    { id: 3, title: "Media", description: "Images and videos" },
-    { id: 4, title: "Details", description: "Features and materials" },
-    { id: 5, title: "SEO", description: "Search optimization" },
+    { id: 3, title: "Video", description: "Product video" },
+    { id: 4, title: "Images", description: "Product images" },
+    { id: 5, title: "Details", description: "Features and materials" },
+    { id: 6, title: "SEO & Settings", description: "Search optimization" },
   ];
 
   const nextStep = () => {
@@ -1004,7 +1005,7 @@ function ProductForm({
         {currentStep === 3 && (
           <div className="space-y-8">
             <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
-              Media & Assets
+              Product Video
             </h3>
 
             {/* Video Section */}
@@ -1084,6 +1085,14 @@ function ProductForm({
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {currentStep === 4 && (
+          <div className="space-y-8">
+            <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+              Product Images
+            </h3>
 
             {/* Images Section */}
             <div className="space-y-4">
@@ -1216,7 +1225,7 @@ function ProductForm({
           </div>
         )}
 
-        {currentStep === 4 && (
+        {currentStep === 5 && (
           <div className="space-y-6">
             <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
               Product Details
@@ -1308,7 +1317,7 @@ function ProductForm({
           </div>
         )}
 
-        {currentStep === 5 && (
+        {currentStep === 6 && (
           <div className="space-y-6">
             <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
               SEO & Settings
