@@ -388,9 +388,10 @@ export async function GET(request: NextRequest) {
       totalCustomers,
       recentOrders: recentOrders.map((order) => ({
         id: order.orderNumber || order.id,
-        customerName:
-          `${order.user.firstName || ""} ${order.user.lastName || ""}`.trim() ||
-          order.user.email,
+        customerName: order.user
+          ? `${order.user.firstName || ""} ${order.user.lastName || ""}`.trim() ||
+            order.user.email
+          : "Unknown Customer",
         totalAmount: Number(order.totalAmount),
         status: order.status,
         createdAt: order.createdAt.toISOString(),

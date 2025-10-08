@@ -48,7 +48,7 @@ export default function ReviewStats({ productId }: ReviewStatsProps) {
 
         // Calculate average rating
         const totalRating = reviews.reduce(
-          (sum: number, review: any) => sum + review.rating,
+          (sum: number, review: { rating: number }) => sum + review.rating,
           0
         );
         const averageRating = totalRating / reviews.length;
@@ -56,7 +56,7 @@ export default function ReviewStats({ productId }: ReviewStatsProps) {
         // Calculate rating distribution
         const distribution = [5, 4, 3, 2, 1].map((rating) => {
           const count = reviews.filter(
-            (review: any) => review.rating === rating
+            (review: { rating: number }) => review.rating === rating
           ).length;
           const percentage =
             reviews.length > 0 ? (count / reviews.length) * 100 : 0;

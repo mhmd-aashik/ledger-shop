@@ -39,7 +39,22 @@ export default async function ReviewsManagement({
       return <EmptyReviewsState action={action} />;
     }
 
-    return <ReviewsClient initialReviews={reviews} action={action} />;
+    // Transform reviews to match the expected interface
+    const transformedReviews = reviews.map((review) => ({
+      ...review,
+      title: review.title || undefined,
+      comment: review.comment || undefined,
+      createdAt: review.createdAt.toISOString(),
+      user: {
+        ...review.user,
+        name: review.user.name || undefined,
+        image: review.user.image || undefined,
+      },
+    }));
+
+    return (
+      <ReviewsClient initialReviews={transformedReviews} action={action} />
+    );
   } catch (error) {
     console.error("Error fetching reviews:", error);
     return <EmptyReviewsState action={action} />;

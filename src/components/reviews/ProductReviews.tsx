@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Star, MessageSquare, ThumbsUp } from "lucide-react";
+import { Star, MessageSquare } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -103,7 +104,7 @@ export default function ProductReviews({
                   You need to be signed in to write a review for this product.
                 </p>
                 <Button asChild>
-                  <a href="/sign-in">Sign In</a>
+                  <Link href="/sign-in">Sign In</Link>
                 </Button>
               </CardContent>
             </Card>
