@@ -14,6 +14,7 @@ import {
   Clock,
   Search,
   Bell,
+  Shield,
 } from "lucide-react";
 import Image from "next/image";
 import logo from "../../public/assets/logos/logo.png";
@@ -99,6 +100,7 @@ export default function Header() {
     { name: "About", href: "/about", icon: Clock },
     { name: "Contact", href: "/contact", icon: Heart },
     { name: "Profile", href: "/profile", icon: User },
+    { name: "Admin", href: "/admin", icon: Shield },
   ];
 
   const quickStats = [
