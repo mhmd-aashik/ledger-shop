@@ -13,22 +13,60 @@ import {
   Clock,
   Users,
 } from "lucide-react";
-import { heroSlides } from "@/data/hero-slides";
+
+interface CarouselSlide {
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  image: string;
+  link?: string;
+  linkText?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export default function HeroCarousel() {
+  const [slides, setSlides] = useState<CarouselSlide[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
+  const [loading, setLoading] = useState(true);
 
+  // Fetch carousel data from database
   useEffect(() => {
-    if (!isAutoPlaying || isHovered) return;
+    const fetchCarousels = async () => {
+      try {
+        const response = await fetch("/api/carousel");
+        if (response.ok) {
+          const data = await response.json();
+          // Filter only active slides
+          const activeSlides = data.filter(
+            (slide: CarouselSlide) => slide.isActive
+          );
+          setSlides(activeSlides);
+        }
+      } catch (error) {
+        console.error("Error fetching carousels:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCarousels();
+  }, []);
+
+  // Auto-play logic
+  useEffect(() => {
+    if (!isAutoPlaying || isHovered || slides.length === 0) return;
 
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 6000); // Increased to 6 seconds for storytelling
 
     return () => clearInterval(interval);
-  }, [isAutoPlaying, isHovered]);
+  }, [isAutoPlaying, isHovered, slides.length]);
 
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
@@ -37,15 +75,13 @@ export default function HeroCarousel() {
   };
 
   const goToPrevious = () => {
-    setCurrentSlide(
-      (prev) => (prev - 1 + heroSlides.length) % heroSlides.length
-    );
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
     setIsAutoPlaying(false);
     setTimeout(() => setIsAutoPlaying(true), 15000);
   };
 
   const goToNext = () => {
-    setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
     setIsAutoPlaying(false);
     setTimeout(() => setIsAutoPlaying(true), 15000);
   };
@@ -53,6 +89,38 @@ export default function HeroCarousel() {
   const togglePlayPause = () => {
     setIsAutoPlaying(!isAutoPlaying);
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <section className="relative h-screen overflow-hidden bg-gray-100">
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading carousel...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Show empty state if no slides
+  if (slides.length === 0) {
+    return (
+      <section className="relative h-screen overflow-hidden bg-gray-100">
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center">
+            <p className="text-gray-600 text-lg">
+              No carousel slides available
+            </p>
+            <p className="text-gray-500 text-sm mt-2">
+              Please add slides from the admin dashboard
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -62,7 +130,7 @@ export default function HeroCarousel() {
     >
       {/* Carousel Container */}
       <div className="relative w-full h-full">
-        {heroSlides.map((slide, index) => (
+        {slides.map((slide, index) => (
           <div
             key={slide.id}
             className={`absolute inset-0 transition-all duration-1000 ${
@@ -93,13 +161,8 @@ export default function HeroCarousel() {
                     {/* Step Indicator */}
                     <div className="flex items-center space-x-2 mb-4">
                       <div className="bg-amber-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                        Step {index + 1} of {heroSlides.length}
+                        Slide {index + 1} of {slides.length}
                       </div>
-                      {slide.highlight && (
-                        <div className="bg-white/20 text-white px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm">
-                          {slide.highlight}
-                        </div>
-                      )}
                     </div>
 
                     <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-bold text-white mb-6 leading-tight">
@@ -112,27 +175,11 @@ export default function HeroCarousel() {
                       {slide.description}
                     </p>
 
-                    {/* Stats */}
-                    {slide.stats && (
-                      <div className="grid grid-cols-3 gap-4 mb-8">
-                        {slide.stats.map((stat, statIndex) => (
-                          <div key={statIndex} className="text-center">
-                            <div className="text-2xl font-bold text-white mb-1">
-                              {stat.value}
-                            </div>
-                            <div className="text-sm text-white/70">
-                              {stat.label}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
                     {/* CTA Button */}
                     <div className="flex flex-col sm:flex-row gap-4">
-                      <Link href={slide.ctaLink || "/products"}>
+                      <Link href={slide.link || "/products"}>
                         <button className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-4 rounded-lg font-medium text-lg transition-all duration-300 hover:scale-105 shadow-lg">
-                          {slide.cta}
+                          {slide.linkText || "Learn More"}
                         </button>
                       </Link>
                     </div>
@@ -209,9 +256,9 @@ export default function HeroCarousel() {
 
         {/* Enhanced Dots Indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex space-x-3">
-          {heroSlides.map((slide, index) => (
+          {slides.map((slide, index) => (
             <button
-              key={index}
+              key={slide.id}
               onClick={() => goToSlide(index)}
               className={`w-4 h-4 rounded-full transition-all duration-300 ${
                 index === currentSlide
@@ -228,7 +275,7 @@ export default function HeroCarousel() {
           <div
             className="h-full bg-amber-500 transition-all duration-100 ease-linear"
             style={{
-              width: `${((currentSlide + 1) / heroSlides.length) * 100}%`,
+              width: `${((currentSlide + 1) / slides.length) * 100}%`,
             }}
           />
         </div>
