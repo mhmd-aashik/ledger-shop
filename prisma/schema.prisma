@@ -8,24 +8,32 @@ datasource db {
 }
 
 model User {
-  id             String           @id @default(cuid())
-  email          String           @unique
-  password       String?          // Optional for OAuth users
-  firstName      String?
-  lastName       String?
-  imageUrl       String?
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  addresses      Address[]
-  cart           Cart[]
-  favorites      Favorite[]
-  orders         Order[]
-  profile        Profile?
-  recentlyViewed RecentlyViewed[]
-  reviews        Review[]
-  wishlists      Wishlist[]
-  accounts       Account[]
-  sessions       Session[]
+  id                String           @id @default(cuid())
+  email             String           @unique
+  emailVerified     DateTime?        // Required for NextAuth compatibility
+  password          String?
+  firstName         String?
+  lastName          String?
+  imageUrl          String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  image             String?
+  name              String?
+  resetToken        String?
+  resetTokenExpiry  DateTime?
+  magicToken        String?
+  magicTokenExpiry  DateTime?
+  accounts          Account[]
+  addresses         Address[]
+  cart              Cart[]
+  favorites         Favorite[]
+  orders            Order[]
+  profile           Profile?
+  recentlyViewed    RecentlyViewed[]
+  reviews           Review[]
+  sessions          Session[]
+  wishlists         Wishlist[]
+  analyticsEvents   AnalyticsEvent[]
 
   @@map("users")
 }
@@ -79,6 +87,7 @@ model Category {
   slug            String     @unique
   description     String?
   image           String?
+  video           String?
   parentId        String?
   sortOrder       Int        @default(0)
   isActive        Boolean    @default(true)
@@ -302,6 +311,44 @@ model OfferBanner {
   @@map("offer_banners")
 }
 
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
 enum Gender {
   MALE
   FEMALE
@@ -347,49 +394,24 @@ enum FulfillmentStatus {
   CANCELLED
 }
 
-// NextAuth required models
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@map("accounts")
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("sessions")
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-  @@map("verification_tokens")
-}
-
 enum Priority {
   LOW
   MEDIUM
   HIGH
   URGENT
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  event     String
+  properties Json
+  userId    String?
+  sessionId String?
+  timestamp DateTime @default(now())
+  userAgent String?
+  referer   String?
+  url       String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("analytics_events")
 }

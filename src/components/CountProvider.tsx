@@ -44,15 +44,17 @@ export function CountProvider({
 
     setIsRefreshing(true);
     try {
-      // Load cart items
-      const cartResult = await getCartItems();
+      // Load cart items and favorites in parallel
+      const [cartResult, favoritesResult] = await Promise.all([
+        getCartItems(),
+        getFavoriteProducts(),
+      ]);
+
       if (cartResult.success) {
         const newCartCount = cartResult.items?.length || 0;
         setCartCount(newCartCount);
       }
 
-      // Load favorites count using server action
-      const favoritesResult = await getFavoriteProducts();
       if (favoritesResult.success) {
         const newFavoritesCount = favoritesResult.favorites?.length || 0;
         setFavoritesCount(newFavoritesCount);
@@ -62,54 +64,67 @@ export function CountProvider({
     } finally {
       setIsRefreshing(false);
     }
-  }, [isRefreshing]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Remove isRefreshing dependency to prevent infinite loop
 
   // Handle hydration
   useEffect(() => {
     setIsHydrated(true);
-    // Refresh counts after hydration to ensure they're up to date
-    refreshCounts();
-  }, [refreshCounts]);
+    // Only refresh counts once after hydration if no initial counts provided
+    if (initialCartCount === 0 && initialFavoritesCount === 0) {
+      refreshCounts();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialCartCount, initialFavoritesCount]); // Remove refreshCounts dependency
 
   // Listen for custom events to update counts with debouncing
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-    let intervalId: NodeJS.Timeout;
+    if (!isHydrated || typeof window === "undefined") return;
 
-    const debouncedRefresh = () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        refreshCounts();
-      }, 100); // Debounce by 100ms
-    };
+    let cartTimeoutId: NodeJS.Timeout;
 
-    const handleFavoritesUpdate = () => {
-      debouncedRefresh();
+    const debouncedCartRefresh = () => {
+      clearTimeout(cartTimeoutId);
+      cartTimeoutId = setTimeout(async () => {
+        if (!isRefreshing) {
+          try {
+            const result = await getCartItems();
+            if (result.success) {
+              const newCartCount = result.items?.length || 0;
+              setCartCount(newCartCount);
+            }
+          } catch (error) {
+            console.error("Error refreshing cart count:", error);
+          }
+        }
+      }, 500); // Faster response for cart
     };
 
     const handleCartUpdate = () => {
-      debouncedRefresh();
+      debouncedCartRefresh();
     };
 
-    // Set up periodic refresh every 30 seconds to keep counts in sync
-    if (isHydrated) {
-      intervalId = setInterval(() => {
-        refreshCounts();
-      }, 30000); // Refresh every 30 seconds
-    }
+    const handleFavoritesCountUpdate = (event: CustomEvent) => {
+      const count = event.detail?.count || 0;
+      setFavoritesCount(count);
+    };
 
-    window.addEventListener("favoritesUpdated", handleFavoritesUpdate);
+    // Listen to cart updates and favorites count updates
     window.addEventListener("cartUpdated", handleCartUpdate);
+    window.addEventListener(
+      "favoritesCountUpdated",
+      handleFavoritesCountUpdate as EventListener
+    );
 
     return () => {
-      window.removeEventListener("favoritesUpdated", handleFavoritesUpdate);
       window.removeEventListener("cartUpdated", handleCartUpdate);
-      clearTimeout(timeoutId);
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
+      window.removeEventListener(
+        "favoritesCountUpdated",
+        handleFavoritesCountUpdate as EventListener
+      );
+      clearTimeout(cartTimeoutId);
     };
-  }, [refreshCounts, isHydrated]);
+  }, [isHydrated, isRefreshing]); // Remove refreshCounts dependency
 
   const contextValue = useMemo(
     () => ({

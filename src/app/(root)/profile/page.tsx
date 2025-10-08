@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getFavoriteProducts } from "@/lib/actions/favorite.action";
 import ProfileServer from "@/components/profile/ProfileServer";
+import { ProfileSuspense } from "@/components/SuspenseWrapper";
 
 // Type for user data
 type UserData = {
@@ -86,7 +87,9 @@ export default async function ProfilePage() {
     return (
       <div className="min-h-screen bg-background">
         <main className="pt-16 lg:pt-20">
-          <ProfileServer userData={userData} favorites={favorites} />
+          <ProfileSuspense>
+            <ProfileServer userData={userData} favorites={favorites} />
+          </ProfileSuspense>
         </main>
       </div>
     );

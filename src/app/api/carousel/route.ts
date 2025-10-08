@@ -21,7 +21,15 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     console.log("Received carousel data:", body);
 
-    const { title, subtitle, description, image, isActive = true } = body;
+    const {
+      title,
+      subtitle,
+      description,
+      image,
+      link,
+      linkText,
+      isActive = true,
+    } = body;
 
     // Validate required fields
     if (!title || !subtitle || !description || !image) {
@@ -40,6 +48,8 @@ export async function POST(request: NextRequest) {
         subtitle,
         description,
         image,
+        link,
+        linkText,
         isActive,
       },
     });

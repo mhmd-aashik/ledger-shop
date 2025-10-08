@@ -4,6 +4,7 @@ import { getFavoriteProducts } from "@/lib/actions/favorite.action";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import FavoritesClient from "@/components/favorites/FavoritesClient";
+import { FavoritesSuspense } from "@/components/SuspenseWrapper";
 
 export default async function FavoritesPage() {
   const session = await auth();
@@ -34,7 +35,9 @@ export default async function FavoritesPage() {
                 </Link>
               </div>
 
-              <FavoritesClient initialFavorites={[]} />
+              <FavoritesSuspense>
+                <FavoritesClient initialFavorites={[]} />
+              </FavoritesSuspense>
             </div>
           </main>
         </div>
@@ -56,7 +59,9 @@ export default async function FavoritesPage() {
               </Link>
             </div>
 
-            <FavoritesClient initialFavorites={result.favorites || []} />
+            <FavoritesSuspense>
+              <FavoritesClient initialFavorites={result.favorites || []} />
+            </FavoritesSuspense>
           </div>
         </main>
       </div>

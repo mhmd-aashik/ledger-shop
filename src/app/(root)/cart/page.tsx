@@ -4,6 +4,7 @@ import { getCartItems } from "@/lib/actions/cart.action";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import CartClient from "@/components/cart/CartClient";
+import { CartSuspense } from "@/components/SuspenseWrapper";
 
 export default async function Cart() {
   const session = await auth();
@@ -37,7 +38,9 @@ export default async function Cart() {
                 </h1>
               </div>
 
-              <CartClient initialItems={[]} />
+              <CartSuspense>
+                <CartClient initialItems={[]} />
+              </CartSuspense>
             </div>
           </main>
         </div>
@@ -62,7 +65,9 @@ export default async function Cart() {
               </h1>
             </div>
 
-            <CartClient initialItems={result.items || []} />
+            <CartSuspense>
+              <CartClient initialItems={result.items || []} />
+            </CartSuspense>
           </div>
         </main>
       </div>

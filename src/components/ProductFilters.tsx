@@ -14,6 +14,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Search, X } from "lucide-react";
+import { useAnalytics } from "@/hooks/use-analytics";
 
 const categories = ["All", "Wallets", "Cardholders", "Accessories"];
 const genders = ["All", "Men", "Women", "Unisex"];
@@ -29,17 +30,27 @@ const sortOptions = [
 export default function ProductFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { trackSearch, trackFilter } = useAnalytics();
+  const [mounted, setMounted] = useState(false);
 
-  const [search, setSearch] = useState(searchParams.get("search") || "");
-  const [category, setCategory] = useState(
-    searchParams.get("category") || "All"
-  );
-  const [gender, setGender] = useState(searchParams.get("gender") || "All");
-  const [sortBy, setSortBy] = useState(searchParams.get("sort") || "default");
-  const [priceRange, setPriceRange] = useState([
-    parseInt(searchParams.get("minPrice") || "0") || 0,
-    parseInt(searchParams.get("maxPrice") || "2000") || 2000,
-  ]);
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("All");
+  const [gender, setGender] = useState("All");
+  const [sortBy, setSortBy] = useState("default");
+  const [priceRange, setPriceRange] = useState([0, 2000]);
+
+  // Initialize state from search params after mounting
+  useEffect(() => {
+    setMounted(true);
+    setSearch(searchParams.get("search") || "");
+    setCategory(searchParams.get("category") || "All");
+    setGender(searchParams.get("gender") || "All");
+    setSortBy(searchParams.get("sort") || "default");
+    setPriceRange([
+      parseInt(searchParams.get("minPrice") || "0") || 0,
+      parseInt(searchParams.get("maxPrice") || "2000") || 2000,
+    ]);
+  }, [searchParams]);
 
   // Debounced search
   const [debouncedSearch, setDebouncedSearch] = useState(search);
@@ -63,8 +74,39 @@ export default function ProductFilters() {
     if (priceRange[0] > 0) params.set("minPrice", priceRange[0].toString());
     if (priceRange[1] < 2000) params.set("maxPrice", priceRange[1].toString());
 
+    // Track search and filter events
+    if (debouncedSearch) {
+      // We'll track search results when the API is called
+      trackSearch(debouncedSearch, 0); // Results count will be updated when data loads
+    }
+
+    if (
+      category !== "All" ||
+      gender !== "All" ||
+      sortBy !== "default" ||
+      priceRange[0] > 0 ||
+      priceRange[1] < 2000
+    ) {
+      trackFilter({
+        category: category !== "All" ? category : undefined,
+        gender: gender !== "All" ? gender : undefined,
+        sort: sortBy !== "default" ? sortBy : undefined,
+        priceRange:
+          priceRange[0] > 0 || priceRange[1] < 2000 ? priceRange : undefined,
+      });
+    }
+
     router.push(`/products?${params.toString()}`, { scroll: false });
-  }, [debouncedSearch, category, gender, sortBy, priceRange, router]);
+  }, [
+    debouncedSearch,
+    category,
+    gender,
+    sortBy,
+    priceRange,
+    router,
+    trackSearch,
+    trackFilter,
+  ]);
 
   useEffect(() => {
     updateFilters();
@@ -86,6 +128,10 @@ export default function ProductFilters() {
     sortBy !== "default",
     priceRange[0] > 0 || priceRange[1] < 2000,
   ].filter(Boolean).length;
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm mb-8 overflow-hidden">

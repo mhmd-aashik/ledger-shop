@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -15,6 +15,7 @@ import {
   Clock,
   Search,
   Bell,
+  Shield,
 } from "lucide-react";
 import Image from "next/image";
 import logo from "../../public/assets/logos/logo.png";
@@ -22,7 +23,11 @@ import { Button } from "@/components/ui/button";
 import { useSession, signOut } from "next-auth/react";
 import { useCounts } from "./CountProvider";
 
-export default function HeaderClient() {
+interface HeaderClientProps {
+  className?: string;
+}
+
+function HeaderClient({}: HeaderClientProps) {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -33,12 +38,22 @@ export default function HeaderClient() {
   const { cartCount, favoritesCount, isRefreshing } = useCounts();
   const { data: session, status } = useSession();
 
-  // Debug session status
+  // Memoized scroll handler for better performance
+  const handleScroll = useCallback(() => {
+    const scrolled = window.scrollY > 10;
+    if (scrolled !== isScrolled) {
+      setIsScrolled(scrolled);
+    }
+  }, [isScrolled]);
+
+  // Enhanced session debugging with error handling
   useEffect(() => {
-    console.log("Session status:", status);
-    console.log("Session data:", session);
-    console.log("Is authenticated:", status === "authenticated");
-    console.log("Has session:", !!session);
+    if (process.env.NODE_ENV === "development") {
+      console.log("Session status:", status);
+      console.log("Session data:", session);
+      console.log("Is authenticated:", status === "authenticated");
+      console.log("Has session:", !!session);
+    }
   }, [status, session]);
 
   useEffect(() => {
@@ -46,31 +61,22 @@ export default function HeaderClient() {
   }, []);
 
   useEffect(() => {
+    if (!isMounted) return;
+
     let timeoutId: NodeJS.Timeout;
 
-    const handleScroll = () => {
+    const debouncedScroll = () => {
       clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        if (typeof window !== "undefined") {
-          const scrolled = window.scrollY > 10;
-          if (scrolled !== isScrolled) {
-            setIsScrolled(scrolled);
-          }
-        }
-      }, 10); // Debounce scroll events
+      timeoutId = setTimeout(handleScroll, 10); // Debounce scroll events
     };
 
-    if (typeof window !== "undefined") {
-      window.addEventListener("scroll", handleScroll, { passive: true });
-    }
+    window.addEventListener("scroll", debouncedScroll, { passive: true });
 
     return () => {
-      if (typeof window !== "undefined") {
-        window.removeEventListener("scroll", handleScroll);
-      }
+      window.removeEventListener("scroll", debouncedScroll);
       clearTimeout(timeoutId);
     };
-  }, [isScrolled]);
+  }, [isMounted, handleScroll]);
 
   const navigation = [
     { name: "Home", href: "/", icon: Sparkles },
@@ -78,6 +84,7 @@ export default function HeaderClient() {
     { name: "About", href: "/about", icon: Clock },
     { name: "Contact", href: "/contact", icon: Heart },
     { name: "Profile", href: "/profile", icon: User },
+    { name: "Admin", href: "/admin", icon: Shield },
   ];
 
   const quickStats = [
@@ -413,3 +420,6 @@ export default function HeaderClient() {
     </>
   );
 }
+
+// Memoized component for better performance
+export default memo(HeaderClient);

@@ -1,6 +1,8 @@
 import { Suspense } from "react";
 import ProductFilters from "@/components/ProductFilters";
 import MoreProductsGrid from "@/components/MoreProductsGrid";
+import { ProductSuspense } from "@/components/SuspenseWrapper";
+import Loading from "@/components/Loading";
 
 export default function Products() {
   return (
@@ -20,15 +22,15 @@ export default function Products() {
 
       {/* Product Filters */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Suspense fallback={<div>Loading filters...</div>}>
+        <Suspense fallback={<Loading type="page" />}>
           <ProductFilters />
         </Suspense>
       </div>
 
       {/* More Products Grid */}
-      <Suspense fallback={<div>Loading products...</div>}>
+      <ProductSuspense count={12}>
         <MoreProductsGrid />
-      </Suspense>
+      </ProductSuspense>
     </main>
   );
 }

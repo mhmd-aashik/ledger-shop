@@ -4,6 +4,7 @@ import "../app/(root)/globals.css";
 import "@/styles/header.css";
 import { Toaster } from "sonner";
 import { SessionProvider } from "next-auth/react";
+import { FavoritesProvider } from "@/components/FavoritesContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -35,13 +36,15 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <SessionProvider>
-          {children}
-          <Toaster
-            position="bottom-right"
-            duration={3000}
-            theme="light"
-            richColors
-          />
+          <FavoritesProvider>
+            {children}
+            <Toaster
+              position="bottom-right"
+              duration={3000}
+              theme="light"
+              richColors
+            />
+          </FavoritesProvider>
         </SessionProvider>
       </body>
     </html>

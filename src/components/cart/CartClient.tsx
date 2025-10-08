@@ -18,7 +18,7 @@ interface CartClientProps {
 
 export default function CartClient({ initialItems }: CartClientProps) {
   const [items, setItems] = useState<CartItem[]>(initialItems);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [loadingItems, setLoadingItems] = useState<Set<string>>(new Set());
 
   const subtotal = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -36,7 +36,9 @@ export default function CartClient({ initialItems }: CartClientProps) {
       return;
     }
 
-    setIsUpdating(true);
+    // Add this item to loading state
+    setLoadingItems((prev) => new Set(prev).add(productId));
+
     try {
       const result = await updateCartItemQuantity(productId, newQuantity);
       if (result.success) {
@@ -53,12 +55,19 @@ export default function CartClient({ initialItems }: CartClientProps) {
       console.error("Error updating quantity:", error);
       toast.error("Failed to update quantity");
     } finally {
-      setIsUpdating(false);
+      // Remove this item from loading state
+      setLoadingItems((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(productId);
+        return newSet;
+      });
     }
   };
 
   const handleRemoveItem = async (productId: string) => {
-    setIsUpdating(true);
+    // Add this item to loading state
+    setLoadingItems((prev) => new Set(prev).add(productId));
+
     try {
       const result = await removeFromCart(productId);
       if (result.success) {
@@ -71,7 +80,12 @@ export default function CartClient({ initialItems }: CartClientProps) {
       console.error("Error removing item:", error);
       toast.error("Failed to remove item");
     } finally {
-      setIsUpdating(false);
+      // Remove this item from loading state
+      setLoadingItems((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(productId);
+        return newSet;
+      });
     }
   };
 
@@ -101,7 +115,7 @@ export default function CartClient({ initialItems }: CartClientProps) {
         items={items}
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveItem}
-        isUpdating={isUpdating}
+        loadingItems={loadingItems}
       />
       <OrderSummary subtotal={subtotal} shipping={shipping} total={total} />
     </div>

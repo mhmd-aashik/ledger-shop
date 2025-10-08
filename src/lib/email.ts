@@ -3,6 +3,18 @@ import { OrderData } from "../../types/email.types";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+interface PasswordResetData {
+  email: string;
+  name: string;
+  resetToken: string;
+}
+
+interface MagicLinkData {
+  email: string;
+  name: string;
+  magicToken: string;
+}
+
 export async function sendOrderNotificationEmail(orderData: OrderData) {
   try {
     if (!process.env.RESEND_API_KEY) {
@@ -247,6 +259,161 @@ function generateOrderConfirmationHTML(orderData: OrderData): string {
         <div class="footer">
           <p>Thank you for choosing LeadHer Shop!</p>
           <p>We'll be in touch soon with payment and delivery details.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
+export async function sendPasswordResetEmail(data: PasswordResetData) {
+  try {
+    if (!process.env.RESEND_API_KEY) {
+      console.warn("Resend API key not configured. Email will not be sent.");
+      return { success: false, message: "Email service not configured" };
+    }
+
+    const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${data.resetToken}`;
+
+    const { data: emailData, error } = await resend.emails.send({
+      from: "noreply@heritano.com",
+      to: [data.email],
+      subject: "Reset Your Password - LeadHer Shop",
+      html: generatePasswordResetHTML(data.name, resetUrl),
+    });
+
+    if (error) {
+      console.error("Resend API error:", error);
+      return {
+        success: false,
+        message: "Failed to send password reset email",
+        error: error.message || "Unknown Resend API error",
+      };
+    }
+
+    return { success: true, messageId: emailData?.id };
+  } catch (error) {
+    console.error("Unexpected error sending password reset email:", error);
+    return {
+      success: false,
+      message: "Unexpected error occurred while sending password reset email",
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+export async function sendMagicLinkEmail(data: MagicLinkData) {
+  try {
+    if (!process.env.RESEND_API_KEY) {
+      console.warn("Resend API key not configured. Email will not be sent.");
+      return { success: false, message: "Email service not configured" };
+    }
+
+    const magicUrl = `${process.env.NEXTAUTH_URL}/auth/magic-link?token=${data.magicToken}`;
+
+    const { data: emailData, error } = await resend.emails.send({
+      from: "noreply@heritano.com",
+      to: [data.email],
+      subject: "Your Magic Link - LeadHer Shop",
+      html: generateMagicLinkHTML(data.name, magicUrl),
+    });
+
+    if (error) {
+      console.error("Resend API error:", error);
+      return {
+        success: false,
+        message: "Failed to send magic link email",
+        error: error.message || "Unknown Resend API error",
+      };
+    }
+
+    return { success: true, messageId: emailData?.id };
+  } catch (error) {
+    console.error("Unexpected error sending magic link email:", error);
+    return {
+      success: false,
+      message: "Unexpected error occurred while sending magic link email",
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+function generatePasswordResetHTML(name: string, resetUrl: string): string {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Reset Your Password</title>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .header { text-align: center; padding: 20px 0; border-bottom: 2px solid #d4af37; }
+        .header h1 { color: #d4af37; margin: 0; }
+        .content { padding: 20px 0; }
+        .button { display: inline-block; background: #d4af37; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 20px 0; }
+        .button:hover { background: #b8941f; }
+        .footer { text-align: center; padding: 20px 0; border-top: 1px solid #eee; color: #666; font-size: 14px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>LeadHer Shop</h1>
+        </div>
+        <div class="content">
+          <h2>Reset Your Password</h2>
+          <p>Hello ${name},</p>
+          <p>We received a request to reset your password for your LeadHer Shop account.</p>
+          <p>Click the button below to reset your password:</p>
+          <a href="${resetUrl}" class="button">Reset Password</a>
+          <p>This link will expire in 1 hour for security reasons.</p>
+          <p>If you didn't request this password reset, please ignore this email.</p>
+        </div>
+        <div class="footer">
+          <p>Thank you for choosing LeadHer Shop!</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
+function generateMagicLinkHTML(name: string, magicUrl: string): string {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Your Magic Link</title>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .header { text-align: center; padding: 20px 0; border-bottom: 2px solid #d4af37; }
+        .header h1 { color: #d4af37; margin: 0; }
+        .content { padding: 20px 0; }
+        .button { display: inline-block; background: #d4af37; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 20px 0; }
+        .button:hover { background: #b8941f; }
+        .footer { text-align: center; padding: 20px 0; border-top: 1px solid #eee; color: #666; font-size: 14px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>LeadHer Shop</h1>
+        </div>
+        <div class="content">
+          <h2>Your Magic Link</h2>
+          <p>Hello ${name},</p>
+          <p>Click the button below to sign in to your LeadHer Shop account:</p>
+          <a href="${magicUrl}" class="button">Sign In</a>
+          <p>This link will expire in 15 minutes for security reasons.</p>
+          <p>If you didn't request this magic link, please ignore this email.</p>
+        </div>
+        <div class="footer">
+          <p>Thank you for choosing LeadHer Shop!</p>
         </div>
       </div>
     </body>
