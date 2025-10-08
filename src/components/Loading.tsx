@@ -1,7 +1,7 @@
 import { ShoppingBag, Heart, User, Sparkles, Loader2 } from "lucide-react";
 
 interface LoadingProps {
-  type?: "default" | "cart" | "favorites" | "profile" | "page";
+  type?: "default" | "cart" | "favorites" | "profile" | "page" | "cart-page";
   message?: string;
   size?: "sm" | "md" | "lg";
 }

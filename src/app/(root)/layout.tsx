@@ -1,5 +1,8 @@
 import HeaderServerSafe from "@/components/HeaderServerSafe";
 import Footer from "@/components/Footer";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import { Suspense } from "react";
+import { PageLoading } from "@/components/Loading";
 
 export default function RootLayout({
   children,
@@ -7,10 +10,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <>
+    <ErrorBoundary>
       <HeaderServerSafe />
-      {children}
+      <Suspense fallback={<PageLoading />}>{children}</Suspense>
       <Footer />
-    </>
+    </ErrorBoundary>
   );
 }

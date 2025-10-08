@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -15,14 +15,21 @@ import {
   Clock,
   Search,
   Bell,
+  AlertCircle,
 } from "lucide-react";
 import Image from "next/image";
 import logo from "../../public/assets/logos/logo.png";
 import { Button } from "@/components/ui/button";
 import { useSession, signOut } from "next-auth/react";
 import { useCounts } from "./CountProvider";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default function HeaderClient() {
+interface HeaderClientProps {
+  className?: string;
+}
+
+function HeaderClient({ className = "" }: HeaderClientProps) {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -30,15 +37,26 @@ export default function HeaderClient() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { cartCount, favoritesCount, isRefreshing } = useCounts();
   const { data: session, status } = useSession();
 
-  // Debug session status
+  // Memoized scroll handler for better performance
+  const handleScroll = useCallback(() => {
+    const scrolled = window.scrollY > 10;
+    if (scrolled !== isScrolled) {
+      setIsScrolled(scrolled);
+    }
+  }, [isScrolled]);
+
+  // Enhanced session debugging with error handling
   useEffect(() => {
-    console.log("Session status:", status);
-    console.log("Session data:", session);
-    console.log("Is authenticated:", status === "authenticated");
-    console.log("Has session:", !!session);
+    if (process.env.NODE_ENV === "development") {
+      console.log("Session status:", status);
+      console.log("Session data:", session);
+      console.log("Is authenticated:", status === "authenticated");
+      console.log("Has session:", !!session);
+    }
   }, [status, session]);
 
   useEffect(() => {
@@ -50,24 +68,18 @@ export default function HeaderClient() {
 
     let timeoutId: NodeJS.Timeout;
 
-    const handleScroll = () => {
+    const debouncedScroll = () => {
       clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        const scrolled = window.scrollY > 10;
-        if (scrolled !== isScrolled) {
-          setIsScrolled(scrolled);
-        }
-      }, 10); // Debounce scroll events
+      timeoutId = setTimeout(handleScroll, 10); // Debounce scroll events
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("scroll", debouncedScroll, { passive: true });
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", debouncedScroll);
       clearTimeout(timeoutId);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMounted]); // Only run after mounted
+  }, [isMounted, handleScroll]);
 
   const navigation = [
     { name: "Home", href: "/", icon: Sparkles },
@@ -410,3 +422,6 @@ export default function HeaderClient() {
     </>
   );
 }
+
+// Memoized component for better performance
+export default memo(HeaderClient);
