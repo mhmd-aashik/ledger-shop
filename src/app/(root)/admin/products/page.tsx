@@ -212,7 +212,7 @@ export default function ProductManagement() {
               Add Product
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
             <DialogHeader>
               <DialogTitle>
                 {editingProduct ? "Edit Product" : "Add New Product"}
@@ -513,15 +513,20 @@ function ProductForm({
       case 3: // Media
         return formData.images.length >= 2;
       case 4: // Additional Details
-        return true; // Optional step
+        return true; // Optional step - always valid
       case 5: // SEO & Settings
-        return true; // Optional step
+        return true; // Status has default value, so step is always valid
       default:
         return false;
     }
   };
 
   const nextStep = () => {
+    console.log("nextStep called", {
+      currentStep,
+      totalSteps,
+      isValid: isStepValid(currentStep),
+    });
     if (currentStep < totalSteps && isStepValid(currentStep)) {
       setCurrentStep(currentStep + 1);
     }
@@ -531,18 +536,6 @@ function ProductForm({
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Validate minimum image requirement
-    if (formData.images.length < 2) {
-      toast.error("At least 2 product images are required");
-      return;
-    }
-
-    onSave(formData);
   };
 
   // Upload functions
@@ -693,8 +686,15 @@ function ProductForm({
     setFormData({ ...formData, images: newImages });
   };
 
+  // Debug log
+  console.log("ProductForm render", {
+    currentStep,
+    totalSteps,
+    formData: { status: formData.status, images: formData.images.length },
+  });
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-x-hidden">
       {/* Step Progress */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 space-y-4 sm:space-y-0">
         <div className="flex items-center space-x-2 sm:space-x-4 overflow-x-auto w-full sm:w-auto">
@@ -725,7 +725,7 @@ function ProductForm({
       </div>
 
       {/* Step Content */}
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-6 min-w-0">
         {/* Step 1: Basic Information */}
         {currentStep === 1 && (
           <div className="space-y-6">
@@ -914,21 +914,6 @@ function ProductForm({
                 />
               </div>
             </div>
-
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="trackQuantity"
-                checked={formData.trackQuantity}
-                onChange={(e) =>
-                  setFormData({ ...formData, trackQuantity: e.target.checked })
-                }
-                className="rounded border-gray-300"
-              />
-              <Label htmlFor="trackQuantity">
-                Track inventory for this product
-              </Label>
-            </div>
           </div>
         )}
 
@@ -955,7 +940,7 @@ function ProductForm({
               <div className="mt-2">
                 {/* Drag and Drop Area */}
                 <div
-                  className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                  className={`border-2 border-dashed rounded-lg p-4 sm:p-6 text-center transition-colors min-h-[120px] ${
                     formData.images.length >= 4
                       ? "border-gray-200 bg-gray-50 cursor-not-allowed"
                       : dragActive
@@ -989,25 +974,29 @@ function ProductForm({
                         : "cursor-pointer"
                     }`}
                   >
-                    <div className="text-gray-500">
+                    <div className="text-gray-500 break-words">
                       {uploading ? (
                         <div className="flex flex-col items-center space-y-2">
                           <Loader2 className="h-8 w-8 animate-spin" />
-                          <p>Uploading... {uploadProgress}%</p>
+                          <p className="text-sm sm:text-base">
+                            Uploading... {uploadProgress}%
+                          </p>
                         </div>
                       ) : formData.images.length >= 4 ? (
                         <>
-                          <p className="text-gray-400">
+                          <p className="text-gray-400 text-sm sm:text-base">
                             Maximum 4 images reached
                           </p>
-                          <p className="text-sm text-gray-400">
+                          <p className="text-xs sm:text-sm text-gray-400">
                             Remove an image to add a new one
                           </p>
                         </>
                       ) : (
                         <>
-                          <p>Drag and drop images here, or click to select</p>
-                          <p className="text-sm text-gray-400">
+                          <p className="text-sm sm:text-base">
+                            Drag and drop images here, or click to select
+                          </p>
+                          <p className="text-xs sm:text-sm text-gray-400">
                             PNG, JPG, GIF up to 10MB each
                           </p>
                         </>
@@ -1249,27 +1238,52 @@ function ProductForm({
               />
             </div>
 
-            <div>
-              <Label htmlFor="status">Status</Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value) =>
-                  setFormData({
-                    ...formData,
-                    status: value as Product["status"],
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="DRAFT">Draft</SelectItem>
-                  <SelectItem value="PUBLISHED">Published</SelectItem>
-                  <SelectItem value="ARCHIVED">Archived</SelectItem>
-                  <SelectItem value="OUT_OF_STOCK">Out of Stock</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="status">Status *</Label>
+                <Select
+                  value={formData.status}
+                  onValueChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      status: value as Product["status"],
+                    })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="DRAFT">Draft</SelectItem>
+                    <SelectItem value="PUBLISHED">Published</SelectItem>
+                    <SelectItem value="ARCHIVED">Archived</SelectItem>
+                    <SelectItem value="OUT_OF_STOCK">Out of Stock</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Choose the product status
+                </p>
+              </div>
+              <div>
+                <Label htmlFor="trackQuantity">Inventory Tracking</Label>
+                <div className="flex items-center space-x-2 mt-2">
+                  <input
+                    type="checkbox"
+                    id="trackQuantity"
+                    checked={formData.trackQuantity}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        trackQuantity: e.target.checked,
+                      })
+                    }
+                    className="rounded border-gray-300"
+                  />
+                  <Label htmlFor="trackQuantity" className="text-sm">
+                    Track inventory for this product
+                  </Label>
+                </div>
+              </div>
             </div>
 
             <div className="flex items-center space-x-6">
@@ -1302,23 +1316,23 @@ function ProductForm({
         )}
 
         {/* Navigation Buttons */}
-        <div className="flex flex-col sm:flex-row justify-between pt-6 border-t space-y-3 sm:space-y-0">
+        <div className="flex flex-col sm:flex-row justify-between pt-6 border-t space-y-3 sm:space-y-0 min-w-0">
           <Button
             type="button"
             variant="outline"
             onClick={prevStep}
             disabled={currentStep === 1}
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto flex-shrink-0"
           >
             Previous
           </Button>
 
-          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 min-w-0">
             <Button
               type="button"
               variant="outline"
               onClick={onCancel}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto flex-shrink-0"
             >
               Cancel
             </Button>
@@ -1328,31 +1342,45 @@ function ProductForm({
                 type="button"
                 onClick={nextStep}
                 disabled={!isStepValid(currentStep)}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto flex-shrink-0"
               >
                 Next
               </Button>
             ) : (
               <Button
-                type="submit"
+                type="button"
+                onClick={() => {
+                  console.log("Submit button clicked", {
+                    currentStep,
+                    formData,
+                  });
+                  // Validate before submitting
+                  if (formData.images.length < 2) {
+                    toast.error("At least 2 product images are required");
+                    return;
+                  }
+                  onSave(formData);
+                }}
                 disabled={saving || !isStepValid(currentStep)}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto flex-shrink-0"
               >
                 {saving ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    {product ? "Updating..." : "Creating..."}
+                    <span className="truncate">
+                      {product ? "Updating..." : "Creating..."}
+                    </span>
                   </>
-                ) : product ? (
-                  "Update Product"
                 ) : (
-                  "Create Product"
+                  <span className="truncate">
+                    {product ? "Update Product" : "Create Product"}
+                  </span>
                 )}
               </Button>
             )}
           </div>
         </div>
-      </form>
+      </div>
     </div>
   );
 }
