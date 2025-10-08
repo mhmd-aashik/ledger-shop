@@ -22,7 +22,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, Eye } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
 
 interface CarouselSlide {
   id: string;
@@ -214,7 +214,13 @@ export default function CarouselManagement() {
                   className="w-full h-48 object-cover"
                 />
                 <div className="absolute top-2 right-2">
-                  <Badge variant={slide.isActive ? "default" : "secondary"}>
+                  <Badge
+                    className={
+                      slide.isActive
+                        ? "bg-green-500 hover:bg-green-600 text-white"
+                        : "bg-red-500 hover:bg-red-600 text-white"
+                    }
+                  >
                     {slide.isActive ? "Active" : "Inactive"}
                   </Badge>
                 </div>
@@ -239,8 +245,17 @@ export default function CarouselManagement() {
                     size="sm"
                     variant="outline"
                     onClick={() => handleToggleActive(slide.id)}
+                    className={
+                      slide.isActive
+                        ? "text-green-600 hover:text-green-700 hover:bg-green-50"
+                        : "text-red-600 hover:text-red-700 hover:bg-red-50"
+                    }
                   >
-                    <Eye className="h-4 w-4" />
+                    {slide.isActive ? (
+                      <Eye className="h-4 w-4" />
+                    ) : (
+                      <EyeOff className="h-4 w-4" />
+                    )}
                   </Button>
                   <Button
                     size="sm"
