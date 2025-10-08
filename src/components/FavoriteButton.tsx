@@ -58,9 +58,9 @@ export default function FavoriteButton({
           // Track favorite removal
           trackFavorite(product.id, product.name, "remove");
           toast.success("Removed from favorites");
-          // Refresh favorites context
+          // Only refresh favorites context, not the full count provider
           await refreshFavorites();
-          // Dispatch custom event to update header count
+          // Dispatch custom event to update header count (this will only update favorites count)
           window.dispatchEvent(new CustomEvent("favoritesUpdated"));
         } else {
           toast.error(result.error || "Failed to remove from favorites");
@@ -71,9 +71,9 @@ export default function FavoriteButton({
           // Track favorite addition
           trackFavorite(product.id, product.name, "add");
           toast.success("Added to favorites");
-          // Refresh favorites context
+          // Only refresh favorites context, not the full count provider
           await refreshFavorites();
-          // Dispatch custom event to update header count
+          // Dispatch custom event to update header count (this will only update favorites count)
           window.dispatchEvent(new CustomEvent("favoritesUpdated"));
         } else {
           toast.error(result.error || "Failed to add to favorites");

@@ -81,23 +81,49 @@ export function CountProvider({
   useEffect(() => {
     if (!isHydrated || typeof window === "undefined") return;
 
-    let timeoutId: NodeJS.Timeout;
+    let favoritesTimeoutId: NodeJS.Timeout;
+    let cartTimeoutId: NodeJS.Timeout;
 
-    const debouncedRefresh = () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
+    const debouncedFavoritesRefresh = () => {
+      clearTimeout(favoritesTimeoutId);
+      favoritesTimeoutId = setTimeout(async () => {
         if (!isRefreshing) {
-          refreshCounts();
+          try {
+            const result = await getFavoriteProducts();
+            if (result.success) {
+              const newFavoritesCount = result.favorites?.length || 0;
+              setFavoritesCount(newFavoritesCount);
+            }
+          } catch (error) {
+            console.error("Error refreshing favorites count:", error);
+          }
         }
-      }, 1000); // Increased debounce to 1 second to reduce calls
+      }, 500); // Faster response for favorites
+    };
+
+    const debouncedCartRefresh = () => {
+      clearTimeout(cartTimeoutId);
+      cartTimeoutId = setTimeout(async () => {
+        if (!isRefreshing) {
+          try {
+            const result = await getCartItems();
+            if (result.success) {
+              const newCartCount = result.items?.length || 0;
+              setCartCount(newCartCount);
+            }
+          } catch (error) {
+            console.error("Error refreshing cart count:", error);
+          }
+        }
+      }, 500); // Faster response for cart
     };
 
     const handleFavoritesUpdate = () => {
-      debouncedRefresh();
+      debouncedFavoritesRefresh();
     };
 
     const handleCartUpdate = () => {
-      debouncedRefresh();
+      debouncedCartRefresh();
     };
 
     window.addEventListener("favoritesUpdated", handleFavoritesUpdate);
@@ -106,7 +132,8 @@ export function CountProvider({
     return () => {
       window.removeEventListener("favoritesUpdated", handleFavoritesUpdate);
       window.removeEventListener("cartUpdated", handleCartUpdate);
-      clearTimeout(timeoutId);
+      clearTimeout(favoritesTimeoutId);
+      clearTimeout(cartTimeoutId);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isHydrated, isRefreshing]); // Remove refreshCounts dependency

@@ -2,7 +2,7 @@
 
 import { PrismaClient } from "@prisma/client";
 import { auth } from "@/lib/auth";
-import { revalidatePath } from "next/cache";
+// import { revalidatePath } from "next/cache"; // Removed to prevent page refreshes
 
 const prisma = new PrismaClient();
 
@@ -102,7 +102,8 @@ export async function addToFavorites(productId: string) {
       },
     });
 
-    revalidatePath("/favorites");
+    // Note: We don't need revalidatePath here since we're using client-side state management
+    // The favorites count will be updated via the custom event dispatched in the component
     return { success: true };
   } catch (error) {
     console.error("Error adding to favorites:", error);
@@ -136,7 +137,8 @@ export async function removeFromFavorites(productId: string) {
       },
     });
 
-    revalidatePath("/favorites");
+    // Note: We don't need revalidatePath here since we're using client-side state management
+    // The favorites count will be updated via the custom event dispatched in the component
     return { success: true };
   } catch (error) {
     console.error("Error removing from favorites:", error);
