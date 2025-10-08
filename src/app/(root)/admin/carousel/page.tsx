@@ -558,7 +558,7 @@ function CarouselSlideForm({
                       fill
                       className="w-full h-full object-cover"
                       onError={(e) => {
-                        console.error("Image failed to load:", formData.image);                        
+                        console.error("Image failed to load:", formData.image);
                         e.currentTarget.style.display = "none";
                         const fallback = e.currentTarget
                           .nextElementSibling as HTMLElement;
@@ -613,20 +613,6 @@ function CarouselSlideForm({
                   <p className="text-xs text-green-600 mt-1">
                     Ready to use in your carousel
                   </p>
-                  <p className="text-xs text-gray-500 mt-1 break-all">
-                    URL: {formData.image}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      console.log("Current form data:", formData);
-                      console.log("Image URL:", formData.image);
-                      alert(`Image URL: ${formData.image}`);
-                    }}
-                    className="text-xs text-blue-600 hover:text-blue-800 underline mt-1"
-                  >
-                    Debug: Check Image URL
-                  </button>
                 </div>
               </div>
             </div>
