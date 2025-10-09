@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useMemo, useState, useEffect } from "react";
 import EmptyState from "./EmptyState";
 import { Package } from "lucide-react";
+import ReviewSummary from "./reviews/ReviewSummary";
 
 interface Product {
   id: string;
@@ -248,12 +249,11 @@ export default function MoreProductsGrid() {
                     {product.category.name}
                   </span>
                   {product.rating > 0 && (
-                    <div className="flex items-center gap-1">
-                      <span className="text-yellow-500">★</span>
-                      <span className="text-sm text-muted-foreground">
-                        {product.rating} ({product.reviewCount})
-                      </span>
-                    </div>
+                    <ReviewSummary
+                      averageRating={product.rating}
+                      totalReviews={product.reviewCount}
+                      size="sm"
+                    />
                   )}
                 </div>
 

@@ -11,6 +11,7 @@ import { Button } from "./ui/button";
 import { useSession } from "next-auth/react";
 import { Skeleton } from "./ui/skeleton";
 import EmptyState from "./EmptyState";
+import ReviewSummary from "./reviews/ReviewSummary";
 
 interface Product {
   id: string;
@@ -292,6 +293,16 @@ function ProductGrid({
                 <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
                   {product.shortDescription || product.description}
                 </p>
+
+                {/* Review Summary */}
+                <div className="mb-4">
+                  <ReviewSummary
+                    averageRating={product.rating}
+                    totalReviews={product.reviewCount}
+                    size="sm"
+                  />
+                </div>
+
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-2xl font-bold text-foreground">

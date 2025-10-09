@@ -16,6 +16,14 @@ import {
   Search,
   Bell,
   Shield,
+  ChevronDown,
+  Settings,
+  BarChart3,
+  Package,
+  Star,
+  Users,
+  Image as ImageIcon,
+  ShoppingCart,
 } from "lucide-react";
 import Image from "next/image";
 import logo from "../../public/assets/logos/logo.png";
@@ -34,6 +42,7 @@ function HeaderClient({}: HeaderClientProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showAdminDropdown, setShowAdminDropdown] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const { cartCount, favoritesCount, isRefreshing } = useCounts();
   const { data: session, status } = useSession();
@@ -60,6 +69,26 @@ function HeaderClient({}: HeaderClientProps) {
     setIsMounted(true);
   }, []);
 
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showAdminDropdown) {
+        const target = event.target as Element;
+        if (!target.closest("[data-admin-dropdown]")) {
+          setShowAdminDropdown(false);
+        }
+      }
+    };
+
+    if (showAdminDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showAdminDropdown]);
+
   useEffect(() => {
     if (!isMounted) return;
 
@@ -84,7 +113,17 @@ function HeaderClient({}: HeaderClientProps) {
     { name: "About", href: "/about", icon: Clock },
     { name: "Contact", href: "/contact", icon: Heart },
     { name: "Profile", href: "/profile", icon: User },
-    { name: "Admin", href: "/admin", icon: Shield },
+  ];
+
+  const adminLinks = [
+    { name: "Dashboard", href: "/admin", icon: BarChart3 },
+    { name: "Products", href: "/admin/products", icon: Package },
+    { name: "Reviews", href: "/admin/reviews", icon: Star },
+    { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
+    { name: "Customers", href: "/admin/customers", icon: Users },
+    { name: "Categories", href: "/admin/categories", icon: Award },
+    { name: "Carousel", href: "/admin/carousel", icon: ImageIcon },
+    { name: "Settings", href: "/admin/settings", icon: Settings },
   ];
 
   const quickStats = [
@@ -206,6 +245,56 @@ function HeaderClient({}: HeaderClientProps) {
                 )}
               </Link>
 
+              {/* Admin Dropdown - Only show for authenticated users */}
+              {(status === "authenticated" || session) && (
+                <div className="relative" data-admin-dropdown>
+                  <button
+                    onClick={() => setShowAdminDropdown(!showAdminDropdown)}
+                    className="flex items-center space-x-1 p-2 rounded-xl text-gray-600 hover:text-amber-700 hover:bg-amber-50/50 transition-all duration-300 hover:scale-110"
+                  >
+                    <Shield className="w-5 h-5" />
+                    <ChevronDown className="w-3 h-3" />
+                  </button>
+
+                  {/* Admin Dropdown Menu */}
+                  {showAdminDropdown && (
+                    <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-2xl border border-amber-200/50 py-2 z-50">
+                      <div className="px-4 py-2 border-b border-amber-200/50">
+                        <h3 className="text-sm font-semibold text-gray-900">
+                          Admin Panel
+                        </h3>
+                        <p className="text-xs text-gray-500">
+                          Manage your store
+                        </p>
+                      </div>
+                      <div className="py-2">
+                        {adminLinks.map((link) => {
+                          const isActive = pathname === link.href;
+                          return (
+                            <Link
+                              key={link.name}
+                              href={link.href}
+                              className={`flex items-center space-x-3 px-4 py-2 text-sm transition-colors duration-200 ${
+                                isActive
+                                  ? "bg-amber-50 text-amber-700 border-r-2 border-amber-500"
+                                  : "text-gray-700 hover:bg-amber-50/50 hover:text-amber-700"
+                              }`}
+                              onClick={() => setShowAdminDropdown(false)}
+                            >
+                              <link.icon className="w-4 h-4" />
+                              <span>{link.name}</span>
+                              {isActive && (
+                                <div className="ml-auto w-2 h-2 bg-amber-500 rounded-full" />
+                              )}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {status === "loading" && (
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 bg-amber-100 rounded-full animate-pulse" />
@@ -305,6 +394,37 @@ function HeaderClient({}: HeaderClientProps) {
                   ))}
                 </div>
               </div>
+
+              {/* Mobile Admin Section - Only show for authenticated users */}
+              {(status === "authenticated" || session) && (
+                <div className="border-t border-amber-200/50 pt-4 mt-4">
+                  <div className="mb-4">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">
+                      Admin Panel
+                    </h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      {adminLinks.map((link) => {
+                        const isActive = pathname === link.href;
+                        return (
+                          <Link
+                            key={link.name}
+                            href={link.href}
+                            className={`flex items-center space-x-2 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
+                              isActive
+                                ? "bg-amber-50 text-amber-700 border border-amber-200"
+                                : "text-gray-700 hover:bg-amber-50/50 hover:text-amber-700 border border-gray-200"
+                            }`}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            <link.icon className="w-4 h-4" />
+                            <span className="truncate">{link.name}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Mobile Authentication */}
               <div className="border-t border-amber-200/50 pt-4 mt-4">
