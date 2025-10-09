@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, Star } from "lucide-react";
 import ProductDetailClient from "./ProductDetailClient";
+import ProductReviews from "./reviews/ProductReviews";
 import { ProductItem } from "../../types/products.types";
 
 interface ProductDetailServerProps {
@@ -105,6 +106,15 @@ export default function ProductDetailServer({
               )}
             </div>
           </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="mt-16">
+          <ProductReviews
+            productId={product.id}
+            productName={product.name}
+            showReviewForm={true}
+          />
         </div>
       </div>
     </main>
